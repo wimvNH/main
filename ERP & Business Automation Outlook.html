@@ -1,0 +1,385 @@
+!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP & Business Automation Magazine</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            line-height: 1.6;
+        }
+        .magazine-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            transition: transform 0.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .magazine-card:hover {
+            transform: translateY(-5px);
+        }
+        .section-heading {
+            border-bottom: 3px solid #3b82f6; /* Blue accent for headings */
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .btn-update {
+            background-image: linear-gradient(to right, #4ade80, #22c55e);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px; /* Fully rounded */
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            cursor: pointer;
+        }
+        .btn-update:hover {
+            background-image: linear-gradient(to right, #22c55e, #16a34a);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        /* Tab styles */
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+            background-color: #e2e8f0; /* Light gray */
+            color: #4a5568; /* Darker gray text */
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            border: none;
+        }
+        .tab-button.active {
+            background-color: #3b82f6; /* Blue */
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .tab-button:hover:not(.active) {
+            background-color: #cbd5e1; /* Slightly darker gray on hover */
+        }
+        .tab-content {
+            display: none;
+            padding: 1.5rem;
+            background-color: #ffffff;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            min-height: 400px; /* Ensure content area is sufficiently large */
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 md:p-8">
+
+    <!-- Header Section -->
+    <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 md:p-10 rounded-xl shadow-lg mb-8 text-center">
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">ERP & Business Automation Outlook</h1>
+        <p class="text-md sm:text-lg opacity-90 mb-2">Uw bron voor de nieuwste functies, benaderingen en trends</p>
+        <p class="text-sm opacity-70">Door Wim Vanhoorne</p>
+        <div class="mt-4 text-sm opacity-80" id="last-updated"></div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <div class="flex flex-wrap justify-center mb-6">
+        <button class="tab-button active" onclick="openTab(event, 'algemene-trends')">Algemene Trends</button>
+        <button class="tab-button" onclick="openTab(event, 'implementatie-methodologieen')">Implementatie Methodologieën</button>
+        <button class="tab-button" onclick="openTab(event, 'innovatie-regelgeving')">Innovatie & Regelgeving</button>
+        <button class="tab-button" onclick="openTab(event, 'vlaamse-kmos')">Innovatie Vlaamse KMO's</button>
+    </div>
+
+    <!-- Main Content Grid - Wrapped in Tab Panels -->
+    <main class="container mx-auto">
+
+        <!-- Tab 1: Algemene Trends (Existing Content) -->
+        <div id="algemene-trends" class="tab-content active grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- ERP Software - General Trends & Features -->
+            <section class="md:col-span-1">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 section-heading">ERP Software Trends</h2>
+                <div class="grid grid-cols-1 gap-6">
+                    <article class="magazine-card">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">AI & Machine Learning Integratie</h3>
+                            <p class="text-gray-700 text-sm mb-4">ERP-systemen worden voorspellender, efficiënter en klantgerichter door de integratie van AI en ML, wat geautomatiseerde besluitvorming en real-time inzichten mogelijk maakt.</p>
+                        </div>
+                        <a href="https://www.acumatica.com/blog/7-trends-shaping-the-future-of-cloud-erp-in-2025/" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+                    </article>
+
+                    <article class="magazine-card">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Cloud ERP Dominantie</h3>
+                            <p class="text-gray-700 text-sm mb-4">De verschuiving van on-premises naar cloud ERP versnelt, waarbij bedrijven steeds vaker hybride en multi-cloud strategieën omarmen voor verbeterde schaalbaarheid, flexibiliteit en kostenefficiëntie.</p>
+                        </div>
+                        <a href="https://www.panorama-consulting.com/the-future-of-erp-trends-to-adopt-in-2025/" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+                    </article>
+
+                    <article class="magazine-card">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Hyperautomatisering & Low-Code/No-Code</h3>
+                            <p class="text-gray-700 text-sm mb-4">Hyperautomatisering (integratie van RPA, AI, ML) stroomlijnt end-to-end workflows. Low-code/no-code platforms stellen niet-technische gebruikers in staat om automatiseringsoplossingen sneller te implementeren.</p>
+                        </div>
+                        <a href="https://www.cflowapps.com/business-process-automation-trends/" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+                    </article>
+
+                    <article class="magazine-card">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Industriespecifieke & Voorspellende Analyses</h3>
+                            <p class="text-gray-700 text-sm mb-4">ERP-oplossingen worden sterk afgestemd op specifieke industrieën. Voorspellende analyses, aangedreven door AI, maken proactieve besluitvorming en strategische planning mogelijk op basis van historische gegevens.</p>
+                        </div>
+                        <a href="https://www.sap.com/swiss/design/stories-resources/ai-is-changing-the-future-of-erp-ux" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Business Automation - General Trends & Features -->
+            <section class="md:col-span-1">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 section-heading">Business Automation Trends</h2>
+                <div class="grid grid-cols-1 gap-6">
+                    <article class="magazine-card">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">AI-gedreven Workflows & Generatieve AI</h3>
+                            <p class="text-gray-700 text-sm mb-4">AI transformeert workflows met slimmere besluitvorming en procesoptimalisatie. Generatieve AI is een game-changer, die autonoom inhoud, code en oplossingen creëert.</p>
+                        </div>
+                        <a href="https://www.imbrace.co/top-business-automation-trends-to-watch-in-2025/" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+                    </article>
+
+                    <article class="magazine-card">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Intelligente Procesdetectie & Data-integratie</h3>
+                            <p class="text-gray-700 text-sm mb-4">Bedrijven adopteren AI-aangedreven tools om workflows in kaart te brengen, te analyseren en te verbeteren. Robuuste data-integratie biedt real-time verwerking en uniforme dashboards uit meerdere bronnen.</p>
+                        </div>
+                        <a href="https://www.venasolutions.com/blog/automation-statistics" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+                    </article>
+
+                    <article class="magazine-card">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Gepersonaliseerde CX & Agentic AI</h3>
+                            <p class="text-gray-700 text-sm mb-4">Automatisering in CRM maakt gebruik van AI voor gepersonaliseerde klantinteracties. Agentic AI maakt autonome acties en besluitvorming mogelijk, waardoor menselijke tussenkomst in processen wordt verminderd.</p>
+                        </div>
+                        <a href="https://www.microsoft.com/en-us/dynamics-365/blog/business-leader/2025/05/09/a-new-era-in-business-processes-ai-agents-for-erp/" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+                    </article>
+
+                    <article class="magazine-card">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">IoT & Blockchain Integratie</h3>
+                            <p class="text-gray-700 text-sm mb-4">De integratie van IoT met bedrijfsautomatisering maakt real-time gegevensverzameling en geautomatiseerde besluitvorming mogelijk. Blockchain-technologie verbetert de beveiliging en transparantie.</p>
+                        </div>
+                        <a href="https://www.panorama-consulting.com/the-future-of-erp-trends-to-adopt-in-2025/" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Microsoft Focus -->
+            <section class="md:col-span-1">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 section-heading">Microsoft Focus</h2>
+                <div class="grid grid-cols-1 gap-6">
+                    <article class="magazine-card">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Dynamics 365 Copilots & AI Agents</h3>
+                            <p class="text-gray-700 text-sm mb-4">Microsoft integreert generatieve AI via Copilots rechtstreeks in Dynamics 365. Nieuwe AI-agenten voor uitgaven, tijdsregistratie, goedkeuringen, rekeningafstemming en leverancierscommunicatie zijn in publieke preview, wat de productiviteit verhoogt.</p>
+                        </div>
+                        <a href="https://www.microsoft.com/en-us/dynamics-365/blog/business-leader/2025/05/09/a-new-era-in-business-processes-ai-agents-for-erp/" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+                    </article>
+
+                    <article class="magazine-card">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Geïntegreerd Microsoft Ecosysteem</h3>
+                            <p class="text-gray-700 text-sm mb-4">Microsoft biedt een samenhangend ecosysteem dat Dynamics 365, Power Platform, Azure AI-services en de Microsoft 365 productiviteitssuite combineert, wat zorgt voor een uniforme en verbeterde bedrijfsvoering.</p>
+                        </div>
+                        <a href="https://www.alletec.com/blog/ai-and-cloud-are-redefining-business-applications-in-the-microsoft-ecosystem" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+                    </article>
+
+                    <article class="magazine-card">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Business Central voor KMO's</h3>
+                            <p class="text-gray-700 text-sm mb-4">Microsoft Dynamics 365 Business Central biedt AI-gedreven inzichten voor KMO's, ter ondersteuning van klantgedragsanalyse, voorraadprognoses en verkoopprognoses, terwijl de naleving van evoluerende regelgeving wordt gewaarborgd.</p>
+                        </div>
+                        <a href="https://www.itvision.pl/en/thinking-about-erp-in-2025-heres-why-business-central-stands-out/" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+                    </article>
+
+                    <article class="magazine-card">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Power Platform & Release Waves</h3>
+                            <p class="text-gray-700 text-sm mb-4">Het Power Platform, samen met Copilot Studio, maakt low-code/no-code aanpassing voor ERP mogelijk. Microsoft's tweejaarlijkse Release Wave-plannen (bijv. 2025 Wave 1) beschrijven aankomende functies die sterk gericht zijn op AI en automatisering in al haar producten.</p>
+                        </div>
+                        <a href="https://learn.microsoft.com/en-us/dynamics365/release-plan/2025wave1/" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+                    </article>
+                </div>
+            </section>
+        </div>
+
+        <!-- Tab 2: Nieuwe trends in software and automation implementation methodologies -->
+        <div id="implementatie-methodologieen" class="tab-content grid grid-cols-1 md:grid-cols-2 gap-6">
+            <article class="magazine-card">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Agile & DevOps Adoptie</h3>
+                    <p class="text-gray-700 text-sm mb-4">De adoptie van Agile en DevOps methodologieën blijft groeien voor iteratieve ontwikkeling en continue levering van automatiseringsprojecten, met de nadruk op cross-functionele teams en snelle feedbackcycli.</p>
+                </div>
+                <a href="#" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+            </article>
+            <article class="magazine-card">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Low-Code/No-Code (LCNC) Implementatie</h3>
+                    <p class="text-gray-700 text-sm mb-4">LCNC-platforms versnellen 'citizen development' en de implementatie van automatiseringsoplossingen, waardoor automatisering wordt gedemocratiseerd en de time-to-market wordt verkort.</p>
+                </div>
+                <a href="#" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+            </article>
+            <article class="magazine-card">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Geïntegreerd Verandermanagement</h3>
+                    <p class="text-gray-700 text-sm mb-4">Het besef groeit dat succesvolle technologie-adoptie een sterke, mensgerichte aanpak van verandermanagement vereist, naast de technische implementatie.</p>
+                </div>
+                <a href="#" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+            </article>
+            <article class="magazine-card">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Modulaire & Composeerbare Architecturen</h3>
+                    <p class="text-gray-700 text-sm mb-4">De trend naar het implementeren van automatisering in kleinere, herbruikbare blokken (microservices, API's) wint aan terrein voor verhoogde flexibiliteit en schaalbaarheid in complexe systemen.</p>
+                </div>
+                <a href="#" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+            </article>
+        </div>
+
+        <!-- Tab 3: Nieuwe innovatietrends in business met speciale aandacht aan dingen zoals regelgeving tendenzen die bedrijven verplichten om te veranderen -->
+        <div id="innovatie-regelgeving" class="tab-content grid grid-cols-1 md:grid-cols-2 gap-6">
+            <article class="magazine-card">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">ESG Rapportageverplichtingen</h3>
+                    <p class="text-gray-700 text-sm mb-4">Toenemende verplichte rapportagevereisten voor duurzaamheidsmetrieken dwingen bedrijven om ESG-gegevens te integreren in hun operationele systemen, inclusief ERP.</p>
+                </div>
+                <a href="#" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+            </article>
+            <article class="magazine-card">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">AI Ethiek & Bestuur</h3>
+                    <p class="text-gray-700 text-sm mb-4">Opkomende wereldwijde regelgeving (bijv. EU AI Act) dwingt bedrijven om transparantie, eerlijkheid en verantwoording in hun AI-implementaties te overwegen, vooral in automatisering en besluitvorming.</p>
+                </div>
+                <a href="#" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+            </article>
+            <article class="magazine-card">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Gegevensprivacy & Gegevenssoevereiniteit</h3>
+                    <p class="text-gray-700 text-sm mb-4">Een voortdurende aanscherping van wetten op gegevensbescherming (zoals GDPR) vereist dat bedrijven robuuste strategieën voor gegevensbeheer, toestemming en lokalisatie implementeren.</p>
+                </div>
+                <a href="#" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+            </article>
+            <article class="magazine-card">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Cyberbeveiligingsresilientie</h3>
+                    <p class="text-gray-700 text-sm mb-4">Verhoogde focus op proactieve cyberbeveiligingsmaatregelen en naleving van regelgeving (bijv. NIS2-richtlijn in de EU) als gevolg van toenemende bedreigingen, wat investeringen in veilige automatisering stimuleert.</p>
+                </div>
+                <a href="#" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+            </article>
+        </div>
+
+        <!-- Tab 4: Een overzicht van innoverende dingen bij top innoverende berdrijven in vlaanderen die een technologie aanbieden die voor veel vlaamse KMO's een meerwaarde kan hebben. -->
+        <div id="vlaamse-kmos" class="tab-content grid grid-cols-1 md:grid-cols-2 gap-6">
+            <article class="magazine-card">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Digitalisering & Procesoptimalisatie</h3>
+                    <p class="text-gray-700 text-sm mb-4">Vlaamse KMO's innoveren met diensten en software die bedrijfsprocessen stroomlijnen, vaak via de inzet van Low-Code/No-Code platforms en geavanceerde automatiseringstools, wat de efficiëntie voor andere KMO's verhoogt.</p>
+                </div>
+                <a href="#" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+            </article>
+            <article class="magazine-card">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Data-Analyse & AI-Toepassingen</h3>
+                    <p class="text-gray-700 text-sm mb-4">Innoverende bedrijven in Vlaanderen ontwikkelen AI-gedreven oplossingen voor data-analyse, voorspellende modellen en gepersonaliseerde klantinteracties, specifiek afgestemd op de behoeften van KMO's met kleinere datasets.</p>
+                </div>
+                <a href="#" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+            </article>
+            <article class="magazine-card">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Duurzaamheidstechnologieën</h3>
+                    <p class="text-gray-700 text-sm mb-4">Een groeiend aantal Vlaamse KMO's focust op duurzame innovaties, van energie-efficiënte systemen tot oplossingen voor de circulaire economie en afvalbeheer, die andere KMO's helpen hun ESG-doelen te bereiken.</p>
+                </div>
+                <a href="#" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+            </article>
+            <article class="magazine-card">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Cyberbeveiligingsoplossingen</h3>
+                    <p class="text-gray-700 text-sm mb-4">Gespecialiseerde en toegankelijke cyberbeveiligingsdiensten en -tools worden ontwikkeld door Vlaamse innovatoren om KMO's te beschermen tegen de toenemende dreiging van cyberaanvallen, vaak met een focus op gebruiksgemak.</p>
+                </div>
+                <a href="#" target="_blank" class="text-blue-600 hover:underline text-sm font-medium">Lees Meer &rarr;</a>
+            </article>
+        </div>
+
+    </main>
+
+    <!-- Update Button Section -->
+    <div class="text-center mt-10 mb-8">
+        <button id="updateContentBtn" class="btn-update">Inhoud Bijwerken</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const lastUpdatedElement = document.getElementById('last-updated');
+            const updateContentBtn = document.getElementById('updateContentBtn');
+
+            // Function to set the last updated time
+            function setLastUpdated() {
+                const now = new Date();
+                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                lastUpdatedElement.textContent = `Laatst Bijgewerkt: ${now.toLocaleDateString('nl-BE', options)}`;
+            }
+
+            // Initial call to set the time
+            setLastUpdated();
+
+            // Function to handle tab switching
+            window.openTab = (evt, tabName) => {
+                // Declare all variables
+                let i, tabcontent, tablinks;
+
+                // Get all elements with class="tab-content" and hide them
+                tabcontent = document.getElementsByClassName("tab-content");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+
+                // Get all elements with class="tab-button" and remove the class "active"
+                tablinks = document.getElementsByClassName("tab-button");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+
+                // Show the current tab, and add an "active" class to the button that opened the tab
+                document.getElementById(tabName).style.display = "grid"; // Use grid for content inside tabs
+                evt.currentTarget.className += " active";
+            }
+
+            // Event listener for the update button (simulated update)
+            updateContentBtn.addEventListener('click', () => {
+                // In een echte applicatie zou dit een fetch naar een backend
+                // of een her-rendering van dynamische inhoud activeren.
+                // Voor deze statische HTML zullen we alleen de tijdstempel bijwerken.
+                setLastUpdated();
+                // Instead of alert(), use a custom message box for better UX in an iframe.
+                // For simplicity, a console log is used here.
+                console.log('Inhoudsopdate gesimuleerd! In een echte applicatie zou dit nieuwe gegevens ophalen.');
+                // You could also add a temporary message on the page itself
+                const messageDiv = document.createElement('div');
+                messageDiv.textContent = 'Inhoudsopdate gesimuleerd!';
+                messageDiv.className = 'absolute top-0 right-0 mt-4 mr-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg transition-opacity duration-300 opacity-0';
+                document.body.appendChild(messageDiv);
+                setTimeout(() => {
+                    messageDiv.style.opacity = '1';
+                }, 10);
+                setTimeout(() => {
+                    messageDiv.style.opacity = '0';
+                    messageDiv.addEventListener('transitionend', () => messageDiv.remove());
+                }, 3000);
+            });
+        });
+    </script>
+</body>
+</html>
