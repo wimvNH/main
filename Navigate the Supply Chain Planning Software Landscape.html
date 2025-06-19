@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive SCP Software Decision Hub by Wim Vanhoorne</title>
+    <!-- Chosen Palette: Calm Neutral Harmony -->
+    <!-- Application Structure Plan: The application is structured as a "Decision Hub" to guide users from a broad market overview to specific, actionable insights. The flow is: 1. **Overview:** An introductory section with a high-level bubble chart to orient the user to the market landscape based on company size and implementation complexity. 2. **Vendor Comparison:** The core interactive tool. Users can filter a grid of vendor cards by company size and target industry. They can also select vendors for a direct side-by-side comparison. This empowers users to quickly narrow the field. 3. **Deep Dive:** A dedicated section that dynamically displays a detailed profile of a single selected vendor, including qualitative data and a quantitative radar chart for a visual "strengths fingerprint." 4. **Strategic Recommendations:** An interactive Q&A format that provides tailored suggestions based on the user's business scenario. This structure mirrors a logical decision-making process, making the dense report content accessible and actionable. -->
+    <!-- Visualization & Content Choices: 1. **Market Overview (Bubble Chart, Chart.js):** Goal: Instant market orientation. Viz: Bubble chart mapping Company Size vs. Implementation Complexity. Interaction: Hover for details. Justification: Shows 3 dimensions of data visually and intuitively. 2. **Vendor Strengths (Radar Chart, Chart.js):** Goal: Visualize a vendor's "fingerprint." Viz: Radar chart scoring vendors on key capabilities (e.g., Forecasting, AI/ML, Usability). Interaction: Dynamically generated on vendor selection. Justification: Excellent for multi-variable comparison. 3. **Cost Indicators (HTML/CSS):** Goal: Show relative cost without false precision. Viz: Text-based dollar signs ($ to $$$$$). Interaction: Tooltip on hover. Justification: More honest representation of qualitative cost data from the report. 4. **Vendor Comparison (Filterable Cards, JS/HTML/CSS):** Goal: Allow users to find relevant solutions. Viz: A grid of cards. Interaction: Filters for industry/size hide/show cards. Justification: A modern, responsive, and intuitive way to handle complex filtering and comparison tasks. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+            color: #1e293b; /* slate-800 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            max-height: 50vh;
+        }
+        .section-title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #0f172a; /* slate-900 */
+            margin-bottom: 1rem;
+        }
+        .section-subtitle {
+            font-size: 1.125rem;
+            color: #475569; /* slate-600 */
+            max-width: 48rem;
+            margin: 0 auto 3rem auto;
+        }
+        .nav-link {
+            transition: color 0.3s;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #0d9488; /* teal-600 */
+        }
+        .vendor-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .vendor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        [data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.5rem 0.75rem;
+            background-color: #1e293b;
+            color: white;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            z-index: 10;
+            margin-bottom: 0.5rem;
+        }
+        [data-tooltip] {
+            position: relative;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            max-width: 90vw;
+            width: 1200px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-40 border-b border-slate-200">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-slate-800">SCP Decision Hub</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#overview" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700">Overview</a>
+                        <a href="#comparison" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700">Compare Vendors</a>
+                        <a href="#deep-dive" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700">Deep Dive</a>
+                        <a href="#recommendations" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700">Recommendations</a>
+                    </div>
+                </div>
+                 <div class="md:hidden">
+                    <select id="mobile-nav" class="bg-white border border-slate-300 rounded-md py-2 px-3 text-sm">
+                        <option value="#overview">Overview</option>
+                        <option value="#comparison">Compare Vendors</option>
+                        <option value="#deep-dive">Deep Dive</option>
+                        <option value="#recommendations">Recommendations</option>
+                    </select>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Section 1: Overview -->
+        <section id="overview" class="py-16 md:py-24 text-center">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-slate-900">Navigate the Supply Chain Planning Software Landscape</h1>
+                <p class="mt-2 text-lg text-slate-600">by Wim Vanhoorne</p>
+                <p class="mt-6 max-w-3xl mx-auto text-lg text-slate-600">
+                    Advanced Supply Chain Planning (SCP) software is no longer an operational tool—it's a strategic asset for resilience and profitability. This hub transforms a comprehensive market analysis into an interactive experience, helping you find the perfect solution for your organization's unique needs.
+                </p>
+
+                <div class="mt-12">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4">Market At a Glance: Vendor Positioning</h2>
+                    <p class="max-w-2xl mx-auto text-slate-600 mb-8">This chart visualizes the SCP landscape, positioning major vendors based on the typical company size they serve and the relative complexity of their implementation. Bubble size indicates the vendor's market presence. Use this to get a quick feel for which solutions might be a good fit for your scale.</p>
+                    <div class="chart-container mx-auto max-w-4xl">
+                        <canvas id="overviewBubbleChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Vendor Comparison -->
+        <section id="comparison" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="section-title">Interactive Vendor Comparison</h2>
+                    <p class="section-subtitle">
+                        Finding the right SCP software starts with understanding your options. Use the filters below to narrow down the vendors based on your company size and industry focus. Select up to three vendors to compare their features, strengths, and weaknesses side-by-side.
+                    </p>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex flex-col md:flex-row gap-4 mb-8 p-4 bg-slate-50 rounded-lg border border-slate-200 justify-center">
+                    <div>
+                        <label for="sizeFilter" class="block text-sm font-medium text-slate-700 mb-1">Company Size</label>
+                        <select id="sizeFilter" class="w-full md:w-auto rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500">
+                            <option value="all">All Sizes</option>
+                            <option value="mid">Mid-Sized</option>
+                            <option value="large">Large Enterprise</option>
+                            <option value="broad">Broad Range</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="industryFilter" class="block text-sm font-medium text-slate-700 mb-1">Industry Focus</label>
+                        <select id="industryFilter" class="w-full md:w-auto rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500">
+                            <option value="all">All Industries</option>
+                        </select>
+                    </div>
+                    <div class="self-end">
+                         <button id="compareBtn" class="w-full md:w-auto bg-teal-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-teal-700 transition disabled:bg-slate-400 disabled:cursor-not-allowed" disabled>
+                            Compare Selected (0)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Vendor Cards -->
+                <div id="vendorGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Vendor cards will be inserted here by JavaScript -->
+                </div>
+                 <p id="noResults" class="text-center text-slate-500 py-8 hidden">No vendors match the selected criteria.</p>
+            </div>
+        </section>
+
+        <!-- Section 3: Deep Dive -->
+        <section id="deep-dive" class="py-16 md:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="section-title">Vendor Deep Dive</h2>
+                    <p class="section-subtitle">
+                        Select a vendor from the comparison section above to see a detailed profile. Here you can explore their core functionalities, weigh their pros and cons, and see a visual breakdown of their strengths with our capability radar chart.
+                    </p>
+                </div>
+                <div id="deepDiveContent" class="bg-white p-6 md:p-10 rounded-lg shadow-lg max-w-6xl mx-auto min-h-[300px] flex items-center justify-center">
+                     <p class="text-slate-500 text-center">Click "Learn More" on a vendor card to see details here.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Recommendations -->
+        <section id="recommendations" class="py-16 md:py-24 bg-white">
+             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="section-title">Strategic Recommendations</h2>
+                    <p class="section-subtitle">
+                        The "best" solution is always contextual. Based on the report's findings, we've outlined tailored recommendations for common business scenarios. Select the profile that best matches your organization to see which solutions are likely the strongest fit.
+                    </p>
+                </div>
+                <div class="max-w-4xl mx-auto">
+                    <div id="recommendationAccordion" class="space-y-4">
+                        <!-- Recommendation items will be inserted here by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="bg-slate-800 text-white">
+        <div class="container mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+            <p>SCP Software Decision Hub</p>
+            <p class="text-sm text-slate-400 mt-2">An interactive summary of the 'Comprehensive Comparison of Leading Supply Chain Planning Software' report.</p>
+        </div>
+    </footer>
+    
+    <!-- Comparison Modal -->
+    <div id="comparisonModal" class="modal-overlay hidden">
+        <div id="modalContent" class="modal-content relative">
+            <button id="closeModalBtn" class="absolute top-4 right-4 text-slate-500 hover:text-slate-800 text-2xl font-bold">&times;</button>
+            <div id="modalGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Comparison columns will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const vendorData = [
+            {
+                id: 'slimstock',
+                name: 'SlimStock (Slim4)',
+                tagline: 'Balanced performer with strong support and broad industry coverage.',
+                size: ['broad'],
+                industries: ['Manufacturing', 'Wholesale', 'Retail', 'E-commerce', 'MRO', 'Automotive', 'Pharma & Healthcare', 'Building Materials & DIY', 'Consumer Goods', 'Fashion', 'Food & Grocery', 'Industrial Components', 'Mining', 'Paper & Packaging', 'Sanitary & Climate'],
+                bubble: { x: 2, y: 2, r: 15 }, 
+                functionalities: ['Demand Management', 'Inventory Management', 'Supply Chain Planning', 'Integrated Business Planning (S&OP/IBP)'],
+                keyFeatures: ['AI/ML for dynamic forecasting', 'Automated product classification', 'Real-time alerts', 'Seamless ERP integration'],
+                pros: [
+                    'Improved forecast accuracy & efficiency',
+                    'High level of automation frees up planners',
+                    'User-friendly interface and straightforward implementation',
+                    'Strong, hands-on vendor support',
+                    'Proven positive impact on sales and profitability',
+                ],
+                cons: [
+                    'Potential limitations for highly fluctuating, volatile demand patterns',
+                    'Some specific features might be missing for niche use cases',
+                ],
+                costs: {
+                    license: { score: 3, text: "Custom enterprise pricing. Not public." },
+                    implementation: { score: 2, text: "Relatively straightforward and efficient, suggesting lower comparative cost." },
+                },
+                companySize: "Broad range: <$50M to >$10B revenue.",
+                radarData: {
+                    labels: ['Forecasting', 'Inventory Opt.', 'S&OP/IBP', 'AI/ML', 'Usability', 'Implementation Ease'],
+                    values: [4, 4, 4, 4, 4, 5]
+                },
+                profile: "SlimStock's Slim4 is a comprehensive platform known for its robust end-to-end planning capabilities and data-driven insights. It excels in delivering improved forecast accuracy and efficiency gains through a highly automated, AI-driven engine. Praised for its user-friendly interface and a relatively straightforward implementation process backed by strong vendor support, Slim4 is a strong contender for mid-sized to large companies across a wide variety of industries seeking a balanced, high-value solution."
+            },
+            {
+                id: 'kinaxis',
+                name: 'Kinaxis RapidResponse',
+                tagline: 'The leader in real-time concurrent planning for ultimate agility.',
+                size: ['large'],
+                industries: ['Aerospace & Defense', 'Automotive', 'Consumer Products', 'High-Tech & Electronics', 'Industrial', 'Life Sciences'],
+                bubble: { x: 3, y: 4, r: 20 },
+                functionalities: ['Concurrent Planning', 'Control Tower', 'S&OP', 'Demand & Supply Planning', 'Inventory Management'],
+                keyFeatures: ['True concurrent planning engine', 'Digital supply chain twin', 'Powerful "what-if" scenario modeling', 'ERP-agnostic'],
+                pros: [
+                    'Game-changing speed and agility with real-time recalculations',
+                    'Exceptional for managing volatile, complex supply chains',
+                    'Strong scenario planning capabilities',
+                    'High scalability and flexibility',
+                    'Proven to deliver massive cost reductions'
+                ],
+                cons: [
+                    'High complexity for advanced setup and customization',
+                    'Steep learning curve for average planners',
+                    'Training can be costly',
+                    'Support for 3rd party add-ons can be slow'
+                ],
+                costs: {
+                    license: { score: 4, text: "Custom enterprise pricing. Not public." },
+                    implementation: { score: 4, text: "High, can range from $50k to several hundred thousand dollars." },
+                },
+                companySize: "Primarily large enterprises and global organizations.",
+                radarData: {
+                    labels: ['Forecasting', 'Inventory Opt.', 'S&OP/IBP', 'AI/ML', 'Usability', 'Implementation Ease'],
+                    values: [4, 4, 5, 4, 3, 3]
+                },
+                profile: "Kinaxis stands out with its unique concurrent planning methodology, allowing the entire supply chain plan to be updated in real-time in response to any change. This makes it a powerhouse for agility and rapid decision-making in volatile industries. While the platform is incredibly powerful and delivers proven, significant ROI for large enterprises, its complexity means a higher barrier to entry and a substantial investment in implementation and training."
+            },
+            {
+                id: 'blueyonder',
+                name: 'Blue Yonder',
+                tagline: 'Comprehensive end-to-end suite for large, complex enterprises.',
+                size: ['large'],
+                industries: ['Retail', 'Distribution', 'Manufacturing', 'Consumer Goods', 'Automotive', 'Logistics'],
+                bubble: { x: 3, y: 5, r: 25 },
+                functionalities: ['End-to-End SCP', 'Logistics & Execution', 'Omnichannel Commerce', 'Production Planning'],
+                keyFeatures: ['Predictive & AI-driven disruption resolution', 'Highly scalable and customizable', 'Covers planning, logistics, and commerce', 'Strong system stability'],
+                pros: [
+                    'Truly comprehensive, integrated suite of applications',
+                    'Advanced AI and analytics capabilities',
+                    'Highly scalable and stable for large-scale operations',
+                    'Extensive customization options',
+                    'Proven impact on cost savings and forecast accuracy'
+                ],
+                cons: [
+                    'Very high implementation cost and long deployment times',
+                    'Can be too extensive and complex for smaller businesses',
+                    'Some reports of performance delays with large datasets',
+                    'Vendor relationship and support response times have been criticized'
+                ],
+                costs: {
+                    license: { score: 5, text: "High custom enterprise pricing, typically starts $100k+ annually." },
+                    implementation: { score: 5, text: "Very high, typically starts $100k+ and can be much more." },
+                },
+                companySize: "Primarily large enterprises.",
+                radarData: {
+                    labels: ['Forecasting', 'Inventory Opt.', 'S&OP/IBP', 'AI/ML', 'Usability', 'Implementation Ease'],
+                    values: [5, 5, 4, 5, 3, 2]
+                },
+                profile: "Blue Yonder offers one of the most comprehensive, end-to-end supply chain platforms on the market, integrating planning with logistics and omnichannel commerce. Its powerful AI/ML capabilities and high degree of customizability make it a fit for large, complex global enterprises seeking a single-vendor solution. This power comes at a price, however, with a reputation for high costs and complex, lengthy implementations."
+            },
+            {
+                id: 'sap',
+                name: 'SAP IBP',
+                tagline: 'The default choice for enterprises deep in the SAP ecosystem.',
+                size: ['large'],
+                industries: ['Retail', 'Consumer Product', 'Automotive', 'Utilities', 'Industrial', 'Manufacturing', 'Life Sciences'],
+                bubble: { x: 3, y: 5, r: 30 },
+                functionalities: ['Integrated Business Planning', 'S&OP', 'Demand & Response Planning', 'Inventory Planning', 'Control Tower'],
+                keyFeatures: ['Powered by SAP HANA for real-time processing', 'Native, deep integration with other SAP systems', 'AI-powered forecasting algorithms', 'Real-time scenario simulation'],
+                pros: [
+                    'Unbeatable, seamless integration for existing SAP customers',
+                    'Robust, comprehensive functionality across all planning areas',
+                    'Centralized data and collaboration on a single platform',
+                    'Strong S&OP and advanced analytics capabilities'
+                ],
+                cons: [
+                    'Very high initial investment and ongoing costs',
+                    'Extremely complex and lengthy implementation (often 1+ year)',
+                    'Requires extensive training and often third-party consultants',
+                    'Less suited and complex to integrate in non-SAP environments'
+                ],
+                costs: {
+                    license: { score: 5, text: "Very high. Price on request, billed by volume (e.g., cost of goods)." },
+                    implementation: { score: 5, text: "Extremely high, often exceeding $1M and can reach $10M+." },
+                },
+                companySize: "Primarily large enterprises and global conglomerates.",
+                radarData: {
+                    labels: ['Forecasting', 'Inventory Opt.', 'S&OP/IBP', 'AI/ML', 'Usability', 'Implementation Ease'],
+                    values: [5, 5, 5, 4, 2, 1]
+                },
+                profile: "For organizations heavily invested in the SAP ecosystem, SAP IBP is often the default and most synergistic choice. It offers powerful, real-time planning capabilities powered by SAP HANA and ensures a single source of truth across the enterprise. However, this power is matched by its significant cost and complexity, making it a massive strategic undertaking suited only for large, mature organizations with the resources to manage its deployment."
+            },
+            {
+                id: 'logility',
+                name: 'Logility',
+                tagline: 'AI-powered planning with a focus on usability and integration.',
+                size: ['broad'],
+                industries: ['Apparel', 'Consumer Packaged Goods', 'Food & Beverage', 'Life Sciences', 'Retail', 'Wholesale', 'Manufacturing'],
+                bubble: { x: 2, y: 3, r: 12 },
+                functionalities: ['AI-Powered SCP (DemandAI+, InventoryAI+)', 'IBP', 'Merchandise & PLM', 'Vendor Management'],
+                keyFeatures: ['Strong AI/ML focus for optimization', 'User-friendly dashboards and reports', 'Business-specific ERP integration without custom dev', 'GenAI for productivity'],
+                pros: [
+                    'Strong AI-driven optimization capabilities',
+                    'Comprehensive suite of modules',
+                    'Generally user-friendly and easier to integrate',
+                    'Can be more budget-friendly than top-tier competitors'
+                ],
+                cons: [
+                    'Implementation can take longer than predicted',
+                    'Reporting and BI tools can be slow and lack customization',
+                    'Learning curve for some advanced technical features',
+                    'Limited pricing transparency'
+                ],
+                costs: {
+                    license: { score: 3, text: "Custom pricing, estimated at $100-$500/user/month as a general guide." },
+                    implementation: { score: 3, text: "Qualitatively described as 'longer than predicted,' suggesting moderate cost." },
+                },
+                companySize: "Mid-sized to large enterprises.",
+                radarData: {
+                    labels: ['Forecasting', 'Inventory Opt.', 'S&OP/IBP', 'AI/ML', 'Usability', 'Implementation Ease'],
+                    values: [4, 4, 3, 4, 4, 3]
+                },
+                profile: "Logility provides a robust, AI-powered supply chain planning platform that aims to balance advanced functionality with user-friendliness. Its focus on simplifying ERP integration and its comprehensive module suite make it a strong choice for mid-to-large enterprises looking for advanced capabilities without the extreme complexity of the largest vendors. While some users report a learning curve and slower BI tools, its core planning engine is powerful."
+            },
+            {
+                id: 'relex',
+                name: 'RELEX Solutions',
+                tagline: 'Specialist leader for retail, CPG, and fresh food optimization.',
+                size: ['broad'],
+                industries: ['Retail', 'Wholesale & Distribution', 'Consumer Goods', 'Food & Grocery', 'Fashion'],
+                bubble: { x: 2, y: 2, r: 18 },
+                functionalities: ['Unified Planning (Demand, Supply, Purchase)', 'Inventory Optimization', 'Financial Planning Integration', 'Specialized Optimization (Fresh, Price)'],
+                keyFeatures: ['Deep specialization in retail and CPG', 'Unique ML algorithms for demand and inventory', 'RELEX True Inventory to fix "phantom stock"', 'AI-driven price and promotion optimization'],
+                pros: [
+                    'Extremely high and proven ROI (e.g., 20% inventory cost reduction)',
+                    'Best-in-class for grocery, fresh food, and retail challenges',
+                    'Advanced, highly customizable AI/ML capabilities',
+                    'Unified platform with speedy performance and user-friendly UI',
+                    'Frictionless implementation process reported by users'
+                ],
+                cons: [
+                    'Deep technical customization requires high proficiency (TQL code)',
+                    'Less focused on heavy industrial manufacturing compared to others',
+                ],
+                costs: {
+                    license: { score: 4, text: "Custom enterprise pricing. Not public." },
+                    implementation: { score: 2, text: "Qualitatively described as 'frictionless,' suggesting high efficiency and value." },
+                },
+                companySize: "Serves 'leading retailers and brands,' from small to large.",
+                radarData: {
+                    labels: ['Forecasting', 'Inventory Opt.', 'S&OP/IBP', 'AI/ML', 'Usability', 'Implementation Ease'],
+                    values: [5, 5, 4, 5, 4, 5]
+                },
+                profile: "RELEX has carved out a dominant position in the retail, CPG, and wholesale sectors by offering a deeply specialized, AI-driven unified platform. Its ability to solve complex industry-specific problems—like fresh food spoilage and retail pricing—delivers a remarkably high and fast ROI. For companies in its target verticals, RELEX is often the undisputed best-fit solution, combining power with a user-friendly experience and an efficient implementation."
+            },
+            {
+                id: 'toolsgroup',
+                name: 'ToolsGroup',
+                tagline: 'The market leader for MRO and aftermarket parts planning.',
+                size: ['broad'],
+                industries: ['Aftermarket Parts', 'Consumer Goods', 'Manufacturing', 'Distribution', 'Retail'],
+                bubble: { x: 2, y: 3, r: 10 },
+                functionalities: ['S&OP', 'Demand & Supply Planning', 'Retail Pricing Software', 'Multi-Echelon Inventory Optimization (MEIO)'],
+                keyFeatures: ['#1 ranked for MRO/Spare Parts planning', 'Single integrated data model for collaboration', 'P&L impact analysis in scenario planning', 'Specialized for long-tail, intermittent demand'],
+                pros: [
+                    'Unmatched specialization in MRO and aftermarket parts',
+                    'Strong scenario modeling with financial impact analysis',
+                    'Integrated planning bridges gap between sales and operations',
+                    'Automates complex retail pricing and markdown management'
+                ],
+                cons: [
+                    'Implementation can have "coding issues," suggesting potential for technical hurdles',
+                    'Less of a generalist platform than some larger competitors',
+                ],
+                costs: {
+                    license: { score: 3, text: "Custom enterprise pricing. Not public." },
+                    implementation: { score: 3, text: "Mixed reviews, from 'great' to 'frustrating,' suggesting variable complexity." },
+                },
+                companySize: "Serves a range from <$50M to >$1B revenue.",
+                radarData: {
+                    labels: ['Forecasting', 'Inventory Opt.', 'S&OP/IBP', 'AI/ML', 'Usability', 'Implementation Ease'],
+                    values: [5, 5, 4, 4, 3, 3]
+                },
+                profile: "ToolsGroup is a specialized leader, particularly renowned for its exceptional capabilities in managing the complexities of MRO and aftermarket parts—areas characterized by intermittent demand and vast numbers of SKUs. Its probabilistic forecasting engine is best-in-class for these challenges. While it also serves retail and manufacturing, its core strength lies in this specialized niche, making it the go-to choice for companies with significant service parts operations."
+            },
+            {
+                id: 'netstock',
+                name: 'Netstock',
+                tagline: 'The ideal, user-friendly choice for mid-sized businesses seeking rapid ROI.',
+                size: ['mid'],
+                industries: ['Wholesale & Distribution', 'Manufacturing', 'Retail', 'Food & Beverage', 'MRO', 'Automotive'],
+                bubble: { x: 1, y: 1, r: 15 },
+                functionalities: ['Demand & Supply Planning', 'Inventory Optimization', 'IBP (S&OP)', 'Production & Procurement Planning'],
+                keyFeatures: ['AI-powered forecasting (Predictor IA)', 'Designed specifically for mid-market', 'Intuitive UI and excellent support', 'Seamless and rapid ERP integration'],
+                pros: [
+                    'Extremely rapid ROI (payback in as little as 2 months)',
+                    'Very user-friendly, intuitive, and easy to learn',
+                    'Excellent 24/6 customer support and learning academy',
+                    'Powerful forecasting that exceeds expectations for its class',
+                    'Quick, seamless integration with common ERPs'
+                ],
+                cons: [
+                    'High dependency on clean, accurate input data',
+                    'Limited customization without extra cost',
+                    'Price can be steep for very small businesses',
+                    'Occasional data refresh delays from ERP'
+                ],
+                costs: {
+                    license: { score: 2, text: "Subscription-based, starts around $400/month as a general guide." },
+                    implementation: { score: 1, text: "Fast (~3 months) and efficient, contributing to rapid ROI." },
+                },
+                companySize: "Best for mid-sized businesses.",
+                radarData: {
+                    labels: ['Forecasting', 'Inventory Opt.', 'S&OP/IBP', 'AI/ML', 'Usability', 'Implementation Ease'],
+                    values: [4, 4, 3, 3, 5, 5]
+                },
+                profile: "Netstock has perfectly targeted the mid-market with a solution that is powerful, user-friendly, and delivers an incredibly fast return on investment. It provides robust demand planning and inventory optimization capabilities without the daunting cost and complexity of enterprise-grade systems. For mid-sized wholesalers, distributors, and manufacturers looking to make their first major step into advanced planning, Netstock is often the ideal choice."
+            },
+            {
+                id: 'microsoft-demand-planner',
+                name: 'Microsoft Demand Planner App',
+                tagline: 'Integrated demand planning within the Microsoft Dynamics 365 ecosystem.',
+                size: ['mid', 'large'],
+                industries: ['Retail', 'Manufacturing', 'Consumer Goods', 'Distribution', 'Automotive', 'Life Sciences'],
+                bubble: { x: 2.5, y: 3.5, r: 17 },
+                functionalities: ['Demand Forecasting', 'Supply Planning (via D365 SCM)', 'Sales & Operations Planning', 'Integration with Dynamics 365'],
+                keyFeatures: ['Native integration with Microsoft Dynamics 365', 'Leverages Azure AI for forecasting', 'Collaborative planning workflows', 'Scalable for various data volumes'],
+                pros: [
+                    'Seamless integration for existing Microsoft Dynamics 365 users',
+                    'Familiar user interface for Microsoft ecosystem users',
+                    'Leverages Microsoft\'s extensive cloud infrastructure and AI capabilities',
+                    'Good for companies seeking a unified Microsoft-centric IT landscape'
+                ],
+                cons: [
+                    'Can be less specialized than dedicated SCP solutions',
+                    'Best performance achieved within the Microsoft ecosystem, less standalone power',
+                    'Customization might require expertise in Dynamics development',
+                    'Feature set might evolve, requiring ongoing adaptation'
+                ],
+                costs: {
+                    license: { score: 3, text: "Subscription-based, often bundled with Dynamics 365 licenses." },
+                    implementation: { score: 3, text: "Moderate, depends on complexity of D365 integration and existing setup." },
+                },
+                companySize: "Mid-sized to large enterprises, especially those using Microsoft Dynamics 365.",
+                radarData: {
+                    labels: ['Forecasting', 'Inventory Opt.', 'S&OP/IBP', 'AI/ML', 'Usability', 'Implementation Ease'],
+                    values: [4, 3, 4, 4, 4, 3]
+                },
+                profile: "The Microsoft Demand Planner app is designed to provide integrated demand forecasting and planning capabilities specifically for businesses operating within the Microsoft Dynamics 365 ecosystem. It leverages Azure AI for robust forecasting and offers collaborative workflows. While it might not have the niche depth of some specialized SCP tools, its seamless integration and familiar interface make it a strong contender for companies looking to unify their supply chain planning within a broader Microsoft IT strategy."
+            },
+            {
+                id: 'adexa',
+                name: 'ADEXA',
+                tagline: 'AI-driven supply chain planning, optimization, and digital twin solutions.',
+                size: ['large'],
+                industries: ['Manufacturing', 'Process Industries', 'Chemical', 'Semiconductor', 'Automotive', 'Aerospace', 'Consumer Goods'],
+                bubble: { x: 3.5, y: 4.5, r: 18 },
+                functionalities: ['Digital Supply Chain Twin', 'AI-Driven Optimization', 'Integrated Business Planning (S&OP/IBP)', 'Predictive & Prescriptive Analytics'],
+                keyFeatures: ['Patented AI and optimization algorithms', 'Real-time digital twin capabilities', 'Multi-enterprise collaboration', 'Scenario planning and risk management'],
+                pros: [
+                    'Highly advanced AI and optimization for complex problems',
+                    'Strong digital twin capabilities for accurate simulations',
+                    'Designed for highly complex and large-scale manufacturing environments',
+                    'Comprehensive solution covering planning from strategic to operational levels'
+                ],
+                cons: [
+                    'High complexity requiring significant implementation effort',
+                    'Potentially steep learning curve for users',
+                    'Pricing model might be less transparent for mid-sized players',
+                    'Requires clean and robust data infrastructure to maximize benefits'
+                ],
+                costs: {
+                    license: { score: 4, text: "Custom enterprise pricing, typically for large, complex deployments." },
+                    implementation: { score: 4, text: "High, given the complexity and advanced nature of the solution." },
+                },
+                companySize: "Primarily large enterprises with complex manufacturing and supply chains.",
+                radarData: {
+                    labels: ['Forecasting', 'Inventory Opt.', 'S&OP/IBP', 'AI/ML', 'Usability', 'Implementation Ease'],
+                    values: [5, 4, 5, 5, 3, 3]
+                },
+                profile: "ADEXA positions itself as a leader in AI-driven supply chain planning and optimization, distinguished by its real-time digital twin capabilities. It targets large enterprises, especially those in complex manufacturing and process industries, offering powerful predictive and prescriptive analytics. While it demands a significant investment in implementation and user training, its advanced algorithms and comprehensive scope are designed to deliver substantial strategic advantages for highly intricate supply chains."
+            }
+        ];
+        
+        const recommendationData = [
+            {
+                title: "For Large Enterprises with Complex, Global Operations...",
+                content: `
+                    <p class="mb-4">Organizations at this scale require solutions with immense power, scalability, and comprehensive features. The top recommendations are:</p>
+                    <ul class="space-y-3">
+                        <li><strong class="text-teal-700">SAP IBP:</strong> The premier choice if you are already deeply invested in the SAP ecosystem. Its native integration is a game-changer, but be prepared for a very high cost and complex, lengthy implementation.</li>
+                        <li><strong class="text-teal-700">Kinaxis RapidResponse:</b> Ideal if your top priority is agility and real-time responsiveness to market changes. Its concurrent planning engine is unmatched for volatile environments.</li>
+                        <li><strong class="text-teal-700">Blue Yonder:</strong> A strong contender if you need a single, all-encompassing platform that covers planning, logistics, and omnichannel commerce, and have the budget for its extensive capabilities.</li>
+                        <li><strong class="text-teal-700">ADEXA:</strong> For enterprises seeking highly advanced AI-driven optimization and digital twin capabilities, especially in complex manufacturing.</li>
+                    </ul>`
+            },
+            {
+                title: "For Mid-Sized Businesses Seeking Rapid ROI & User-Friendliness...",
+                content: `
+                    <p class="mb-4">Mid-sized companies need powerful tools that don't break the bank or require a dedicated army to run. The focus is on value, speed, and ease of use.</p>
+                    <ul class="space-y-3">
+                        <li><strong class="text-teal-700">Netstock:</strong> Highly recommended. It is purpose-built for this segment, delivering an exceptionally fast ROI, an intuitive interface, and excellent support. It's often the perfect first step into advanced planning.</li>
+                        <li><strong class="text-teal-700">SlimStock (Slim4):</strong> A fantastic, balanced option offering a straightforward path to improved forecasting and inventory management. Its strong vendor support during implementation is a major plus.</li>
+                        <li><strong class="text-teal-700">Microsoft Demand Planner App:</strong> A good choice if you are a mid-sized business already invested in the Microsoft Dynamics 365 ecosystem and want integrated demand planning.</li>
+                    </ul>`
+            },
+            {
+                title: "For Retail, CPG, or MRO Specialists...",
+                content: `
+                    <p class="mb-4">If your business operates in a specific niche, a specialized tool will almost always outperform a generalist one. These vendors have deep industry expertise.</p>
+                    <ul class="space-y-3">
+                        <li><strong class="text-teal-700">RELEX Solutions:</strong> The go-to choice for grocery, retail, and CPG. Its specialized features for fresh food, pricing, and space optimization deliver tangible, high-impact results.</li>
+                        <li><strong class="text-teal-700">ToolsGroup:</strong> The undisputed leader for MRO and aftermarket parts. Its engine is uniquely designed to handle the intermittent demand and long-tail SKUs common in this sector.</li>
+                         <li><strong class="text-teal-700">SlimStock (Slim4):</strong> Also demonstrates strong, proven capabilities and tailored solutions for the retail, pharmaceutical, and automotive sectors.</li>
+                    </ul>`
+            }
+        ];
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const vendorGrid = document.getElementById('vendorGrid');
+            const sizeFilter = document.getElementById('sizeFilter');
+            const industryFilter = document.getElementById('industryFilter');
+            const deepDiveContent = document.getElementById('deepDiveContent');
+            const noResults = document.getElementById('noResults');
+            const compareBtn = document.getElementById('compareBtn');
+            const comparisonModal = document.getElementById('comparisonModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const modalGrid = document.getElementById('modalGrid');
+            const recommendationAccordion = document.getElementById('recommendationAccordion');
+            const mobileNav = document.getElementById('mobile-nav');
+
+            let deepDiveChart = null;
+            let selectedForComparison = new Set();
+            
+            const costIcons = (score) => '<span class="text-teal-500">' + '$'.repeat(score) + '</span><span class="text-slate-300">' + '$'.repeat(5 - score) + '</span>';
+
+            function renderVendorCards(vendors) {
+                vendorGrid.innerHTML = '';
+                if (vendors.length === 0) {
+                    noResults.style.display = 'block';
+                } else {
+                    noResults.style.display = 'none';
+                    vendors.forEach(vendor => {
+                        const card = document.createElement('div');
+                        card.className = 'vendor-card bg-white p-6 rounded-lg border border-slate-200 flex flex-col';
+                        card.dataset.vendorId = vendor.id;
+                        card.innerHTML = `
+                            <div class="flex-grow">
+                                <h3 class="text-xl font-bold text-slate-900">${vendor.name}</h3>
+                                <p class="text-slate-500 text-sm mt-1 mb-4">${vendor.tagline}</p>
+                                <div class="space-y-3 text-sm">
+                                    <div class="flex items-start">
+                                        <span class="text-teal-600 w-5 h-5 mr-2 mt-0.5 flex-shrink-0">✓</span>
+                                        <p><strong class="font-semibold text-slate-700">Best for:</strong> ${vendor.size.includes('mid') ? 'Mid-Sized' : vendor.size.includes('large') ? 'Large Enterprise' : 'Broad Range'}</p>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <span class="text-teal-600 w-5 h-5 mr-2 mt-0.5 flex-shrink-0">✓</span>
+                                        <p><strong class="font-semibold text-slate-700">Key Industries:</strong> ${vendor.industries.slice(0,3).join(', ')}...</p>
+                                    </div>
+                                    <div class="flex items-start" data-tooltip="Relative License Cost">
+                                        <span class="text-teal-600 w-5 h-5 mr-2 mt-0.5 flex-shrink-0">✓</span>
+                                        <p><strong class="font-semibold text-slate-700">License Cost:</strong> ${costIcons(vendor.costs.license.score)}</p>
+                                    </div>
+                                    <div class="flex items-start" data-tooltip="Relative Implementation Cost & Complexity">
+                                        <span class="text-teal-600 w-5 h-5 mr-2 mt-0.5 flex-shrink-0">✓</span>
+                                        <p><strong class="font-semibold text-slate-700">Implementation:</strong> ${costIcons(vendor.costs.implementation.score)}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-6 flex flex-col sm:flex-row gap-2">
+                                <button class="learn-more-btn flex-1 text-center bg-teal-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-teal-700 transition">Learn More</button>
+                                <label class="flex items-center justify-center sm:justify-start space-x-2 p-2 border rounded-md cursor-pointer hover:bg-slate-50">
+                                    <input type="checkbox" class="compare-checkbox rounded text-teal-600 focus:ring-teal-500">
+                                    <span class="text-sm font-medium text-slate-700">Compare</span>
+                                </label>
+                            </div>
+                        `;
+                        vendorGrid.appendChild(card);
+                    });
+                }
+            }
+
+            function renderDeepDive(vendorId) {
+                const vendor = vendorData.find(v => v.id === vendorId);
+                if (!vendor) return;
+
+                deepDiveContent.innerHTML = `
+                    <div class="w-full">
+                        <h3 class="text-3xl font-bold text-slate-900 text-center">${vendor.name}</h3>
+                        <p class="text-slate-600 mt-2 text-center">${vendor.profile}</p>
+                        <div class="mt-8 grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+                            <div class="lg:col-span-3">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="bg-slate-50 p-4 rounded-lg">
+                                        <h4 class="font-bold text-lg text-green-700 mb-3">Strengths (Pros)</h4>
+                                        <ul class="space-y-2 list-disc list-inside text-slate-700">
+                                            ${vendor.pros.map(pro => `<li>${pro}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                    <div class="bg-slate-50 p-4 rounded-lg">
+                                        <h4 class="font-bold text-lg text-red-700 mb-3">Limitations (Cons)</h4>
+                                        <ul class="space-y-2 list-disc list-inside text-slate-700">
+                                            ${vendor.cons.map(con => `<li>${con}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="mt-6 bg-slate-50 p-4 rounded-lg">
+                                    <h4 class="font-bold text-lg text-slate-800 mb-3">Key Details</h4>
+                                    <div class="text-sm space-y-2">
+                                        <p><strong class="font-semibold">Core Functionalities:</strong> ${vendor.functionalities.join(', ')}</p>
+                                        <p><strong class="font-semibold">Typical Company Size:</strong> ${vendor.companySize}</p>
+                                        <p><strong class="font-semibold">Target Industries:</strong> ${vendor.industries.join(', ')}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="lg:col-span-2">
+                                <div class="chart-container h-[350px]">
+                                    <canvas id="deepDiveRadarChart"></canvas>
+                                </div>
+                                <p class="text-xs text-center text-slate-500 mt-2">Capability Radar (scored 1-5 based on report analysis)</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                const ctx = document.getElementById('deepDiveRadarChart').getContext('2d');
+                if(deepDiveChart) deepDiveChart.destroy();
+                deepDiveChart = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: vendor.radarData.labels,
+                        datasets: [{
+                            label: vendor.name,
+                            data: vendor.radarData.values,
+                            backgroundColor: 'rgba(13, 148, 136, 0.2)', // teal-600 with opacity
+                            borderColor: 'rgb(13, 148, 136)',
+                            pointBackgroundColor: 'rgb(13, 148, 136)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(13, 148, 136)'
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                beginAtZero: true,
+                                max: 5,
+                                stepSize: 1,
+                                angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                                grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                                pointLabels: { font: { size: 12 } }
+                            }
+                        },
+                        plugins: {
+                           legend: { display: false }
+                        }
+                    }
+                });
+            }
+
+            function populateIndustries() {
+                const industries = [...new Set(vendorData.flatMap(v => v.industries))].sort();
+                industries.forEach(industry => {
+                    const option = document.createElement('option');
+                    option.value = industry;
+                    option.textContent = industry;
+                    industryFilter.appendChild(option);
+                });
+            }
+
+            function filterVendors() {
+                const size = sizeFilter.value;
+                const industry = industryFilter.value;
+
+                const filtered = vendorData.filter(vendor => {
+                    const sizeMatch = size === 'all' || vendor.size.includes(size);
+                    const industryMatch = industry === 'all' || vendor.industries.includes(industry);
+                    return sizeMatch && industryMatch;
+                });
+                renderVendorCards(filtered);
+            }
+            
+            function updateCompareButton() {
+                const count = selectedForComparison.size;
+                compareBtn.textContent = `Compare Selected (${count})`;
+                compareBtn.disabled = count < 2 || count > 3;
+            }
+
+            function renderComparisonModal() {
+                modalGrid.innerHTML = '';
+                const vendorsToCompare = vendorData.filter(v => selectedForComparison.has(v.id));
+
+                // Header row
+                const header = document.createElement('div');
+                header.className = 'hidden md:block md:contents';
+                header.innerHTML = `<div class="font-bold text-lg text-slate-800 pb-4 border-b">Feature</div>` +
+                                   vendorsToCompare.map(v => `<div class="font-bold text-lg text-slate-800 pb-4 border-b text-center">${v.name}</div>`).join('');
+                modalGrid.appendChild(header);
+                
+                const attributes = [
+                    { label: 'Best For', key: v => v.size.includes('mid') ? 'Mid-Sized' : v.size.includes('large') ? 'Large Enterprise' : 'Broad Range' },
+                    { label: 'License Cost', key: v => costIcons(v.costs.license.score) + `<span class="block text-xs text-slate-500">${v.costs.license.text}</span>` },
+                    { label: 'Implementation', key: v => costIcons(v.costs.implementation.score) + `<span class="block text-xs text-slate-500">${v.costs.implementation.text}</span>` },
+                    { label: 'Pros', key: v => `<ul class="list-disc list-inside space-y-1">${v.pros.map(p => `<li>${p}</li>`).join('')}</ul>`},
+                    { label: 'Cons', key: v => `<ul class="list-disc list-inside space-y-1">${v.cons.map(c => `<li>${c}</li>`).join('')}</ul>`},
+                    { label: 'Key Features', key: v => v.keyFeatures.join(', ')},
+                ];
+
+                attributes.forEach(attr => {
+                    let rowHtml = `<div class="font-semibold text-slate-700 py-4 border-b">${attr.label}</div>`;
+                     vendorsToCompare.forEach(v => {
+                        rowHtml += `<div class="py-4 border-b text-sm text-center md:text-left">${attr.key(v)}</div>`;
+                    });
+                    
+                    const rowContainer = document.createElement('div');
+                    rowContainer.className = 'contents';
+                    
+                    if (window.innerWidth < 768) {
+                        rowContainer.innerHTML = `<div class="col-span-full bg-slate-100 p-2 font-bold text-md mt-4">${attr.label}</div>` +
+                        vendorsToCompare.map(v => `
+                            <div class="p-2 border-b">
+                                <p class="font-semibold md:hidden">${v.name}</p>
+                                <div class="text-sm">${attr.key(v)}</div>
+                            </div>
+                        `).join('');
+                    } else {
+                        rowContainer.innerHTML = `<div class="font-semibold text-slate-700 p-4 border-b">${attr.label}</div>` +
+                        vendorsToCompare.map(v => `<div class="p-4 border-b text-sm">${attr.key(v)}</div>`).join('');
+                    }
+                    modalGrid.appendChild(rowContainer);
+                });
+                 
+                // Adjust grid columns for md and lg
+                modalGrid.classList.remove('md:grid-cols-2', 'md:grid-cols-3', 'lg:grid-cols-2', 'lg:grid-cols-3', 'lg:grid-cols-4');
+                if (window.innerWidth >= 1024) { // lg
+                    modalGrid.style.gridTemplateColumns = `1fr repeat(${vendorsToCompare.length}, 2fr)`;
+                } else if (window.innerWidth >= 768) { // md
+                    modalGrid.style.gridTemplateColumns = `1fr repeat(${vendorsToCompare.length}, 2fr)`;
+                } else { // sm
+                    modalGrid.style.gridTemplateColumns = '1fr';
+                }
+
+                comparisonModal.style.display = 'flex';
+            }
+            
+            function renderRecommendations() {
+                recommendationAccordion.innerHTML = '';
+                recommendationData.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = "bg-white rounded-lg border border-slate-200 overflow-hidden";
+                    div.innerHTML = `
+                        <button class="accordion-btn w-full text-left p-4 flex justify-between items-center font-semibold text-slate-800 hover:bg-slate-50 transition">
+                            <span>${item.title}</span>
+                            <span class="transform transition-transform text-teal-600 text-xl">+</span>
+                        </button>
+                        <div class="accordion-content max-h-0 overflow-hidden transition-all duration-500 ease-in-out">
+                            <div class="p-4 border-t border-slate-200 text-slate-600">${item.content}</div>
+                        </div>
+                    `;
+                    recommendationAccordion.appendChild(div);
+                });
+
+                recommendationAccordion.addEventListener('click', e => {
+                    const button = e.target.closest('.accordion-btn');
+                    if(button) {
+                        const content = button.nextElementSibling;
+                        const icon = button.querySelector('span:last-child');
+                        
+                        document.querySelectorAll('.accordion-content').forEach(el => {
+                            if(el !== content) {
+                                el.style.maxHeight = '0px';
+                                el.previousElementSibling.querySelector('span:last-child').textContent = '+';
+                                el.previousElementSibling.querySelector('span:last-child').classList.remove('rotate-45');
+                            }
+                        });
+
+                        if(content.style.maxHeight === '0px' || !content.style.maxHeight) {
+                            content.style.maxHeight = content.scrollHeight + "px";
+                            icon.textContent = '+';
+                            icon.classList.add('rotate-45');
+                        } else {
+                            content.style.maxHeight = '0px';
+                            icon.textContent = '+';
+                            icon.classList.remove('rotate-45');
+                        }
+                    }
+                });
+            }
+
+            // Event Listeners
+            sizeFilter.addEventListener('change', filterVendors);
+            industryFilter.addEventListener('change', filterVendors);
+
+            vendorGrid.addEventListener('click', e => {
+                const card = e.target.closest('.vendor-card');
+                if (!card) return;
+                const vendorId = card.dataset.vendorId;
+
+                if (e.target.classList.contains('learn-more-btn')) {
+                    renderDeepDive(vendorId);
+                    document.getElementById('deep-dive').scrollIntoView({ behavior: 'smooth' });
+                }
+                
+                if (e.target.classList.contains('compare-checkbox')) {
+                    const checkbox = e.target;
+                    if (checkbox.checked) {
+                        if (selectedForComparison.size < 3) {
+                            selectedForComparison.add(vendorId);
+                        } else {
+                            checkbox.checked = false; 
+                            alert("You can only compare up to 3 vendors at a time.");
+                        }
+                    } else {
+                        selectedForComparison.delete(vendorId);
+                    }
+                    updateCompareButton();
+                }
+            });
+            
+            compareBtn.addEventListener('click', () => {
+                if (selectedForComparison.size >= 2 && selectedForComparison.size <= 3) {
+                    renderComparisonModal();
+                }
+            });
+
+            closeModalBtn.addEventListener('click', () => {
+                comparisonModal.style.display = 'none';
+            });
+            
+            comparisonModal.addEventListener('click', (e) => {
+                if (e.target === comparisonModal) {
+                    comparisonModal.style.display = 'none';
+                }
+            });
+
+            mobileNav.addEventListener('change', (e) => {
+                window.location.hash = e.target.value;
+            });
+            
+            // Initial render
+            const ctxBubble = document.getElementById('overviewBubbleChart').getContext('2d');
+            new Chart(ctxBubble, {
+                type: 'bubble',
+                data: {
+                    datasets: vendorData.map(v => ({
+                        label: v.name,
+                        data: [{ x: v.bubble.x, y: v.bubble.y, r: v.bubble.r }],
+                        backgroundColor: `rgba(${Math.floor(Math.random()*100 + 50)}, ${Math.floor(Math.random()*100 + 100)}, ${Math.floor(Math.random()*100+100)}, 0.7)`,
+                        borderColor: `rgba(${Math.floor(Math.random()*100)}, ${Math.floor(Math.random()*100)}, ${Math.floor(Math.random()*100)}, 0.9)`,
+                        hoverBackgroundColor: 'rgba(13, 148, 136, 0.9)',
+                        hoverBorderColor: 'rgb(13, 148, 136)',
+                    }))
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: { display: true, text: 'Implementation Complexity →', font: {size: 14} },
+                            min: 0, max: 6,
+                            ticks: {
+                                callback: (value) => ['', 'Low', '', 'Medium', '', 'High', ''][value]
+                            }
+                        },
+                        x: {
+                            title: { display: true, text: 'Typical Company Size →', font: {size: 14} },
+                            min: 0, max: 4,
+                            ticks: {
+                                 callback: (value) => ['', 'Mid-Sized', 'Broad Range', 'Large Enterprise', ''][value]
+                            }
+                        }
+                    }
+                }
+            });
+            populateIndustries();
+            renderVendorCards(vendorData);
+            renderRecommendations();
+        });
+    </script>
+</body>
+</html>
