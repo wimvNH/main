@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Report: The ERP Cultural Shift</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm & Authoritative -->
+    <!-- Application Structure Plan: The application is structured as a single-page, scrolling narrative. This design was chosen to guide the user logically through a complex argument: starting with the high-level problem (failure rates), diagnosing the cause (resistance), presenting a structured solution (the human-centric blueprint), and finally, showcasing the tangible business outcomes (the payoff). This thematic, linear flow is more effective for understanding a persuasive report than a non-linear dashboard, as it builds the case step-by-step. Key interactions, like clicking to expand resistance details or hovering on the ADKAR model, are designed to break down complex information into digestible chunks without disrupting the user's narrative journey. -->
+    <!-- Visualization & Content Choices: 
+        - Hero Stats (66% failure): Goal: Inform -> Method: Large HTML text -> Interaction: None -> Justification: High-impact introduction to the core problem.
+        - Resistance Factors: Goal: Organize/Compare -> Method: Interactive Cards + Bar Chart (Chart.js) -> Interaction: Click to reveal chart -> Justification: Breaks down the 'why' of failure into categories, with a chart to visually compare the impact of each factor.
+        - ADKAR Model: Goal: Organize/Change -> Method: HTML/CSS Process Flow Diagram -> Interaction: Hover for details -> Justification: Visually represents a process, making it easier to understand than a text list.
+        - Success Rate Comparison: Goal: Compare -> Method: Donut Chart (Chart.js) -> Interaction: Hover tooltips -> Justification: Provides a stark, immediate visual comparison of success rates, highlighting the impact of change management.
+        - People-Centric KPIs: Goal: Compare -> Method: Interactive Table (HTML/JS) -> Interaction: Toggle buttons -> Justification: Clearly demonstrates the shift in measurement philosophy from technical to human-centric metrics.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+            color: #2D3748;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        .adkar-step {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .adkar-step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .kpi-toggle-active {
+            background-color: #2B6CB0;
+            color: white;
+        }
+        .kpi-toggle-inactive {
+            background-color: #E2E8F0;
+            color: #4A5568;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <span class="text-xl font-bold text-[#2B6CB0]">ERP Transformation</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#problem" class="text-gray-600 hover:text-[#2B6CB0] px-3 py-2 rounded-md text-sm font-medium">The Problem</a>
+                        <a href="#resistance" class="text-gray-600 hover:text-[#2B6CB0] px-3 py-2 rounded-md text-sm font-medium">Why It Fails</a>
+                        <a href="#solution" class="text-gray-600 hover:text-[#2B6CB0] px-3 py-2 rounded-md text-sm font-medium">The Blueprint</a>
+                        <a href="#payoff" class="text-gray-600 hover:text-[#2B6CB0] px-3 py-2 rounded-md text-sm font-medium">The Payoff</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <header id="problem" class="text-center py-16">
+            <h1 class="text-4xl md:text-6xl font-extrabold text-[#2B6CB0] mb-4">It's Not About the Software.</h1>
+            <p class="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto">An ERP implementation is a business transformation, yet most are treated like a simple tech upgrade. This is the single most expensive mistake an organization can make.</p>
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+                    <p class="text-7xl font-extrabold text-[#DD6B20]">66%</p>
+                    <p class="text-xl text-gray-700 mt-2">of change initiatives fail to achieve their stated goals.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+                    <p class="text-7xl font-extrabold text-[#DD6B20]">70%</p>
+                    <p class="text-xl text-gray-700 mt-2">of those failures are due to ineffective change management, not technology.</p>
+                </div>
+            </div>
+        </header>
+
+        <section id="resistance" class="py-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-[#2B6CB0] mb-4">The Anatomy of Resistance</h2>
+            <p class="text-lg text-center text-gray-600 max-w-3xl mx-auto mb-12">Resistance isn't random. It's a predictable reaction to perceived threats. Understanding its components is the first step to overcoming it. Click each barrier to explore the details.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div id="psychologicalBtn" class="bg-white rounded-lg shadow-md p-6 text-center cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-2 border-transparent">
+                    <div class="text-5xl mb-4">🧠</div>
+                    <h3 class="text-xl font-bold text-[#319795]">Psychological Barrier</h3>
+                    <p class="text-gray-600 mt-2">Rooted in personal fears like job insecurity, change fatigue, and fear of the unknown.</p>
+                </div>
+                <div id="operationalBtn" class="bg-white rounded-lg shadow-md p-6 text-center cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-2 border-transparent">
+                    <div class="text-5xl mb-4">⚙️</div>
+                    <h3 class="text-xl font-bold text-[#319795]">Operational Friction</h3>
+                    <p class="text-gray-600 mt-2">Stems from attachment to legacy processes and frustration with learning new systems.</p>
+                </div>
+                <div id="politicalBtn" class="bg-white rounded-lg shadow-md p-6 text-center cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-2 border-transparent">
+                    <div class="text-5xl mb-4">🏛️</div>
+                    <h3 class="text-xl font-bold text-[#319795]">Political Undercurrent</h3>
+                    <p class="text-gray-600 mt-2">Arises from perceived loss of control over data, authority, and internal power dynamics.</p>
+                </div>
+            </div>
+            <div id="resistanceDetails" class="mt-12 bg-white rounded-lg shadow-lg p-8 hidden">
+                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h3 id="detailsTitle" class="text-2xl font-bold text-[#2B6CB0] mb-4"></h3>
+                        <p id="detailsText" class="text-gray-700 mb-6"></p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="resistanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="solution" class="py-16 bg-white rounded-lg shadow-lg px-8">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-[#2B6CB0] mb-4">A Blueprint for Human-Centric Implementation</h2>
+            <p class="text-lg text-center text-gray-600 max-w-3xl mx-auto mb-12">Success requires a structured, people-first methodology. The ADKAR model provides a goal-oriented framework to guide individuals through the change process. Hover over each step to learn more.</p>
+            <div class="relative">
+                <div class="absolute top-1/2 left-0 w-full h-1 bg-gray-200 -translate-y-1/2"></div>
+                <div class="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
+                    <div class="adkar-step bg-gray-50 rounded-lg p-6 text-center border-t-4 border-[#2B6CB0]">
+                        <div class="text-4xl mb-3">📢</div>
+                        <h3 class="text-xl font-bold text-[#2B6CB0]">Awareness</h3>
+                        <p class="text-gray-600 mt-2 text-sm">Clearly communicate the business reasons for the change and the risks of not changing.</p>
+                    </div>
+                    <div class="adkar-step bg-gray-50 rounded-lg p-6 text-center border-t-4 border-[#319795]">
+                        <div class="text-4xl mb-3">❤️</div>
+                        <h3 class="text-xl font-bold text-[#319795]">Desire</h3>
+                        <p class="text-gray-600 mt-2 text-sm">Build motivation by answering "What's in it for me?" (WIIFM) for every employee.</p>
+                    </div>
+                    <div class="adkar-step bg-gray-50 rounded-lg p-6 text-center border-t-4 border-[#DD6B20]">
+                        <div class="text-4xl mb-3">📚</div>
+                        <h3 class="text-xl font-bold text-[#DD6B20]">Knowledge</h3>
+                        <p class="text-gray-600 mt-2 text-sm">Provide role-specific training on how to use the new system and processes.</p>
+                    </div>
+                    <div class="adkar-step bg-gray-50 rounded-lg p-6 text-center border-t-4 border-[#c05621]">
+                        <div class="text-4xl mb-3">💪</div>
+                        <h3 class="text-xl font-bold text-[#c05621]">Ability</h3>
+                        <p class="text-gray-600 mt-2 text-sm">Ensure employees can apply their knowledge with post-go-live support and coaching.</p>
+                    </div>
+                    <div class="adkar-step bg-gray-50 rounded-lg p-6 text-center border-t-4 border-[#9b2c2c]">
+                        <div class="text-4xl mb-3">🎉</div>
+                        <h3 class="text-xl font-bold text-[#9b2c2c]">Reinforcement</h3>
+                        <p class="text-gray-600 mt-2 text-sm">Make the change stick by celebrating wins, gathering feedback, and taking corrective action.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="payoff" class="py-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-[#2B6CB0] mb-4">The Payoff: From Internal Shift to External Advantage</h2>
+            <p class="text-lg text-center text-gray-600 max-w-3xl mx-auto mb-12">Investing in culture isn't a soft cost; it's a hard driver of ROI. Organizations with excellent change management are vastly more likely to achieve their goals, leading to tangible benefits across the business ecosystem.</p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="chart-container h-96">
+                    <canvas id="roiChart"></canvas>
+                </div>
+                <div>
+                    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                        <h4 class="font-bold text-xl text-[#2B6CB0]">📈 Engaged Employees</h4>
+                        <p class="text-gray-600 mt-2">Supported employees are more productive and innovative, leading to higher retention and reduced turnover costs.</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                        <h4 class="font-bold text-xl text-[#319795]">😊 Satisfied Customers</h4>
+                        <p class="text-gray-600 mt-2">A single source of truth empowers staff to provide faster, more accurate service, boosting customer loyalty.</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h4 class="font-bold text-xl text-[#DD6B20]">🤝 Resilient Supply Chain</h4>
+                        <p class="text-gray-600 mt-2">Enhanced data transparency turns supplier relationships into strategic partnerships.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="metrics" class="py-16 bg-white rounded-lg shadow-lg px-8">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-[#2B6CB0] mb-4">Measuring What Matters</h2>
+            <p class="text-lg text-center text-gray-600 max-w-3xl mx-auto mb-12">True success isn't just about being on-time and on-budget. It's about adoption and value realization. This requires a shift from purely technical metrics to people-centric KPIs.</p>
+            <div class="flex justify-center mb-8">
+                <button id="kpiTraditionalBtn" class="kpi-toggle-active px-6 py-2 font-semibold rounded-l-lg transition-colors">Traditional Metrics</button>
+                <button id="kpiPeopleBtn" class="kpi-toggle-inactive px-6 py-2 font-semibold rounded-r-lg transition-colors">People-Centric Metrics</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full max-w-4xl mx-auto text-left">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="p-4 font-semibold">Example Metric</th>
+                            <th class="p-4 font-semibold">Why It Matters</th>
+                        </tr>
+                    </thead>
+                    <tbody id="kpiTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center mt-8 py-8 border-t border-gray-200">
+        <p class="text-gray-600">The ultimate ROI of an ERP project is a culture equipped to thrive on change.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let resistanceChartInstance;
+
+            const resistanceData = {
+                psychological: {
+                    title: 'Deconstructing the Psychological Barrier',
+                    text: 'This barrier is built on personal anxieties. Fear of job loss due to automation, exhaustion from constant organizational change, and uncertainty about new roles create a powerful resistance to adoption.',
+                    labels: ['Fear of Job Insecurity', 'Change Fatigue', 'Fear of the Unknown'],
+                    data: [85, 70, 90]
+                },
+                operational: {
+                    title: 'Overcoming Operational Friction',
+                    text: 'This is resistance rooted in daily work. Employees are comfortable with legacy systems, even inefficient ones. A steep learning curve, poor system usability, and inadequate training (a factor in over 40% of failures) are major hurdles.',
+                    labels: ['Attachment to Legacy Ways', 'Inadequate Training', 'Poor System Usability'],
+                    data: [80, 95, 75]
+                },
+                political: {
+                    title: 'Navigating the Political Undercurrent',
+                    text: 'ERP systems centralize data, which can threaten departments or individuals who previously "owned" that information. This perceived loss of control and influence can lead to internal power struggles and even project sabotage.',
+                    labels: ['Loss of Data Control', 'Threat to Authority', 'Lack of Involvement'],
+                    data: [70, 65, 80]
+                }
+            };
+
+            const kpiData = {
+                traditional: [
+                    { metric: 'On-time Delivery', why: 'Ensures project schedule adherence and manages timeline expectations.' },
+                    { metric: 'On-budget Completion', why: 'Maintains financial discipline and controls project costs.' },
+                    { metric: 'Go-live Date Achieved', why: 'Marks the technical deployment milestone of the project.' }
+                ],
+                people: [
+                    { metric: 'User Adoption Rate', why: 'Directly measures if the system is actually being used and realizing value.' },
+                    { metric: 'Help Desk Ticket Volume', why: 'Indicates user proficiency and areas where more training may be needed.' },
+                    { metric: 'Employee Satisfaction Scores', why: 'Gauges morale and acceptance of the new system and processes.' },
+                    { metric: 'Time to Proficiency', why: 'Measures how quickly employees become effective with the new tools.' }
+                ]
+            };
+
+            const resistanceDetails = document.getElementById('resistanceDetails');
+            const detailsTitle = document.getElementById('detailsTitle');
+            const detailsText = document.getElementById('detailsText');
+            const resistanceCanvas = document.getElementById('resistanceChart').getContext('2d');
+            
+            const buttons = {
+                psychological: document.getElementById('psychologicalBtn'),
+                operational: document.getElementById('operationalBtn'),
+                political: document.getElementById('politicalBtn')
+            };
+
+            function updateResistanceChart(type) {
+                const data = resistanceData[type];
+                detailsTitle.textContent = data.title;
+                detailsText.textContent = data.text;
+
+                if (resistanceChartInstance) {
+                    resistanceChartInstance.destroy();
+                }
+
+                resistanceChartInstance = new Chart(resistanceCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Impact Score',
+                            data: data.data,
+                            backgroundColor: ['#2B6CB0', '#319795', '#DD6B20'],
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        scales: {
+                            x: { beginAtZero: true, max: 100 }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    title: (tooltipItems) => tooltipItems[0].label
+                                }
+                            }
+                        }
+                    }
+                });
+
+                resistanceDetails.classList.remove('hidden');
+                Object.values(buttons).forEach(btn => btn.classList.remove('border-[#2B6CB0]', 'bg-blue-50'));
+                buttons[type].classList.add('border-[#2B6CB0]', 'bg-blue-50');
+            }
+
+            Object.keys(buttons).forEach(key => {
+                buttons[key].addEventListener('click', () => updateResistanceChart(key));
+            });
+            
+            const roiCtx = document.getElementById('roiChart').getContext('2d');
+            new Chart(roiCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Excellent Change Management', 'Poor Change Management'],
+                    datasets: [{
+                        data: [86, 14],
+                        backgroundColor: ['#2B6CB0', '#E2E8F0'],
+                        borderColor: '#F8F9FA',
+                        borderWidth: 4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: {
+                            display: true,
+                            text: 'Likelihood of Meeting Project Objectives',
+                            font: { size: 18 },
+                            padding: { bottom: 20 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => ` ${context.label}: ${context.raw}%`
+                            }
+                        }
+                    }
+                }
+            });
+
+            const kpiTableBody = document.getElementById('kpiTableBody');
+            const kpiTraditionalBtn = document.getElementById('kpiTraditionalBtn');
+            const kpiPeopleBtn = document.getElementById('kpiPeopleBtn');
+
+            function renderKpiTable(type) {
+                kpiTableBody.innerHTML = '';
+                kpiData[type].forEach(item => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-gray-200';
+                    row.innerHTML = `
+                        <td class="p-4">${item.metric}</td>
+                        <td class="p-4 text-gray-600">${item.why}</td>
+                    `;
+                    kpiTableBody.appendChild(row);
+                });
+            }
+
+            kpiTraditionalBtn.addEventListener('click', () => {
+                renderKpiTable('traditional');
+                kpiTraditionalBtn.classList.replace('kpi-toggle-inactive', 'kpi-toggle-active');
+                kpiPeopleBtn.classList.replace('kpi-toggle-active', 'kpi-toggle-inactive');
+            });
+
+            kpiPeopleBtn.addEventListener('click', () => {
+                renderKpiTable('people');
+                kpiPeopleBtn.classList.replace('kpi-toggle-inactive', 'kpi-toggle-active');
+                kpiTraditionalBtn.classList.replace('kpi-toggle-active', 'kpi-toggle-inactive');
+            });
+
+            renderKpiTable('traditional');
+        });
+    </script>
+</body>
+</html>
