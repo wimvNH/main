@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2Brouter vs Billit Cost Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for a professional look */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .recommendation {
+            border: 3px solid;
+            border-radius: 0.75rem;
+        }
+        .billit-bg { background-color: #3b82f6; color: white; } /* Blue tone for Billit */
+        .b2brouter-bg { background-color: #10b981; color: white; } /* Green tone for B2Brouter */
+        .neutral-bg { background-color: #f3f4f6; color: #1f2937; }
+        .neutral-border { border-color: #6b7280; }
+        .reco-billit { border-color: #3b82f6; background-color: #eff6ff; }
+        .reco-b2brouter { border-color: #10b981; background-color: #ecfdf5; }
+
+        /* Icon styling */
+        .icon {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            vertical-align: middle;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+
+    <main class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-2">E-Invoicing Cost & Recommendation Tool</h1>
+        <p class="text-gray-600 mb-8">Enter your business metrics below to get a calculated cost comparison and recommendation for B2Brouter and Billit.</p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Input Card -->
+            <div class="card p-6 lg:col-span-1 h-fit">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Your Business Profile</h2>
+                <form id="comparison-form" onchange="updateResults()">
+
+                    <div class="mb-5">
+                        <label for="monthly-docs" class="block text-sm font-medium text-gray-700 mb-1">Documents Processed Per Month (Sent + Received)</label>
+                        <input type="number" id="monthly-docs" value="150" min="1" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div class="mb-5">
+                        <label for="total-users" class="block text-sm font-medium text-gray-700 mb-1">Number of Users Needing Access</label>
+                        <input type="number" id="total-users" value="3" min="1" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Need Advanced Admin Tools (Bank Linking, OCR, Time Tracking)?</label>
+                        <div class="flex items-center space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="admin-priority" value="Yes" class="form-radio text-blue-600" checked>
+                                <span class="ml-2 text-gray-700">Yes</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="admin-priority" value="No" class="form-radio text-blue-600">
+                                <span class="ml-2 text-gray-700">No</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Need Wide Global E-invoicing/Non-Peppol Networks (SDI, Facturae)?</label>
+                        <div class="flex items-center space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="global-priority" value="Yes" class="form-radio text-blue-600">
+                                <span class="ml-2 text-gray-700">Yes</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="global-priority" value="No" class="form-radio text-blue-600" checked>
+                                <span class="ml-2 text-gray-700">No</span>
+                            </label>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <!-- Results & Recommendation Card -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Recommendation Block -->
+                <div id="recommendation-output" class="recommendation p-6 reco-billit">
+                    <h2 class="text-2xl font-bold mb-3">
+                        <span id="reco-icon" class="icon">
+                            <!-- SVG icon will be injected here -->
+                        </span>
+                        Recommendation: <span id="recommended-tool" class="text-blue-700">Billit</span>
+                    </h2>
+                    <p id="reco-rationale" class="text-gray-700">
+                        Based on your inputs, Billit is the better fit because you prioritized advanced administrative features, which are its core strength.
+                    </p>
+                </div>
+
+                <!-- Cost Comparison Table -->
+                <div class="card p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Annual Cost Comparison (Excl. VAT)</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Provider</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estimated Cost</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan Details & Rationale</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <!-- Billit Row -->
+                                <tr id="billit-row" class="billit-row">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Billit</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-lg font-bold billit-bg rounded-lg" id="billit-cost">€840</td>
+                                    <td class="px-6 py-4" id="billit-plan-details"></td>
+                                </tr>
+                                <!-- B2Brouter Row -->
+                                <tr id="b2brouter-row" class="b2brouter-row">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">B2Brouter</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-lg font-bold b2brouter-bg rounded-lg" id="b2brouter-cost">€300</td>
+                                    <td class="px-6 py-4" id="b2brouter-plan-details"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-4">*Costs are approximate annual estimates based on provider pricing tiers and may not include all discounts or specific one-time fees.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- Pricing Constants (Annual, Excl. VAT) ---
+        const PRICING = {
+            BILLIT_USER_COST: 60, // €5/month * 12
+            B2BROUTER_PROFESSIONAL: 110, // 2 users max, unlimited docs
+            B2BROUTER_BUSINESS: 300, // 10 users max, unlimited docs, full features
+            B2BROUTER_MAX_FREE_TX: 24, // Transactions/year
+            BILLIT_TIERS: [
+                { maxDocs: 25, cost: 90, name: "Starter" }, // €7.50/month
+                { maxDocs: 50, cost: 204, name: "Comfort 50" }, // ~€17/month
+                { maxDocs: 100, cost: 396, name: "Premium 100" }, // ~€33/month
+                { maxDocs: 200, cost: 720, name: "Premium 200" }, // ~€60/month
+                { maxDocs: 500, cost: 1740, name: "Premium 500" } // ~€145/month
+            ]
+        };
+
+        // --- Utility Functions ---
+
+        const formatCurrency = (amount) => {
+            return `€${amount.toLocaleString('en-EU', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+        };
+
+        const getSvgIcon = (tool) => {
+            const billitSvg = '<svg class="icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-8H6a1 1 0 010-2h3V6a1 1 0 112 0v2h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3z" clip-rule="evenodd"></path></svg>';
+            const b2brouterSvg = '<svg class="icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zM6.5 9a.5.5 0 00-.5.5v3a.5.5 0 001 0V10h2v2.5a.5.5 0 001 0V9.5a.5.5 0 00-.5-.5H6.5zm5 0a.5.5 0 00-.5.5v3a.5.5 0 001 0V10h2v2.5a.5.5 0 001 0V9.5a.5.5 0 00-.5-.5h-3zM10 1a9 9 0 110 18 9 9 0 010-18z"></path></svg>';
+            return tool === 'Billit' ? billitSvg : b2brouterSvg;
+        };
+
+        // --- Calculation Logic ---
+
+        const calculateBillitCost = (D_monthly, U_total) => {
+            let basePlan = PRICING.BILLIT_TIERS.find(tier => D_monthly <= tier.maxDocs);
+            let costDetails = {
+                plan: '',
+                baseCost: 0,
+                userCost: 0,
+                totalCost: 0,
+                rationale: ''
+            };
+
+            if (D_monthly * 12 <= 1 && U_total === 1) { // Very unlikely, but handles true zero usage
+                costDetails.plan = "Free License (Sales only)";
+                costDetails.rationale = "Billit offers a very limited free license for outbound sales e-invoices only. Full features require a paid plan.";
+            } else if (!basePlan) {
+                costDetails.plan = "Volume Plan (500+ Docs)";
+                costDetails.baseCost = PRICING.BILLIT_TIERS.slice(-1)[0].cost;
+                costDetails.rationale = `Your volume is over 500 documents/month. Pricing is custom, but we use the 500-doc tier as a minimum estimate. Overuse fees may apply.`;
+            } else {
+                costDetails.plan = basePlan.name;
+                costDetails.baseCost = basePlan.cost;
+                costDetails.rationale = `Based on your ${D_monthly} documents/month, you require the ${basePlan.name} tier.`;
+            }
+
+            // Calculate user cost if not custom cost (for display purposes)
+            if (U_total > 1 && typeof costDetails.baseCost === 'number') {
+                const extraUsers = U_total - 1;
+                costDetails.userCost = extraUsers * PRICING.BILLIT_USER_COST;
+                costDetails.totalCost = costDetails.baseCost + costDetails.userCost;
+                costDetails.rationale += ` + ${extraUsers} extra user(s) at ${formatCurrency(PRICING.BILLIT_USER_COST)}/year each.`;
+            } else if (typeof costDetails.baseCost === 'number') {
+                costDetails.totalCost = costDetails.baseCost;
+            } else {
+                costDetails.totalCost = 'Custom';
+                costDetails.rationale = costDetails.rationale.replace('minimum estimate.', 'You must contact Billit for a quote.');
+            }
+            
+            return costDetails;
+        };
+
+        const calculateB2BrouterCost = (D_monthly, U_total) => {
+            let costDetails = {
+                plan: '',
+                totalCost: 0,
+                rationale: ''
+            };
+
+            const D_annual = D_monthly * 12;
+
+            if (D_annual <= PRICING.B2BROUTER_MAX_FREE_TX && U_total === 1) {
+                costDetails.plan = "Basic Plan";
+                costDetails.totalCost = 0;
+                costDetails.rationale = `Your annual volume (${D_annual} transactions) is under the 24 transaction limit, and you only have 1 user.`;
+            } else if (U_total <= 2) {
+                costDetails.plan = "Professional Plan";
+                costDetails.totalCost = PRICING.B2BROUTER_PROFESSIONAL;
+                costDetails.rationale = `Your 2 user limit is met by the Professional Plan, which includes unlimited transactions and contacts.`;
+            } else if (U_total <= 10) {
+                costDetails.plan = "Business Plan";
+                costDetails.totalCost = PRICING.B2BROUTER_BUSINESS;
+                costDetails.rationale = `With ${U_total} users, the Business Plan is required. It includes full features, unlimited volume, and up to 10 users.`;
+            } else {
+                costDetails.plan = "Enterprise/Custom";
+                costDetails.totalCost = 'Custom';
+                costDetails.rationale = `With ${U_total} users, you will require the Enterprise Plan. You must contact B2Brouter for a quote.`;
+            }
+
+            return costDetails;
+        };
+
+        const getRecommendation = (billitCost, b2brouterCost, F_admin_priority, F_global_priority) => {
+            let recommendation = {
+                tool: 'Billit', // Default recommendation
+                rationale: 'Cost Comparison inconclusive or equal, Billit provides superior administration tools for SMEs.'
+            };
+
+            // Check for Custom Quotes - cost comparison is difficult
+            if (billitCost.totalCost === 'Custom' || b2brouterCost.totalCost === 'Custom') {
+                recommendation.tool = (billitCost.totalCost === 'Custom' ? 'B2Brouter' : 'Billit');
+                recommendation.rationale = 'One or both options require a custom quote for your volume/user needs. Please contact the provider(s) directly. The one suggested here requires fewer custom steps.';
+                return recommendation;
+            }
+
+            // 1. Feature Priority Checks (Override Cost)
+            if (F_admin_priority === 'Yes') {
+                recommendation.tool = 'Billit';
+                recommendation.rationale = 'Billit is recommended because you prioritized **Advanced Administrative Features** (Bank Linking, OCR, Time Tracking), which is its core strength.';
+                return recommendation;
+            }
+
+            if (F_global_priority === 'Yes') {
+                recommendation.tool = 'B2Brouter';
+                recommendation.rationale = 'B2Brouter is recommended because you prioritized **Global/Non-Peppol Connectivity** (e.g., Facturae, SDI), which is its specialization.';
+                return recommendation;
+            }
+            
+            // 2. Volume/Cost Comparison (If no specific feature priority)
+            if (b2brouterCost.totalCost < billitCost.totalCost) {
+                recommendation.tool = 'B2Brouter';
+                recommendation.rationale = `B2Brouter is recommended because its **fixed price plan (${formatCurrency(b2brouterCost.totalCost)})** is significantly lower than Billit's estimated cost (${formatCurrency(billitCost.totalCost)}) for your volume and user count.`;
+            } else if (billitCost.totalCost < b2brouterCost.totalCost) {
+                recommendation.tool = 'Billit';
+                recommendation.rationale = `Billit is recommended because its **volume-based pricing (${formatCurrency(billitCost.totalCost)})** is lower than B2Brouter's fixed plan (${formatCurrency(b2brouterCost.totalCost)}).`;
+            } else {
+                recommendation.tool = 'B2Brouter'; // Tie-breaker for future-proofing/unlimited volume
+                recommendation.rationale = 'The estimated costs are virtually identical. B2Brouter is selected as a tie-breaker due to its fixed price, unlimited volume, and focus on compliance.';
+            }
+
+            return recommendation;
+        };
+
+        // --- Main Update Function ---
+
+        const updateResults = () => {
+            const D_monthly = parseInt(document.getElementById('monthly-docs').value) || 0;
+            const U_total = parseInt(document.getElementById('total-users').value) || 1;
+            const F_admin_priority = document.querySelector('input[name="admin-priority"]:checked').value;
+            const F_global_priority = document.querySelector('input[name="global-priority"]:checked').value;
+
+            const billitCost = calculateBillitCost(D_monthly, U_total);
+            const b2brouterCost = calculateB2BrouterCost(D_monthly, U_total);
+            const recommendation = getRecommendation(billitCost, b2brouterCost, F_admin_priority, F_global_priority);
+
+            // 1. Update Table Display
+            document.getElementById('billit-cost').textContent = typeof billitCost.totalCost === 'number' ? formatCurrency(billitCost.totalCost) : billitCost.totalCost;
+            document.getElementById('billit-plan-details').textContent = `${billitCost.plan} Plan. Rationale: ${billitCost.rationale}`;
+            
+            document.getElementById('b2brouter-cost').textContent = typeof b2brouterCost.totalCost === 'number' ? formatCurrency(b2brouterCost.totalCost) : b2brouterCost.totalCost;
+            document.getElementById('b2brouter-plan-details').textContent = `${b2brouterCost.plan} Plan. Rationale: ${b2brouterCost.rationale}`;
+
+            // 2. Highlight the Recommended Row
+            const recoBlock = document.getElementById('recommendation-output');
+            const recoToolName = document.getElementById('recommended-tool');
+            
+            recoToolName.textContent = recommendation.tool;
+            document.getElementById('reco-rationale').textContent = recommendation.rationale;
+            document.getElementById('reco-icon').innerHTML = getSvgIcon(recommendation.tool);
+            
+            // Apply visual styling based on recommendation
+            recoBlock.className = 'recommendation p-6';
+            if (recommendation.tool === 'Billit') {
+                recoToolName.className = 'text-blue-700';
+                recoBlock.classList.add('reco-billit');
+            } else {
+                recoToolName.className = 'text-green-700';
+                recoBlock.classList.add('reco-b2brouter');
+            }
+        };
+
+        // Run on load to display initial values
+        window.onload = updateResults;
+    </script>
+</body>
+</html>
