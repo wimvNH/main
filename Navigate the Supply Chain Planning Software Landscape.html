@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive SCP Software Decision Hub by Wim Vanhoorne</title>
-    <!-- Chosen Palette: Calm Neutral Harmony -->
-    <!-- Application Structure Plan: The application is structured as a "Decision Hub" to guide users from a broad market overview to specific, actionable insights. The flow is: 1. **Overview:** An introductory section with a high-level bubble chart to orient the user to the market landscape based on company size and implementation complexity. 2. **Vendor Comparison:** The core interactive tool. Users can filter a grid of vendor cards by company size and target industry. They can also select vendors for a direct side-by-side comparison. This empowers users to quickly narrow the field. 3. **Deep Dive:** A dedicated section that dynamically displays a detailed profile of a single selected vendor, including qualitative data and a quantitative radar chart for a visual "strengths fingerprint." 4. **Strategic Recommendations:** An interactive Q&A format that provides tailored suggestions based on the user's business scenario. This structure mirrors a logical decision-making process, making the dense report content accessible and actionable. -->
-    <!-- Visualization & Content Choices: 1. **Market Overview (Bubble Chart, Chart.js):** Goal: Instant market orientation. Viz: Bubble chart mapping Company Size vs. Implementation Complexity. Interaction: Hover for details. Justification: Shows 3 dimensions of data visually and intuitively. 2. **Vendor Strengths (Radar Chart, Chart.js):** Goal: Visualize a vendor's "fingerprint." Viz: Radar chart scoring vendors on key capabilities (e.g., Forecasting, AI/ML, Usability). Interaction: Dynamically generated on vendor selection. Justification: Excellent for multi-variable comparison. 3. **Cost Indicators (HTML/CSS):** Goal: Show relative cost without false precision. Viz: Text-based dollar signs ($ to $$$$$). Interaction: Tooltip on hover. Justification: More honest representation of qualitative cost data from the report. 4. **Vendor Comparison (Filterable Cards, JS/HTML/CSS):** Goal: Allow users to find relevant solutions. Viz: A grid of cards. Interaction: Filters for industry/size hide/show cards. Justification: A modern, responsive, and intuitive way to handle complex filtering and comparison tasks. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -107,20 +103,19 @@
                         <a href="#recommendations" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700">Recommendations</a>
                     </div>
                 </div>
-                 <div class="md:hidden">
-                    <select id="mobile-nav" class="bg-white border border-slate-300 rounded-md py-2 px-3 text-sm">
-                        <option value="#overview">Overview</option>
-                        <option value="#comparison">Compare Vendors</option>
-                        <option value="#deep-dive">Deep Dive</option>
-                        <option value="#recommendations">Recommendations</option>
-                    </select>
-                </div>
+                   <div class="md:hidden">
+                        <select id="mobile-nav" class="bg-white border border-slate-300 rounded-md py-2 px-3 text-sm">
+                            <option value="#overview">Overview</option>
+                            <option value="#comparison">Compare Vendors</option>
+                            <option value="#deep-dive">Deep Dive</option>
+                            <option value="#recommendations">Recommendations</option>
+                        </select>
+                    </div>
             </div>
         </nav>
     </header>
 
     <main>
-        <!-- Section 1: Overview -->
         <section id="overview" class="py-16 md:py-24 text-center">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-slate-900">Navigate the Supply Chain Planning Software Landscape</h1>
@@ -139,7 +134,6 @@
             </div>
         </section>
 
-        <!-- Section 2: Vendor Comparison -->
         <section id="comparison" class="py-16 md:py-24 bg-white">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center">
@@ -149,7 +143,6 @@
                     </p>
                 </div>
 
-                <!-- Filters -->
                 <div class="flex flex-col md:flex-row gap-4 mb-8 p-4 bg-slate-50 rounded-lg border border-slate-200 justify-center">
                     <div>
                         <label for="sizeFilter" class="block text-sm font-medium text-slate-700 mb-1">Company Size</label>
@@ -167,21 +160,18 @@
                         </select>
                     </div>
                     <div class="self-end">
-                         <button id="compareBtn" class="w-full md:w-auto bg-teal-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-teal-700 transition disabled:bg-slate-400 disabled:cursor-not-allowed" disabled>
-                            Compare Selected (0)
-                        </button>
+                          <button id="compareBtn" class="w-full md:w-auto bg-teal-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-teal-700 transition disabled:bg-slate-400 disabled:cursor-not-allowed" disabled>
+                                Compare Selected (0)
+                            </button>
                     </div>
                 </div>
 
-                <!-- Vendor Cards -->
                 <div id="vendorGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Vendor cards will be inserted here by JavaScript -->
-                </div>
-                 <p id="noResults" class="text-center text-slate-500 py-8 hidden">No vendors match the selected criteria.</p>
+                    </div>
+                   <p id="noResults" class="text-center text-slate-500 py-8 hidden">No vendors match the selected criteria.</p>
             </div>
         </section>
 
-        <!-- Section 3: Deep Dive -->
         <section id="deep-dive" class="py-16 md:py-24">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center">
@@ -191,26 +181,24 @@
                     </p>
                 </div>
                 <div id="deepDiveContent" class="bg-white p-6 md:p-10 rounded-lg shadow-lg max-w-6xl mx-auto min-h-[300px] flex items-center justify-center">
-                     <p class="text-slate-500 text-center">Click "Learn More" on a vendor card to see details here.</p>
+                       <p class="text-slate-500 text-center">Click "Learn More" on a vendor card to see details here.</p>
                 </div>
             </div>
         </section>
 
-        <!-- Section 4: Recommendations -->
         <section id="recommendations" class="py-16 md:py-24 bg-white">
-             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center">
-                    <h2 class="section-title">Strategic Recommendations</h2>
-                    <p class="section-subtitle">
-                        The "best" solution is always contextual. Based on the report's findings, we've outlined tailored recommendations for common business scenarios. Select the profile that best matches your organization to see which solutions are likely the strongest fit.
-                    </p>
-                </div>
-                <div class="max-w-4xl mx-auto">
-                    <div id="recommendationAccordion" class="space-y-4">
-                        <!-- Recommendation items will be inserted here by JavaScript -->
+               <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center">
+                        <h2 class="section-title">Strategic Recommendations</h2>
+                        <p class="section-subtitle">
+                            The "best" solution is always contextual. Based on the report's findings, we've outlined tailored recommendations for common business scenarios. Select the profile that best matches your organization to see which solutions are likely the strongest fit.
+                        </p>
+                    </div>
+                    <div class="max-w-4xl mx-auto">
+                        <div id="recommendationAccordion" class="space-y-4">
+                            </div>
                     </div>
                 </div>
-            </div>
         </section>
     </main>
     
@@ -221,13 +209,11 @@
         </div>
     </footer>
     
-    <!-- Comparison Modal -->
     <div id="comparisonModal" class="modal-overlay hidden">
         <div id="modalContent" class="modal-content relative">
             <button id="closeModalBtn" class="absolute top-4 right-4 text-slate-500 hover:text-slate-800 text-2xl font-bold">&times;</button>
             <div id="modalGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Comparison columns will be inserted here -->
-            </div>
+                </div>
         </div>
     </div>
 
@@ -552,6 +538,39 @@
                     values: [5, 4, 5, 5, 3, 3]
                 },
                 profile: "ADEXA positions itself as a leader in AI-driven supply chain planning and optimization, distinguished by its real-time digital twin capabilities. It targets large enterprises, especially those in complex manufacturing and process industries, offering powerful predictive and prescriptive analytics. While it demands a significant investment in implementation and user training, its advanced algorithms and comprehensive scope are designed to deliver substantial strategic advantages for highly intricate supply chains."
+            },
+            // --- NEW VENDOR ADDED: B2WISE ---
+            {
+                id: 'b2wise',
+                name: 'B2Wise',
+                tagline: 'Collaborative cloud S&OP and planning for mid-market manufacturers.',
+                size: ['broad'],
+                industries: ['Manufacturing', 'Consumer Goods', 'Distribution', 'Automotive', 'Packaging', 'Food & Beverage'],
+                bubble: { x: 1.5, y: 2.5, r: 14 }, // Positioning between mid-sized and broad, medium complexity
+                functionalities: ['S&OP/IBP', 'Demand Forecasting', 'Supply Planning', 'Inventory Optimization', 'Financial Planning Integration'],
+                keyFeatures: ['Strong S&OP and cross-functional collaboration tools', 'Cloud-based platform with fast deployment', 'Pre-built integration templates for major ERPs (SAP, Oracle, Microsoft)', 'User-centric design focused on planning teams'],
+                pros: [
+                    'Excellent framework for implementing cross-functional S&OP',
+                    'Fast time-to-value due to rapid cloud deployment',
+                    'Highly collaborative interface encourages organizational alignment',
+                    'Good balance of sophisticated features and ease of use/implementation',
+                    'Strong support for multi-site and multi-tier supply chains'
+                ],
+                cons: [
+                    'Less depth in niche areas like MEIO or MRO compared to specialists',
+                    'May require custom integration work for highly unique ERP setups',
+                    'Reporting capabilities can be less visually rich than pure BI tools',
+                ],
+                costs: {
+                    license: { score: 3, text: "Subscription-based, typically competitive for the mid-to-large market." },
+                    implementation: { score: 2, text: "Designed for relatively fast, standardized implementation." },
+                },
+                companySize: "Broad range, from mid-sized growth companies to large enterprises.",
+                radarData: {
+                    labels: ['Forecasting', 'Inventory Opt.', 'S&OP/IBP', 'AI/ML', 'Usability', 'Implementation Ease'],
+                    values: [4, 3, 5, 3, 4, 4]
+                },
+                profile: "B2Wise offers a robust, cloud-native platform focused heavily on Sales & Operations Planning (S&OP) and Integrated Business Planning (IBP). It excels at bringing cross-functional teams together for collaborative planning and quick decision-making. Positioned for the mid-to-large market, B2Wise offers a powerful and flexible solution with faster deployment times than many top-tier giants, making it a compelling choice for companies prioritizing organizational alignment and S&OP maturity."
             }
         ];
         
@@ -574,6 +593,7 @@
                     <ul class="space-y-3">
                         <li><strong class="text-teal-700">Netstock:</strong> Highly recommended. It is purpose-built for this segment, delivering an exceptionally fast ROI, an intuitive interface, and excellent support. It's often the perfect first step into advanced planning.</li>
                         <li><strong class="text-teal-700">SlimStock (Slim4):</strong> A fantastic, balanced option offering a straightforward path to improved forecasting and inventory management. Its strong vendor support during implementation is a major plus.</li>
+                        <li><strong class="text-teal-700">B2Wise:</strong> Excellent choice if S&OP process maturity and cross-functional alignment is your *first* priority. Great for fast cloud deployment.</li>
                         <li><strong class="text-teal-700">Microsoft Demand Planner App:</strong> A good choice if you are a mid-sized business already invested in the Microsoft Dynamics 365 ecosystem and want integrated demand planning.</li>
                     </ul>`
             },
@@ -584,285 +604,287 @@
                     <ul class="space-y-3">
                         <li><strong class="text-teal-700">RELEX Solutions:</strong> The go-to choice for grocery, retail, and CPG. Its specialized features for fresh food, pricing, and space optimization deliver tangible, high-impact results.</li>
                         <li><strong class="text-teal-700">ToolsGroup:</strong> The undisputed leader for MRO and aftermarket parts. Its engine is uniquely designed to handle the intermittent demand and long-tail SKUs common in this sector.</li>
-                         <li><strong class="text-teal-700">SlimStock (Slim4):</strong> Also demonstrates strong, proven capabilities and tailored solutions for the retail, pharmaceutical, and automotive sectors.</li>
+                        <li><strong class="text-teal-700">SlimStock (Slim4):</strong> Also demonstrates strong, proven capabilities and tailored solutions for the retail, pharmaceutical, and automotive sectors.</li>
                     </ul>`
             }
         ];
 
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const vendorGrid = document.getElementById('vendorGrid');
-            const sizeFilter = document.getElementById('sizeFilter');
-            const industryFilter = document.getElementById('industryFilter');
-            const deepDiveContent = document.getElementById('deepDiveContent');
-            const noResults = document.getElementById('noResults');
-            const compareBtn = document.getElementById('compareBtn');
-            const comparisonModal = document.getElementById('comparisonModal');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const modalGrid = document.getElementById('modalGrid');
-            const recommendationAccordion = document.getElementById('recommendationAccordion');
-            const mobileNav = document.getElementById('mobile-nav');
+        const vendorGrid = document.getElementById('vendorGrid');
+        const sizeFilter = document.getElementById('sizeFilter');
+        const industryFilter = document.getElementById('industryFilter');
+        const deepDiveContent = document.getElementById('deepDiveContent');
+        const noResults = document.getElementById('noResults');
+        const compareBtn = document.getElementById('compareBtn');
+        const comparisonModal = document.getElementById('comparisonModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modalGrid = document.getElementById('modalGrid');
+        const recommendationAccordion = document.getElementById('recommendationAccordion');
+        const mobileNav = document.getElementById('mobile-nav');
 
-            let deepDiveChart = null;
-            let selectedForComparison = new Set();
-            
-            const costIcons = (score) => '<span class="text-teal-500">' + '$'.repeat(score) + '</span><span class="text-slate-300">' + '$'.repeat(5 - score) + '</span>';
+        let deepDiveChart = null;
+        let selectedForComparison = new Set();
+        
+        const costIcons = (score) => '<span class="text-teal-500">' + '$'.repeat(score) + '</span><span class="text-slate-300">' + '$'.repeat(5 - score) + '</span>';
 
-            function renderVendorCards(vendors) {
-                vendorGrid.innerHTML = '';
-                if (vendors.length === 0) {
-                    noResults.style.display = 'block';
-                } else {
-                    noResults.style.display = 'none';
-                    vendors.forEach(vendor => {
-                        const card = document.createElement('div');
-                        card.className = 'vendor-card bg-white p-6 rounded-lg border border-slate-200 flex flex-col';
-                        card.dataset.vendorId = vendor.id;
-                        card.innerHTML = `
-                            <div class="flex-grow">
-                                <h3 class="text-xl font-bold text-slate-900">${vendor.name}</h3>
-                                <p class="text-slate-500 text-sm mt-1 mb-4">${vendor.tagline}</p>
-                                <div class="space-y-3 text-sm">
-                                    <div class="flex items-start">
-                                        <span class="text-teal-600 w-5 h-5 mr-2 mt-0.5 flex-shrink-0">✓</span>
-                                        <p><strong class="font-semibold text-slate-700">Best for:</strong> ${vendor.size.includes('mid') ? 'Mid-Sized' : vendor.size.includes('large') ? 'Large Enterprise' : 'Broad Range'}</p>
-                                    </div>
-                                    <div class="flex items-start">
-                                        <span class="text-teal-600 w-5 h-5 mr-2 mt-0.5 flex-shrink-0">✓</span>
-                                        <p><strong class="font-semibold text-slate-700">Key Industries:</strong> ${vendor.industries.slice(0,3).join(', ')}...</p>
-                                    </div>
-                                    <div class="flex items-start" data-tooltip="Relative License Cost">
-                                        <span class="text-teal-600 w-5 h-5 mr-2 mt-0.5 flex-shrink-0">✓</span>
-                                        <p><strong class="font-semibold text-slate-700">License Cost:</strong> ${costIcons(vendor.costs.license.score)}</p>
-                                    </div>
-                                    <div class="flex items-start" data-tooltip="Relative Implementation Cost & Complexity">
-                                        <span class="text-teal-600 w-5 h-5 mr-2 mt-0.5 flex-shrink-0">✓</span>
-                                        <p><strong class="font-semibold text-slate-700">Implementation:</strong> ${costIcons(vendor.costs.implementation.score)}</p>
-                                    </div>
+        function renderVendorCards(vendors) {
+            vendorGrid.innerHTML = '';
+            if (vendors.length === 0) {
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+                vendors.forEach(vendor => {
+                    const card = document.createElement('div');
+                    card.className = 'vendor-card bg-white p-6 rounded-lg border border-slate-200 flex flex-col';
+                    card.dataset.vendorId = vendor.id;
+                    card.innerHTML = `
+                        <div class="flex-grow">
+                            <h3 class="text-xl font-bold text-slate-900">${vendor.name}</h3>
+                            <p class="text-slate-500 text-sm mt-1 mb-4">${vendor.tagline}</p>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex items-start">
+                                    <span class="text-teal-600 w-5 h-5 mr-2 mt-0.5 flex-shrink-0">✓</span>
+                                    <p><strong class="font-semibold text-slate-700">Best for:</strong> ${vendor.size.includes('mid') ? 'Mid-Sized' : vendor.size.includes('large') ? 'Large Enterprise' : 'Broad Range'}</p>
                                 </div>
-                            </div>
-                            <div class="mt-6 flex flex-col sm:flex-row gap-2">
-                                <button class="learn-more-btn flex-1 text-center bg-teal-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-teal-700 transition">Learn More</button>
-                                <label class="flex items-center justify-center sm:justify-start space-x-2 p-2 border rounded-md cursor-pointer hover:bg-slate-50">
-                                    <input type="checkbox" class="compare-checkbox rounded text-teal-600 focus:ring-teal-500">
-                                    <span class="text-sm font-medium text-slate-700">Compare</span>
-                                </label>
-                            </div>
-                        `;
-                        vendorGrid.appendChild(card);
-                    });
-                }
-            }
-
-            function renderDeepDive(vendorId) {
-                const vendor = vendorData.find(v => v.id === vendorId);
-                if (!vendor) return;
-
-                deepDiveContent.innerHTML = `
-                    <div class="w-full">
-                        <h3 class="text-3xl font-bold text-slate-900 text-center">${vendor.name}</h3>
-                        <p class="text-slate-600 mt-2 text-center">${vendor.profile}</p>
-                        <div class="mt-8 grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-                            <div class="lg:col-span-3">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div class="bg-slate-50 p-4 rounded-lg">
-                                        <h4 class="font-bold text-lg text-green-700 mb-3">Strengths (Pros)</h4>
-                                        <ul class="space-y-2 list-disc list-inside text-slate-700">
-                                            ${vendor.pros.map(pro => `<li>${pro}</li>`).join('')}
-                                        </ul>
-                                    </div>
-                                    <div class="bg-slate-50 p-4 rounded-lg">
-                                        <h4 class="font-bold text-lg text-red-700 mb-3">Limitations (Cons)</h4>
-                                        <ul class="space-y-2 list-disc list-inside text-slate-700">
-                                            ${vendor.cons.map(con => `<li>${con}</li>`).join('')}
-                                        </ul>
-                                    </div>
+                                <div class="flex items-start">
+                                    <span class="text-teal-600 w-5 h-5 mr-2 mt-0.5 flex-shrink-0">✓</span>
+                                    <p><strong class="font-semibold text-slate-700">Key Industries:</strong> ${vendor.industries.slice(0,3).join(', ')}...</p>
                                 </div>
-                                <div class="mt-6 bg-slate-50 p-4 rounded-lg">
-                                    <h4 class="font-bold text-lg text-slate-800 mb-3">Key Details</h4>
-                                    <div class="text-sm space-y-2">
-                                        <p><strong class="font-semibold">Core Functionalities:</strong> ${vendor.functionalities.join(', ')}</p>
-                                        <p><strong class="font-semibold">Typical Company Size:</strong> ${vendor.companySize}</p>
-                                        <p><strong class="font-semibold">Target Industries:</strong> ${vendor.industries.join(', ')}</p>
-                                    </div>
+                                <div class="flex items-start" data-tooltip="Relative License Cost">
+                                    <span class="text-teal-600 w-5 h-5 mr-2 mt-0.5 flex-shrink-0">✓</span>
+                                    <p><strong class="font-semibold text-slate-700">License Cost:</strong> ${costIcons(vendor.costs.license.score)}</p>
                                 </div>
-                            </div>
-                            <div class="lg:col-span-2">
-                                <div class="chart-container h-[350px]">
-                                    <canvas id="deepDiveRadarChart"></canvas>
+                                <div class="flex items-start" data-tooltip="Relative Implementation Cost & Complexity">
+                                    <span class="text-teal-600 w-5 h-5 mr-2 mt-0.5 flex-shrink-0">✓</span>
+                                    <p><strong class="font-semibold text-slate-700">Implementation:</strong> ${costIcons(vendor.costs.implementation.score)}</p>
                                 </div>
-                                <p class="text-xs text-center text-slate-500 mt-2">Capability Radar (scored 1-5 based on report analysis)</p>
                             </div>
                         </div>
-                    </div>
-                `;
-                
-                const ctx = document.getElementById('deepDiveRadarChart').getContext('2d');
-                if(deepDiveChart) deepDiveChart.destroy();
-                deepDiveChart = new Chart(ctx, {
-                    type: 'radar',
-                    data: {
-                        labels: vendor.radarData.labels,
-                        datasets: [{
-                            label: vendor.name,
-                            data: vendor.radarData.values,
-                            backgroundColor: 'rgba(13, 148, 136, 0.2)', // teal-600 with opacity
-                            borderColor: 'rgb(13, 148, 136)',
-                            pointBackgroundColor: 'rgb(13, 148, 136)',
-                            pointBorderColor: '#fff',
-                            pointHoverBackgroundColor: '#fff',
-                            pointHoverBorderColor: 'rgb(13, 148, 136)'
-                        }]
-                    },
-                    options: {
-                        maintainAspectRatio: false,
-                        scales: {
-                            r: {
-                                beginAtZero: true,
-                                max: 5,
-                                stepSize: 1,
-                                angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
-                                grid: { color: 'rgba(0, 0, 0, 0.1)' },
-                                pointLabels: { font: { size: 12 } }
-                            }
-                        },
-                        plugins: {
-                           legend: { display: false }
-                        }
-                    }
-                });
-            }
-
-            function populateIndustries() {
-                const industries = [...new Set(vendorData.flatMap(v => v.industries))].sort();
-                industries.forEach(industry => {
-                    const option = document.createElement('option');
-                    option.value = industry;
-                    option.textContent = industry;
-                    industryFilter.appendChild(option);
-                });
-            }
-
-            function filterVendors() {
-                const size = sizeFilter.value;
-                const industry = industryFilter.value;
-
-                const filtered = vendorData.filter(vendor => {
-                    const sizeMatch = size === 'all' || vendor.size.includes(size);
-                    const industryMatch = industry === 'all' || vendor.industries.includes(industry);
-                    return sizeMatch && industryMatch;
-                });
-                renderVendorCards(filtered);
-            }
-            
-            function updateCompareButton() {
-                const count = selectedForComparison.size;
-                compareBtn.textContent = `Compare Selected (${count})`;
-                compareBtn.disabled = count < 2 || count > 3;
-            }
-
-            function renderComparisonModal() {
-                modalGrid.innerHTML = '';
-                const vendorsToCompare = vendorData.filter(v => selectedForComparison.has(v.id));
-
-                // Header row
-                const header = document.createElement('div');
-                header.className = 'hidden md:block md:contents';
-                header.innerHTML = `<div class="font-bold text-lg text-slate-800 pb-4 border-b">Feature</div>` +
-                                   vendorsToCompare.map(v => `<div class="font-bold text-lg text-slate-800 pb-4 border-b text-center">${v.name}</div>`).join('');
-                modalGrid.appendChild(header);
-                
-                const attributes = [
-                    { label: 'Best For', key: v => v.size.includes('mid') ? 'Mid-Sized' : v.size.includes('large') ? 'Large Enterprise' : 'Broad Range' },
-                    { label: 'License Cost', key: v => costIcons(v.costs.license.score) + `<span class="block text-xs text-slate-500">${v.costs.license.text}</span>` },
-                    { label: 'Implementation', key: v => costIcons(v.costs.implementation.score) + `<span class="block text-xs text-slate-500">${v.costs.implementation.text}</span>` },
-                    { label: 'Pros', key: v => `<ul class="list-disc list-inside space-y-1">${v.pros.map(p => `<li>${p}</li>`).join('')}</ul>`},
-                    { label: 'Cons', key: v => `<ul class="list-disc list-inside space-y-1">${v.cons.map(c => `<li>${c}</li>`).join('')}</ul>`},
-                    { label: 'Key Features', key: v => v.keyFeatures.join(', ')},
-                ];
-
-                attributes.forEach(attr => {
-                    let rowHtml = `<div class="font-semibold text-slate-700 py-4 border-b">${attr.label}</div>`;
-                     vendorsToCompare.forEach(v => {
-                        rowHtml += `<div class="py-4 border-b text-sm text-center md:text-left">${attr.key(v)}</div>`;
-                    });
-                    
-                    const rowContainer = document.createElement('div');
-                    rowContainer.className = 'contents';
-                    
-                    if (window.innerWidth < 768) {
-                        rowContainer.innerHTML = `<div class="col-span-full bg-slate-100 p-2 font-bold text-md mt-4">${attr.label}</div>` +
-                        vendorsToCompare.map(v => `
-                            <div class="p-2 border-b">
-                                <p class="font-semibold md:hidden">${v.name}</p>
-                                <div class="text-sm">${attr.key(v)}</div>
-                            </div>
-                        `).join('');
-                    } else {
-                        rowContainer.innerHTML = `<div class="font-semibold text-slate-700 p-4 border-b">${attr.label}</div>` +
-                        vendorsToCompare.map(v => `<div class="p-4 border-b text-sm">${attr.key(v)}</div>`).join('');
-                    }
-                    modalGrid.appendChild(rowContainer);
-                });
-                 
-                // Adjust grid columns for md and lg
-                modalGrid.classList.remove('md:grid-cols-2', 'md:grid-cols-3', 'lg:grid-cols-2', 'lg:grid-cols-3', 'lg:grid-cols-4');
-                if (window.innerWidth >= 1024) { // lg
-                    modalGrid.style.gridTemplateColumns = `1fr repeat(${vendorsToCompare.length}, 2fr)`;
-                } else if (window.innerWidth >= 768) { // md
-                    modalGrid.style.gridTemplateColumns = `1fr repeat(${vendorsToCompare.length}, 2fr)`;
-                } else { // sm
-                    modalGrid.style.gridTemplateColumns = '1fr';
-                }
-
-                comparisonModal.style.display = 'flex';
-            }
-            
-            function renderRecommendations() {
-                recommendationAccordion.innerHTML = '';
-                recommendationData.forEach((item, index) => {
-                    const div = document.createElement('div');
-                    div.className = "bg-white rounded-lg border border-slate-200 overflow-hidden";
-                    div.innerHTML = `
-                        <button class="accordion-btn w-full text-left p-4 flex justify-between items-center font-semibold text-slate-800 hover:bg-slate-50 transition">
-                            <span>${item.title}</span>
-                            <span class="transform transition-transform text-teal-600 text-xl">+</span>
-                        </button>
-                        <div class="accordion-content max-h-0 overflow-hidden transition-all duration-500 ease-in-out">
-                            <div class="p-4 border-t border-slate-200 text-slate-600">${item.content}</div>
+                        <div class="mt-6 flex flex-col sm:flex-row gap-2">
+                            <button class="learn-more-btn flex-1 text-center bg-teal-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-teal-700 transition">Learn More</button>
+                            <label class="flex items-center justify-center sm:justify-start space-x-2 p-2 border rounded-md cursor-pointer hover:bg-slate-50">
+                                <input type="checkbox" class="compare-checkbox rounded text-teal-600 focus:ring-teal-500" ${selectedForComparison.has(vendor.id) ? 'checked' : ''}>
+                                <span class="text-sm font-medium text-slate-700">Compare</span>
+                            </label>
                         </div>
                     `;
-                    recommendationAccordion.appendChild(div);
-                });
-
-                recommendationAccordion.addEventListener('click', e => {
-                    const button = e.target.closest('.accordion-btn');
-                    if(button) {
-                        const content = button.nextElementSibling;
-                        const icon = button.querySelector('span:last-child');
-                        
-                        document.querySelectorAll('.accordion-content').forEach(el => {
-                            if(el !== content) {
-                                el.style.maxHeight = '0px';
-                                el.previousElementSibling.querySelector('span:last-child').textContent = '+';
-                                el.previousElementSibling.querySelector('span:last-child').classList.remove('rotate-45');
-                            }
-                        });
-
-                        if(content.style.maxHeight === '0px' || !content.style.maxHeight) {
-                            content.style.maxHeight = content.scrollHeight + "px";
-                            icon.textContent = '+';
-                            icon.classList.add('rotate-45');
-                        } else {
-                            content.style.maxHeight = '0px';
-                            icon.textContent = '+';
-                            icon.classList.remove('rotate-45');
-                        }
-                    }
+                    vendorGrid.appendChild(card);
                 });
             }
+        }
 
-            // Event Listeners
+        function renderDeepDive(vendorId) {
+            const vendor = vendorData.find(v => v.id === vendorId);
+            if (!vendor) return;
+
+            deepDiveContent.innerHTML = `
+                <div class="w-full">
+                    <h3 class="text-3xl font-bold text-slate-900 text-center">${vendor.name}</h3>
+                    <p class="text-slate-600 mt-2 text-center">${vendor.profile}</p>
+                    <div class="mt-8 grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+                        <div class="lg:col-span-3">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-slate-50 p-4 rounded-lg">
+                                    <h4 class="font-bold text-lg text-green-700 mb-3">Strengths (Pros)</h4>
+                                    <ul class="space-y-2 list-disc list-inside text-slate-700">
+                                        ${vendor.pros.map(pro => `<li>${pro}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                <div class="bg-slate-50 p-4 rounded-lg">
+                                    <h4 class="font-bold text-lg text-red-700 mb-3">Limitations (Cons)</h4>
+                                    <ul class="space-y-2 list-disc list-inside text-slate-700">
+                                        ${vendor.cons.map(con => `<li>${con}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="mt-6 bg-slate-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-lg text-slate-800 mb-3">Key Details</h4>
+                                <div class="text-sm space-y-2">
+                                    <p><strong class="font-semibold">Core Functionalities:</strong> ${vendor.functionalities.join(', ')}</p>
+                                    <p><strong class="font-semibold">Typical Company Size:</strong> ${vendor.companySize}</p>
+                                    <p><strong class="font-semibold">Target Industries:</strong> ${vendor.industries.join(', ')}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-2">
+                            <div class="chart-container h-[350px]">
+                                <canvas id="deepDiveRadarChart"></canvas>
+                            </div>
+                            <p class="text-xs text-center text-slate-500 mt-2">Capability Radar (scored 1-5 based on report analysis)</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const ctx = document.getElementById('deepDiveRadarChart').getContext('2d');
+            if(deepDiveChart) deepDiveChart.destroy();
+            deepDiveChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: vendor.radarData.labels,
+                    datasets: [{
+                        label: vendor.name,
+                        data: vendor.radarData.values,
+                        backgroundColor: 'rgba(13, 148, 136, 0.2)', // teal-600 with opacity
+                        borderColor: 'rgb(13, 148, 136)',
+                        pointBackgroundColor: 'rgb(13, 148, 136)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(13, 148, 136)'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 5,
+                            stepSize: 1,
+                            angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                            pointLabels: { font: { size: 12 } }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function populateIndustries() {
+            const industries = [...new Set(vendorData.flatMap(v => v.industries))].sort();
+            industries.forEach(industry => {
+                const option = document.createElement('option');
+                option.value = industry;
+                option.textContent = industry;
+                industryFilter.appendChild(option);
+            });
+        }
+
+        function filterVendors() {
+            const size = sizeFilter.value;
+            const industry = industryFilter.value;
+
+            const filtered = vendorData.filter(vendor => {
+                const sizeMatch = size === 'all' || vendor.size.includes(size);
+                const industryMatch = industry === 'all' || vendor.industries.includes(industry);
+                return sizeMatch && industryMatch;
+            });
+            renderVendorCards(filtered);
+        }
+        
+        function updateCompareButton() {
+            const count = selectedForComparison.size;
+            compareBtn.textContent = `Compare Selected (${count})`;
+            compareBtn.disabled = count < 2 || count > 3;
+        }
+
+        function renderComparisonModal() {
+            modalGrid.innerHTML = '';
+            const vendorsToCompare = vendorData.filter(v => selectedForComparison.has(v.id));
+
+            // Header row
+            const header = document.createElement('div');
+            header.className = 'hidden md:block md:contents';
+            header.innerHTML = `<div class="font-bold text-lg text-slate-800 pb-4 border-b">Feature</div>` +
+                                 vendorsToCompare.map(v => `<div class="font-bold text-lg text-slate-800 pb-4 border-b text-center">${v.name}</div>`).join('');
+            modalGrid.appendChild(header);
+            
+            const attributes = [
+                { label: 'Best For', key: v => v.size.includes('mid') ? 'Mid-Sized' : v.size.includes('large') ? 'Large Enterprise' : 'Broad Range' },
+                { label: 'License Cost', key: v => costIcons(v.costs.license.score) + `<span class="block text-xs text-slate-500">${v.costs.license.text}</span>` },
+                { label: 'Implementation', key: v => costIcons(v.costs.implementation.score) + `<span class="block text-xs text-slate-500">${v.costs.implementation.text}</span>` },
+                { label: 'Pros', key: v => `<ul class="list-disc list-inside space-y-1">${v.pros.map(p => `<li>${p}</li>`).join('')}</ul>`},
+                { label: 'Cons', key: v => `<ul class="list-disc list-inside space-y-1">${v.cons.map(c => `<li>${c}</li>`).join('')}</ul>`},
+                { label: 'Key Features', key: v => v.keyFeatures.join(', ')},
+            ];
+
+            attributes.forEach(attr => {
+                let rowHtml = `<div class="font-semibold text-slate-700 py-4 border-b">${attr.label}</div>`;
+                  vendorsToCompare.forEach(v => {
+                       rowHtml += `<div class="py-4 border-b text-sm text-center md:text-left">${attr.key(v)}</div>`;
+                  });
+                
+                const rowContainer = document.createElement('div');
+                rowContainer.className = 'contents';
+                
+                if (window.innerWidth < 768) {
+                    rowContainer.innerHTML = `<div class="col-span-full bg-slate-100 p-2 font-bold text-md mt-4">${attr.label}</div>` +
+                    vendorsToCompare.map(v => `
+                        <div class="p-2 border-b">
+                            <p class="font-semibold md:hidden">${v.name}</p>
+                            <div class="text-sm">${attr.key(v)}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    rowContainer.innerHTML = `<div class="font-semibold text-slate-700 p-4 border-b">${attr.label}</div>` +
+                    vendorsToCompare.map(v => `<div class="p-4 border-b text-sm">${attr.key(v)}</div>`).join('');
+                }
+                modalGrid.appendChild(rowContainer);
+            });
+            
+            // Adjust grid columns for md and lg
+            modalGrid.classList.remove('md:grid-cols-2', 'md:grid-cols-3', 'lg:grid-cols-2', 'lg:grid-cols-3', 'lg:grid-cols-4');
+            if (window.innerWidth >= 1024) { // lg
+                modalGrid.style.gridTemplateColumns = `1fr repeat(${vendorsToCompare.length}, 2fr)`;
+            } else if (window.innerWidth >= 768) { // md
+                modalGrid.style.gridTemplateColumns = `1fr repeat(${vendorsToCompare.length}, 2fr)`;
+            } else { // sm
+                modalGrid.style.gridTemplateColumns = '1fr';
+            }
+
+            comparisonModal.style.display = 'flex';
+        }
+        
+        function renderRecommendations() {
+            recommendationAccordion.innerHTML = '';
+            recommendationData.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = "bg-white rounded-lg border border-slate-200 overflow-hidden";
+                div.innerHTML = `
+                    <button class="accordion-btn w-full text-left p-4 flex justify-between items-center font-semibold text-slate-800 hover:bg-slate-50 transition">
+                        <span>${item.title}</span>
+                        <span class="transform transition-transform text-teal-600 text-xl">+</span>
+                    </button>
+                    <div class="accordion-content max-h-0 overflow-hidden transition-all duration-500 ease-in-out">
+                        <div class="p-4 border-t border-slate-200 text-slate-600">${item.content}</div>
+                    </div>
+                `;
+                recommendationAccordion.appendChild(div);
+            });
+
+            recommendationAccordion.addEventListener('click', e => {
+                const button = e.target.closest('.accordion-btn');
+                if(button) {
+                    const content = button.nextElementSibling;
+                    const icon = button.querySelector('span:last-child');
+                    
+                    document.querySelectorAll('.accordion-content').forEach(el => {
+                        if(el !== content) {
+                            el.style.maxHeight = '0px';
+                            el.previousElementSibling.querySelector('span:last-child').textContent = '+';
+                            el.previousElementSibling.querySelector('span:last-child').classList.remove('rotate-45');
+                        }
+                    });
+
+                    if(content.style.maxHeight === '0px' || !content.style.maxHeight) {
+                        content.style.maxHeight = content.scrollHeight + "px";
+                        icon.textContent = '+';
+                        icon.classList.add('rotate-45');
+                    } else {
+                        content.style.maxHeight = '0px';
+                        icon.textContent = '+';
+                        icon.classList.remove('rotate-45');
+                    }
+                }
+            });
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+             // Initial setup of chart contexts and event listeners
+             
             sizeFilter.addEventListener('change', filterVendors);
             industryFilter.addEventListener('change', filterVendors);
 
