@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP Selector België - 30+ Systemen Vergeleken</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.5; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 1rem; }
+        
+        header { background: white; border-bottom: 1px solid #e2e8f0; padding: 1rem 0; position: sticky; top: 0; z-index: 100; }
+        .header-content { display: flex; align-items: center; justify-content: space-between; }
+        .logo { display: flex; align-items: center; gap: 0.75rem; }
+        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #2563eb, #7c3aed); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.7rem; }
+        .logo-text h1 { font-size: 1.1rem; font-weight: 700; }
+        .logo-text p { font-size: 0.7rem; color: #94a3b8; }
+        
+        .intro-section { background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%); color: white; padding: 1.5rem; border-radius: 12px; margin: 1.5rem 0; }
+        .intro-section h2 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .intro-section p { font-size: 0.85rem; opacity: 0.9; margin-bottom: 1rem; }
+        .intro-buttons { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        .btn-wizard { background: white; color: #1e40af; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }
+        .btn-wizard:hover { background: #f0f9ff; }
+        .btn-outline { background: transparent; color: white; border: 2px solid rgba(255,255,255,0.5); padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 500; font-size: 0.85rem; cursor: pointer; }
+        .btn-outline:hover { border-color: white; background: rgba(255,255,255,0.1); }
+        
+        .quadrant-section { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .quadrant-section h3 { font-size: 1rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .quadrant-subtitle { font-size: 0.75rem; color: #64748b; margin-bottom: 1rem; }
+        .quadrant-container { position: relative; width: 100%; max-width: 700px; margin: 0 auto; aspect-ratio: 1.2; }
+        .quadrant-grid { position: absolute; inset: 30px 30px 40px 50px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; border: 2px solid #e2e8f0; }
+        .quadrant-box { padding: 0.5rem; position: relative; }
+        .quadrant-box:nth-child(1) { background: #fef3c7; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; }
+        .quadrant-box:nth-child(2) { background: #dcfce7; border-bottom: 1px solid #e2e8f0; }
+        .quadrant-box:nth-child(3) { background: #fee2e2; border-right: 1px solid #e2e8f0; }
+        .quadrant-box:nth-child(4) { background: #dbeafe; }
+        .quadrant-label { position: absolute; font-size: 0.6rem; font-weight: 600; text-transform: uppercase; color: #64748b; }
+        .quadrant-box:nth-child(1) .quadrant-label { top: 4px; left: 4px; color: #b45309; }
+        .quadrant-box:nth-child(2) .quadrant-label { top: 4px; right: 4px; color: #15803d; }
+        .quadrant-box:nth-child(3) .quadrant-label { bottom: 4px; left: 4px; color: #dc2626; }
+        .quadrant-box:nth-child(4) .quadrant-label { bottom: 4px; right: 4px; color: #1d4ed8; }
+        .quadrant-dot { position: absolute; border-radius: 50%; cursor: pointer; transition: transform 0.2s; z-index: 10; display: flex; align-items: center; justify-content: center; font-size: 0.5rem; color: white; font-weight: bold; border: 2px solid rgba(255,255,255,0.8); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .quadrant-dot:hover { transform: scale(1.3); z-index: 20; }
+        .quadrant-dot .tooltip { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.6rem; white-space: nowrap; margin-bottom: 4px; }
+        .quadrant-dot:hover .tooltip { display: block; }
+        .axis-label { position: absolute; font-size: 0.65rem; color: #64748b; font-weight: 500; }
+        .axis-label.x { bottom: 8px; left: 50%; transform: translateX(-50%); }
+        .axis-label.y { left: 3px; top: 50%; transform: rotate(-90deg) translateX(-50%); transform-origin: left center; }
+        .quadrant-legend { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-top: 1rem; font-size: 0.65rem; align-items: center; }
+        .legend-item { display: flex; align-items: center; gap: 0.25rem; }
+        .legend-dot { border-radius: 50%; }
+        .size-legend { display: flex; align-items: center; gap: 0.5rem; margin-left: 1rem; padding-left: 1rem; border-left: 1px solid #e2e8f0; }
+        .size-legend-dots { display: flex; align-items: center; gap: 0.25rem; }
+        
+        .filters { background: white; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+        .search-box { flex: 1; min-width: 150px; position: relative; }
+        .search-box input { width: 100%; padding: 0.5rem 1rem 0.5rem 2rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.8rem; }
+        .search-box input:focus { outline: none; border-color: #3b82f6; }
+        .search-icon { position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        select { padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.7rem; background: white; }
+        
+        .compare-bar { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 0.75rem; margin-bottom: 1rem; display: none; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; }
+        .compare-bar.active { display: flex; }
+        .compare-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .compare-tag { background: #dbeafe; color: #1e40af; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.65rem; display: flex; align-items: center; gap: 0.4rem; }
+        .compare-tag button { background: none; border: none; cursor: pointer; color: #1e40af; font-size: 0.9rem; line-height: 1; }
+        .btn { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.75rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-secondary { background: #f1f5f9; color: #475569; }
+        .btn-secondary:hover { background: #e2e8f0; }
+        
+        .erp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 0.75rem; }
+        .erp-card { background: white; border-radius: 10px; border: 1px solid #e2e8f0; overflow: hidden; transition: box-shadow 0.2s; }
+        .erp-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .erp-card.hidden { display: none; }
+        .erp-card-content { padding: 0.875rem; }
+        .erp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.4rem; }
+        .erp-name { font-weight: 600; font-size: 0.8rem; color: #0f172a; }
+        .erp-vendor { font-size: 0.65rem; color: #64748b; }
+        .badge { padding: 0.15rem 0.4rem; border-radius: 9999px; font-size: 0.55rem; font-weight: 500; }
+        .badge-budget { background: #dcfce7; color: #166534; }
+        .badge-kmo { background: #dbeafe; color: #1e40af; }
+        .badge-midmarket { background: #f3e8ff; color: #6b21a8; }
+        .badge-enterprise { background: #ffedd5; color: #9a3412; }
+        .badge-niche { background: #f1f5f9; color: #475569; }
+        
+        .sector-tags { display: flex; flex-wrap: wrap; gap: 0.2rem; margin: 0.4rem 0; }
+        .sector-tag { background: #f0fdf4; color: #15803d; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.5rem; border: 1px solid #bbf7d0; }
+        
+        .erp-info { display: flex; flex-direction: column; gap: 0.2rem; margin-bottom: 0.5rem; }
+        .erp-info-row { display: flex; align-items: center; gap: 0.4rem; font-size: 0.65rem; color: #64748b; }
+        .erp-info-row svg { width: 10px; height: 10px; flex-shrink: 0; }
+        
+        .erp-actions { display: flex; gap: 0.4rem; }
+        .erp-actions button { flex: 1; padding: 0.35rem; font-size: 0.65rem; }
+        .btn-compare { min-width: 28px; flex: 0; }
+        .btn-compare.selected { background: #2563eb; color: white; }
+        
+        /* Wizard Modal */
+        .wizard-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; }
+        .wizard-overlay.active { display: flex; }
+        .wizard-modal { background: white; border-radius: 16px; width: 100%; max-width: 900px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
+        .wizard-header { background: linear-gradient(135deg, #1e40af, #7c3aed); color: white; padding: 1.25rem 1.5rem; }
+        .wizard-header h2 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+        .wizard-header p { font-size: 0.8rem; opacity: 0.9; }
+        .wizard-progress { display: flex; gap: 0.5rem; margin-top: 1rem; }
+        .wizard-step { flex: 1; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; }
+        .wizard-step.active { background: white; }
+        .wizard-step.done { background: #22c55e; }
+        .wizard-body { flex: 1; overflow-y: auto; padding: 1.5rem; }
+        .wizard-footer { padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; }
+        
+        .wizard-section { margin-bottom: 1.5rem; }
+        .wizard-section h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+        .wizard-section p { font-size: 0.8rem; color: #64748b; margin-bottom: 0.75rem; }
+        
+        .option-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem; }
+        .option-card { border: 2px solid #e2e8f0; border-radius: 8px; padding: 0.75rem; cursor: pointer; transition: all 0.2s; text-align: center; }
+        .option-card:hover { border-color: #3b82f6; background: #f0f9ff; }
+        .option-card.selected { border-color: #2563eb; background: #dbeafe; }
+        .option-card .icon { font-size: 1.5rem; margin-bottom: 0.25rem; }
+        .option-card .label { font-size: 0.75rem; font-weight: 500; }
+        .option-card .sublabel { font-size: 0.6rem; color: #64748b; }
+        
+        .budget-slider { margin: 1rem 0; }
+        .budget-slider input[type="range"] { width: 100%; }
+        .budget-labels { display: flex; justify-content: space-between; font-size: 0.7rem; color: #64748b; margin-top: 0.5rem; }
+        .budget-value { text-align: center; font-size: 1.25rem; font-weight: 700; color: #2563eb; margin-bottom: 0.5rem; }
+        
+        .process-selector { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+        .process-group-header { background: #f8fafc; padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; border-bottom: 1px solid #e2e8f0; }
+        .process-group-header:hover { background: #f1f5f9; }
+        .process-group-header h4 { font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+        .process-group-header .toggle { font-size: 0.7rem; color: #3b82f6; }
+        .process-group-content { padding: 0.75rem 1rem; display: none; }
+        .process-group-content.open { display: block; }
+        .process-checkbox { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0; font-size: 0.75rem; cursor: pointer; }
+        .process-checkbox input { width: 16px; height: 16px; }
+        .process-checkbox:hover { color: #2563eb; }
+        .select-all-btn { font-size: 0.65rem; color: #3b82f6; background: none; border: none; cursor: pointer; text-decoration: underline; }
+        
+        .wizard-results { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 1rem; margin-top: 1rem; }
+        .wizard-results h4 { font-size: 0.85rem; color: #166534; margin-bottom: 0.5rem; }
+        .wizard-results p { font-size: 0.75rem; color: #15803d; }
+        .match-count { font-size: 2rem; font-weight: 700; color: #166534; }
+        
+        .detail-view, .compare-view { display: none; }
+        .detail-view.active, .compare-view.active { display: block; }
+        .list-view.hidden { display: none; }
+        
+        .back-btn { display: flex; align-items: center; gap: 0.5rem; color: #64748b; background: none; border: none; cursor: pointer; font-size: 0.8rem; margin-bottom: 1rem; }
+        .back-btn:hover { color: #1e293b; }
+        
+        .detail-header { background: white; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .detail-header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.75rem; }
+        .detail-title h1 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.2rem; }
+        .detail-title p { color: #64748b; font-size: 0.85rem; }
+        .detail-badges { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.75rem; }
+        .detail-badge { padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.65rem; }
+        
+        .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; }
+        .detail-section { background: white; border-radius: 12px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .detail-section h2 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+        .detail-section.full-width { grid-column: 1 / -1; }
+        
+        .cost-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+        .cost-card { background: #f8fafc; border-radius: 8px; padding: 0.75rem; }
+        .cost-card label { font-size: 0.65rem; color: #64748b; }
+        .cost-card .value { font-size: 0.95rem; font-weight: 700; color: #0f172a; }
+        .cost-card .unit { font-size: 0.55rem; color: #94a3b8; }
+        
+        .modules-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 0.35rem; }
+        .module-tag { background: linear-gradient(135deg, #eff6ff, #f5f3ff); border: 1px solid #c7d2fe; border-radius: 5px; padding: 0.35rem; text-align: center; font-size: 0.65rem; font-weight: 500; color: #4338ca; }
+        
+        .process-map { display: flex; flex-direction: column; gap: 0.6rem; }
+        .process-group { background: #f8fafc; border-radius: 8px; padding: 0.75rem; border-left: 4px solid #3b82f6; }
+        .process-group h4 { font-size: 0.75rem; font-weight: 600; color: #1e40af; margin-bottom: 0.4rem; }
+        .process-steps { display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center; }
+        .process-step { background: white; border: 1px solid #e2e8f0; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.6rem; cursor: pointer; transition: all 0.2s; }
+        .process-step:hover { background: #dbeafe; border-color: #3b82f6; }
+        .process-step.covered { background: #dcfce7; border-color: #86efac; }
+        .process-arrow { color: #94a3b8; font-size: 0.55rem; }
+        
+        .integration-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+        .integration-card { background: #f8fafc; border-radius: 8px; padding: 0.75rem; }
+        .integration-card h4 { font-size: 0.7rem; font-weight: 600; margin-bottom: 0.35rem; }
+        .integration-card p { font-size: 0.65rem; color: #64748b; }
+        .rating-bar { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.4rem; }
+        .rating-dots { display: flex; gap: 0.15rem; }
+        .rating-dot { width: 10px; height: 10px; border-radius: 50%; background: #e2e8f0; }
+        .rating-dot.filled { background: #3b82f6; }
+        .rating-dot.filled.green { background: #22c55e; }
+        .rating-label { font-size: 0.6rem; color: #64748b; }
+        
+        .ui-review { display: flex; gap: 0.75rem; align-items: flex-start; }
+        .ui-score { text-align: center; padding: 0.6rem; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 8px; color: white; min-width: 60px; }
+        .ui-score .number { font-size: 1.3rem; font-weight: 700; }
+        .ui-score .label { font-size: 0.55rem; opacity: 0.9; }
+        .ui-details { flex: 1; }
+        .ui-detail-row { display: flex; justify-content: space-between; align-items: center; padding: 0.3rem 0; border-bottom: 1px solid #f1f5f9; font-size: 0.65rem; }
+        
+        .partners-list { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+        .partner-tag { background: #eef2ff; color: #4338ca; padding: 0.3rem 0.5rem; border-radius: 5px; font-size: 0.65rem; font-weight: 500; border: 1px solid #c7d2fe; }
+        
+        .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .pros-list, .cons-list { list-style: none; }
+        .pros-list li, .cons-list li { display: flex; align-items: flex-start; gap: 0.35rem; font-size: 0.75rem; margin-bottom: 0.4rem; }
+        .pros-list li::before { content: "✓"; color: #16a34a; font-weight: bold; }
+        .cons-list li::before { content: "⚠"; color: #d97706; }
+        
+        .chart-container { height: 220px; position: relative; }
+        
+        .compare-table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
+        .compare-table th, .compare-table td { padding: 0.4rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        .compare-table th { font-weight: 600; color: #64748b; background: #f8fafc; font-size: 0.65rem; }
+        .score-bar { display: flex; align-items: center; gap: 0.3rem; }
+        .score-bar-bg { width: 40px; height: 4px; background: #e2e8f0; border-radius: 2px; }
+        .score-bar-fill { height: 100%; background: #3b82f6; border-radius: 2px; }
+        .score-text { font-size: 0.6rem; color: #64748b; }
+        
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; border-radius: 12px; padding: 1.25rem; max-width: 450px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+        .modal-header h3 { font-size: 0.95rem; font-weight: 600; }
+        .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #64748b; }
+        .modal-body { font-size: 0.8rem; color: #475569; }
+        .modal-body h4 { font-size: 0.85rem; font-weight: 600; margin: 0.75rem 0 0.4rem; }
+        .modal-body ul { margin-left: 1rem; }
+        .modal-body li { margin-bottom: 0.25rem; font-size: 0.75rem; }
+        
+        footer { background: white; border-top: 1px solid #e2e8f0; padding: 1rem 0; margin-top: 2rem; text-align: center; color: #94a3b8; font-size: 0.7rem; }
+        
+        @media (max-width: 768px) {
+            .erp-grid { grid-template-columns: 1fr; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .cost-grid { grid-template-columns: 1fr; }
+            .pros-cons { grid-template-columns: 1fr; }
+            .integration-grid { grid-template-columns: 1fr; }
+            .option-grid { grid-template-columns: repeat(2, 1fr); }
+            .wizard-modal { max-height: 95vh; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <div class="logo-icon">ERP</div>
+                <div class="logo-text">
+                    <h1>ERP Selector België</h1>
+                    <p>by Wim Vanhoorne</p>
+                </div>
+            </div>
+            <div style="font-size: 0.7rem; color: #64748b;"><span id="erpCount">32</span> systemen</div>
+        </div>
+    </header>
+
+    <main class="container" style="padding: 1rem;">
+        <div id="listView" class="list-view">
+            <div class="intro-section">
+                <h2>🎯 Vind het perfecte ERP voor uw organisatie</h2>
+                <p>Vergelijk 32+ ERP-systemen op functionaliteit, prijs, sector en implementatie. Gebruik de geavanceerde selectie wizard voor een gepersonaliseerde aanbeveling.</p>
+                <div class="intro-buttons">
+                    <button class="btn-wizard" onclick="openWizard()">🧙‍♂️ Geavanceerde Selectie</button>
+                    <button class="btn-outline" onclick="document.getElementById('erpGrid').scrollIntoView({behavior:'smooth'})">📋 Bekijk alle systemen</button>
+                </div>
+            </div>
+
+            <div class="quadrant-section">
+                <h3>📊 Gartner Magic Quadrant Positionering</h3>
+                <p class="quadrant-subtitle">Grootte van de cirkel = marktaandeel in België • Klik voor details</p>
+                <div class="quadrant-container" id="quadrantChart"></div>
+                <div class="quadrant-legend">
+                    <div class="legend-item"><div class="legend-dot" style="background: #9333ea; width: 12px; height: 12px;"></div> Enterprise</div>
+                    <div class="legend-item"><div class="legend-dot" style="background: #3b82f6; width: 12px; height: 12px;"></div> Midmarket</div>
+                    <div class="legend-item"><div class="legend-dot" style="background: #22c55e; width: 12px; height: 12px;"></div> KMO/Budget</div>
+                    <div class="size-legend">
+                        <span>Marktaandeel:</span>
+                        <div class="size-legend-dots">
+                            <div style="width:10px;height:10px;background:#64748b;border-radius:50%;"></div>
+                            <div style="width:16px;height:16px;background:#64748b;border-radius:50%;"></div>
+                            <div style="width:24px;height:24px;background:#64748b;border-radius:50%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filters">
+                <div class="search-box">
+                    <svg class="search-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <input type="text" id="searchInput" placeholder="Zoek ERP...">
+                </div>
+                <select id="categoryFilter"><option value="all">Categorie</option><option value="Budget">Budget</option><option value="KMO Instap">KMO Instap</option><option value="Midmarket">Midmarket</option><option value="Enterprise">Enterprise</option></select>
+                <select id="deploymentFilter"><option value="all">Deployment</option><option value="Cloud">Cloud</option><option value="On-premise">On-premise</option><option value="Hybrid">Hybrid</option></select>
+                <select id="sectorFilter"><option value="all">Sector</option><option value="Manufacturing">Manufacturing</option><option value="Retail">Retail</option><option value="Services">Services</option><option value="Construction">Bouw</option><option value="Logistics">Logistiek</option><option value="Healthcare">Healthcare</option><option value="Food">Food</option><option value="Wholesale">Wholesale</option></select>
+                <button class="btn btn-primary" onclick="openWizard()" style="font-size: 0.7rem;">🧙‍♂️ Wizard</button>
+            </div>
+
+            <div id="compareBar" class="compare-bar">
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <span style="font-weight: 500; color: #1e40af; font-size: 0.75rem;"><span id="compareCount">0</span> geselecteerd</span>
+                    <div id="compareTags" class="compare-tags"></div>
+                </div>
+                <button class="btn btn-primary" onclick="showCompareView()">Vergelijk</button>
+            </div>
+
+            <div id="erpGrid" class="erp-grid"></div>
+        </div>
+
+        <div id="detailView" class="detail-view"></div>
+        <div id="compareView" class="compare-view"></div>
+    </main>
+
+    <!-- Advanced Selection Wizard -->
+    <div id="wizardOverlay" class="wizard-overlay" onclick="if(event.target===this)closeWizard()">
+        <div class="wizard-modal">
+            <div class="wizard-header">
+                <h2>🧙‍♂️ Geavanceerde ERP Selectie</h2>
+                <p>Beantwoord een paar vragen om de beste ERP voor uw organisatie te vinden</p>
+                <div class="wizard-progress">
+                    <div class="wizard-step active" id="step1"></div>
+                    <div class="wizard-step" id="step2"></div>
+                    <div class="wizard-step" id="step3"></div>
+                    <div class="wizard-step" id="step4"></div>
+                </div>
+            </div>
+            <div class="wizard-body" id="wizardBody"></div>
+            <div class="wizard-footer">
+                <button class="btn btn-secondary" id="wizardPrev" onclick="wizardPrev()">← Vorige</button>
+                <button class="btn btn-primary" id="wizardNext" onclick="wizardNext()">Volgende →</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="processModal" class="modal-overlay" onclick="if(event.target===this)closeModal()">
+        <div class="modal-content">
+            <div class="modal-header"><h3 id="modalTitle">Process Details</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <footer><div class="container"><p>ERP Selector België • Prijzen indicatief • December 2025 • by Wim Vanhoorne</p></div></footer>
+
+    <script>
+        const processInfo = {
+            'Lead': { title: 'Lead Management', desc: 'Beheer van potentiële klanten.', activities: ['Lead capture', 'Lead scoring', 'Lead nurturing', 'Opportunity tracking'] },
+            'Offerte': { title: 'Offertes & Quotes', desc: 'Aanmaken en opvolgen van offertes.', activities: ['Quote configuratie', 'Prijscalculatie', 'Approval workflow', 'Versioning'] },
+            'Order': { title: 'Order Management', desc: 'Verwerking van klantorders.', activities: ['Order entry', 'Beschikbaarheidscheck', 'Orderbevestiging', 'Backorder handling'] },
+            'Levering': { title: 'Delivery & Shipping', desc: 'Verzending en levering.', activities: ['Pick & pack', 'Shipping labels', 'Track & trace', 'Proof of delivery'] },
+            'Factuur': { title: 'Facturatie', desc: 'Aanmaken en versturen van facturen.', activities: ['Invoice generation', 'E-invoicing/Peppol', 'Credit notes', 'Recurring billing'] },
+            'Incasso': { title: 'Collections & AR', desc: 'Debiteurenbeheer en incasso.', activities: ['Payment tracking', 'Reminders', 'Dunning', 'Cash allocation'] },
+            'Aanvraag': { title: 'Purchase Requisition', desc: 'Interne aankoopverzoeken.', activities: ['Behoeftebepaling', 'Budget check', 'Approval workflow', 'Supplier selectie'] },
+            'Bestelling': { title: 'Purchase Order', desc: 'Bestellingen bij leveranciers.', activities: ['PO creation', 'Supplier communication', 'Order confirmation'] },
+            'Ontvangst': { title: 'Goods Receipt', desc: 'Ontvangst van goederen.', activities: ['Receiving', 'Quality inspection', 'Variance handling', 'Put-away'] },
+            'Matching': { title: 'Invoice Matching', desc: '3-way matching van facturen.', activities: ['PO matching', 'Receipt matching', 'Price variance', 'Exception handling'] },
+            'Betaling': { title: 'Payment Processing', desc: 'Uitvoeren van betalingen.', activities: ['Payment proposals', 'Bank integration', 'Payment runs', 'Reconciliation'] },
+            'Journaal': { title: 'Journal Entries', desc: 'Boekingen in het grootboek.', activities: ['Manual entries', 'Recurring entries', 'Accruals', 'Adjustments'] },
+            'Reconciliatie': { title: 'Reconciliation', desc: 'Afstemming van rekeningen.', activities: ['Bank reconciliation', 'Intercompany', 'Subledger matching'] },
+            'Consolidatie': { title: 'Consolidation', desc: 'Financiële consolidatie.', activities: ['IC elimination', 'Currency translation', 'Roll-up'] },
+            'Closing': { title: 'Period Close', desc: 'Periode-afsluiting.', activities: ['Closing tasks', 'Cut-off', 'Provisions', 'Checklists'] },
+            'Reporting': { title: 'Financial Reporting', desc: 'Financiële rapportages.', activities: ['P&L', 'Balance sheet', 'Cash flow', 'Management reports'] },
+            'Vraagplan': { title: 'Demand Planning', desc: 'Vraagvoorspelling.', activities: ['Forecasting', 'Demand sensing', 'S&OP', 'Consensus planning'] },
+            'MRP': { title: 'Material Planning', desc: 'Materiaalbehoefteplanning.', activities: ['MRP run', 'Netting', 'Lot sizing', 'Lead time planning'] },
+            'Scheduling': { title: 'Production Scheduling', desc: 'Productieplanning.', activities: ['Capacity planning', 'Sequencing', 'Finite scheduling'] },
+            'Productie': { title: 'Production Execution', desc: 'Uitvoering productie.', activities: ['Work orders', 'Shop floor control', 'Labor tracking'] },
+            'Kwaliteit': { title: 'Quality Control', desc: 'Kwaliteitscontrole.', activities: ['Inspection', 'Testing', 'Non-conformance', 'CAPA'] },
+            'Warehouse': { title: 'Warehouse Management', desc: 'Magazijnbeheer.', activities: ['Receiving', 'Put-away', 'Picking', 'Shipping', 'Inventory counts'] },
+            'Werving': { title: 'Recruitment', desc: 'Werving en selectie.', activities: ['Job posting', 'Applicant tracking', 'Interview scheduling'] },
+            'Onboarding': { title: 'Onboarding', desc: 'Indiensttreding.', activities: ['Document collection', 'Training plans', 'Equipment setup'] },
+            'Payroll': { title: 'Payroll Processing', desc: 'Loonverwerking.', activities: ['Time collection', 'Gross-to-net', 'Tax calculation', 'Payments'] },
+            'Performance': { title: 'Performance Management', desc: 'Prestatiebeheer.', activities: ['Goal setting', 'Reviews', 'Feedback', 'Competencies'] },
+            'Offboarding': { title: 'Offboarding', desc: 'Uitdiensttreding.', activities: ['Exit interview', 'Asset return', 'Final settlement'] },
+            'Project Init': { title: 'Project Initiatie', desc: 'Opstarten van projecten.', activities: ['Business case', 'Project charter', 'Stakeholder analyse', 'Scope definitie'] },
+            'Planning': { title: 'Project Planning', desc: 'Projectplanning.', activities: ['WBS', 'Resource planning', 'Timeline', 'Milestone planning'] },
+            'Uitvoering': { title: 'Project Uitvoering', desc: 'Projectuitvoering.', activities: ['Task management', 'Team collaboration', 'Issue tracking', 'Change requests'] },
+            'Monitoring': { title: 'Project Monitoring', desc: 'Projectmonitoring.', activities: ['Progress tracking', 'Budget monitoring', 'Risk management', 'Status reporting'] },
+            'Afsluiting': { title: 'Project Afsluiting', desc: 'Projectafsluiting.', activities: ['Deliverable sign-off', 'Lessons learned', 'Resource release', 'Final report'] }
+        };
+
+        const erpDatabase = [
+            { id: 'saps4hana', name: 'SAP S/4HANA Cloud', vendor: 'SAP', website: 'https://www.sap.com/products/erp/s4hana.html', category: 'Enterprise', deployment: ['Cloud', 'On-premise', 'Hybrid'], targetSize: '250-10000+ FTE', priceRange: { min: 300, max: 600, unit: '€/user/maand' }, implementationCost: { min: 500000, max: 5000000 }, implementationTime: '12-36 maanden', marketShareBE: 15, scores: { finance: 10, hr: 9, crm: 8, manufacturing: 10, supplyChain: 10, projectMgmt: 8, reporting: 10, integration: 10 }, gartner: { vision: 95, execution: 95 }, infrastructure: { cloud: 'SAP HANA Cloud', onPrem: 'SAP HANA Database', requirements: 'Significant IT resources' }, partners: ['Deloitte', 'Accenture', 'PwC', 'KPMG', 'delaware', 'Cegeka'], modules: ['Finance', 'Controlling', 'Sales', 'Procurement', 'Manufacturing', 'Supply Chain', 'HR', 'Analytics'], sectors: ['Manufacturing', 'Retail', 'Wholesale', 'Logistics', 'Healthcare', 'Food'], processes: { o2c: ['Lead', 'Offerte', 'Order', 'Levering', 'Factuur', 'Incasso'], p2p: ['Aanvraag', 'Bestelling', 'Ontvangst', 'Matching', 'Betaling'], r2r: ['Journaal', 'Reconciliatie', 'Consolidatie', 'Closing', 'Reporting'], mfg: ['Vraagplan', 'MRP', 'Scheduling', 'Productie', 'Kwaliteit', 'Warehouse'], h2r: ['Werving', 'Onboarding', 'Payroll', 'Performance', 'Offboarding'], prj: ['Project Init', 'Planning', 'Uitvoering', 'Monitoring', 'Afsluiting'] }, integration: { ease: 5, api: 'REST, OData, SOAP, RFC/BAPI', connectors: 'SAP Integration Suite 2500+', middleware: 'SAP BTP, Dell Boomi', notes: 'Uitgebreid maar complex' }, customization: { ease: 3, method: 'In-App Extensions, BTP, Key User Tools', upgradeImpact: 'Clean core beperkt impact', notes: 'ABAP Cloud extensibility' }, ui: { score: 7.5, modern: true, mobile: true, feedback: 'Fiori UX modern maar leercurve', userRating: 'Functioneel maar complex' }, pros: ['Meest complete enterprise ERP', 'Real-time HANA analytics', 'AI/ML geïntegreerd'], cons: ['Zeer hoge kosten', 'Complexe implementatie', 'Lange doorlooptijd'], description: 'De nieuwste generatie SAP ERP op HANA database.' },
+            { id: 'dynamics365fo', name: 'Microsoft Dynamics 365 F&O', vendor: 'Microsoft', website: 'https://dynamics.microsoft.com/finance/', category: 'Enterprise', deployment: ['Cloud', 'Hybrid'], targetSize: '250-5000+ FTE', priceRange: { min: 180, max: 300, unit: '€/user/maand' }, implementationCost: { min: 300000, max: 2000000 }, implementationTime: '8-24 maanden', marketShareBE: 12, scores: { finance: 10, hr: 8, crm: 9, manufacturing: 9, supplyChain: 10, projectMgmt: 8, reporting: 10, integration: 10 }, gartner: { vision: 90, execution: 92 }, infrastructure: { cloud: 'Microsoft Azure', onPrem: 'Hybrid via Azure Arc', requirements: 'Azure subscription' }, partners: ['Avanade', 'Accenture', 'Deloitte', 'Cegeka', 'delaware', 'HSO'], modules: ['Finance', 'Supply Chain', 'Manufacturing', 'Commerce', 'Project Operations', 'HR'], sectors: ['Manufacturing', 'Retail', 'Wholesale', 'Logistics', 'Services', 'Food'], processes: { o2c: ['Lead', 'Offerte', 'Order', 'Levering', 'Factuur', 'Incasso'], p2p: ['Aanvraag', 'Bestelling', 'Ontvangst', 'Matching', 'Betaling'], r2r: ['Journaal', 'Reconciliatie', 'Consolidatie', 'Closing', 'Reporting'], mfg: ['Vraagplan', 'MRP', 'Scheduling', 'Productie', 'Kwaliteit', 'Warehouse'], h2r: ['Werving', 'Onboarding', 'Payroll', 'Performance', 'Offboarding'], prj: ['Project Init', 'Planning', 'Uitvoering', 'Monitoring', 'Afsluiting'] }, integration: { ease: 5, api: 'REST, OData, Dual-write', connectors: 'Power Platform 1000+', middleware: 'Azure Integration Services', notes: 'Naadloos met Microsoft' }, customization: { ease: 4, method: 'Extensions (X++), Power Platform', upgradeImpact: 'Extension model beperkt', notes: 'Low-code én pro-code' }, ui: { score: 8.5, modern: true, mobile: true, feedback: 'Modern, Copilot AI', userRating: 'Intuïtief voor MS users' }, pros: ['Microsoft integratie', 'Copilot AI', 'Sterke supply chain'], cons: ['Complexe licenties', 'Dure implementatie'], description: 'Enterprise ERP van Microsoft.' },
+            { id: 'dynamics365bc', name: 'Microsoft Dynamics 365 BC', vendor: 'Microsoft', website: 'https://dynamics.microsoft.com/business-central/', category: 'Midmarket', deployment: ['Cloud', 'On-premise', 'Hybrid'], targetSize: '10-250+ FTE', priceRange: { min: 70, max: 100, unit: '€/user/maand' }, implementationCost: { min: 25000, max: 150000 }, implementationTime: '3-6 maanden', marketShareBE: 18, scores: { finance: 9, hr: 6, crm: 8, manufacturing: 7, supplyChain: 8, projectMgmt: 7, reporting: 9, integration: 9 }, gartner: { vision: 75, execution: 80 }, infrastructure: { cloud: 'Microsoft Azure', onPrem: 'Windows Server, SQL', requirements: 'M365 aanbevolen' }, partners: ['Cegeka', 'Xylos', 'Inetum-Realdolmen', 'BDO Digital', 'delaware', '9altitudes'], modules: ['Finance', 'Sales', 'Purchasing', 'Inventory', 'Manufacturing', 'Projects', 'Service'], sectors: ['Manufacturing', 'Retail', 'Wholesale', 'Services', 'Construction'], processes: { o2c: ['Lead', 'Offerte', 'Order', 'Levering', 'Factuur', 'Incasso'], p2p: ['Aanvraag', 'Bestelling', 'Ontvangst', 'Matching', 'Betaling'], r2r: ['Journaal', 'Reconciliatie', 'Closing', 'Reporting'], mfg: ['MRP', 'Scheduling', 'Productie', 'Warehouse'], h2r: ['Onboarding', 'Performance'], prj: ['Project Init', 'Planning', 'Uitvoering', 'Monitoring', 'Afsluiting'] }, integration: { ease: 4, api: 'REST API, OData', connectors: 'AppSource 4000+', middleware: 'Power Automate', notes: 'Uitstekend MS ecosysteem' }, customization: { ease: 4, method: 'AL Extensions, Power Platform', upgradeImpact: 'Extensions updaten mee', notes: 'Low-code én pro-code' }, ui: { score: 8, modern: true, mobile: true, feedback: 'Teams integratie, Copilot', userRating: 'Vertrouwd voor Office users' }, pros: ['M365 integratie', 'Copilot AI', 'Groot partnernetwerk'], cons: ['Partner varieert', 'Add-on kosten'], description: 'Cloud ERP voor midmarket.' },
+            { id: 'odoo', name: 'Odoo', vendor: 'Odoo SA', website: 'https://www.odoo.com', category: 'Midmarket', deployment: ['Cloud', 'On-premise', 'Hybrid'], targetSize: '1-500+ FTE', priceRange: { min: 0, max: 37.40, unit: '€/user/maand' }, implementationCost: { min: 10000, max: 100000 }, implementationTime: '2-6 maanden', marketShareBE: 22, scores: { finance: 8, hr: 7, crm: 8, manufacturing: 7, supplyChain: 7, projectMgmt: 7, reporting: 7, integration: 8 }, gartner: { vision: 70, execution: 65 }, infrastructure: { cloud: 'Odoo.sh (AWS)', onPrem: 'Linux, PostgreSQL', requirements: 'Minimale specs' }, partners: ['Odoo Direct', 'Tobania', 'Noviat', 'Acsone', 'Dynapps'], modules: ['CRM', 'Sales', 'Accounting', 'Inventory', 'Manufacturing', 'Website', 'HR', 'Project'], sectors: ['Manufacturing', 'Retail', 'Services', 'Wholesale', 'Technology', 'Nonprofit'], processes: { o2c: ['Lead', 'Offerte', 'Order', 'Levering', 'Factuur', 'Incasso'], p2p: ['Aanvraag', 'Bestelling', 'Ontvangst', 'Betaling'], r2r: ['Journaal', 'Reconciliatie', 'Reporting'], mfg: ['MRP', 'Productie', 'Kwaliteit', 'Warehouse'], h2r: ['Werving', 'Onboarding', 'Performance'], prj: ['Project Init', 'Planning', 'Uitvoering', 'Monitoring', 'Afsluiting'] }, integration: { ease: 4, api: 'REST, XML-RPC, JSON-RPC', connectors: '40.000+ community apps', middleware: 'Zapier, Make, n8n', notes: 'Open source = flexibel' }, customization: { ease: 5, method: 'Odoo Studio, Python modules', upgradeImpact: 'Custom kan breken', notes: 'Zeer flexibel' }, ui: { score: 8.5, modern: true, mobile: true, feedback: 'Moderne, intuïtieve UI', userRating: 'Zeer gebruiksvriendelijk' }, pros: ['Open source', 'Modulair & betaalbaar', 'Belgische oorsprong'], cons: ['Maatwerk breekt updates', 'Community vs Enterprise'], description: 'Belgisch open-source ERP.' },
+            { id: 'exactonline', name: 'Exact Online', vendor: 'Exact', website: 'https://www.exact.com/benl', category: 'KMO Instap', deployment: ['Cloud'], targetSize: '1-100 FTE', priceRange: { min: 9, max: 199, unit: '€/maand' }, implementationCost: { min: 3000, max: 15000 }, implementationTime: '1-3 maanden', marketShareBE: 25, scores: { finance: 8, hr: 5, crm: 6, manufacturing: 6, supplyChain: 7, projectMgmt: 7, reporting: 7, integration: 8 }, gartner: { vision: 55, execution: 70 }, infrastructure: { cloud: 'Exact Cloud (SaaS)', onPrem: 'N/A', requirements: 'Browser, Peppol' }, partners: ['Exact Direct', 'BDO', 'Moore', 'Liantis', 'Acerta'], modules: ['Boekhouden', 'Factureren', 'CRM', 'Handel', 'Productie', 'Projecten'], sectors: ['Services', 'Retail', 'Wholesale', 'Manufacturing', 'Construction'], processes: { o2c: ['Offerte', 'Order', 'Levering', 'Factuur', 'Incasso'], p2p: ['Bestelling', 'Ontvangst', 'Betaling'], r2r: ['Journaal', 'Reconciliatie', 'Reporting'], mfg: ['Productie', 'Warehouse'], h2r: [], prj: ['Project Init', 'Planning', 'Uitvoering', 'Monitoring'] }, integration: { ease: 4, api: 'REST API', connectors: '350+ App Center', middleware: 'Zapier, Make', notes: 'Goed voor basis' }, customization: { ease: 2, method: 'Configuratie', upgradeImpact: 'Geen - SaaS', notes: 'Beperkt maar stabiel' }, ui: { score: 7.5, modern: true, mobile: true, feedback: 'Clean en overzichtelijk', userRating: 'Eenvoudig te leren' }, pros: ['Marktleider Benelux', 'Accountant-integratie', 'Betaalbaar'], cons: ['Beperkt maatwerk', 'Add-on kosten'], description: 'Cloud boekhoud- en ERP-software.' },
+            { id: 'afas', name: 'AFAS Software', vendor: 'AFAS', website: 'https://www.afas.be', category: 'Midmarket', deployment: ['Cloud'], targetSize: '50-500+ FTE', priceRange: { min: 150, max: 400, unit: '€/maand basis' }, implementationCost: { min: 15000, max: 50000 }, implementationTime: '2-4 maanden', marketShareBE: 14, scores: { finance: 8, hr: 10, crm: 7, manufacturing: 4, supplyChain: 6, projectMgmt: 7, reporting: 8, integration: 7 }, gartner: { vision: 60, execution: 75 }, infrastructure: { cloud: 'AFAS Cloud (SaaS)', onPrem: 'N/A', requirements: 'Browser' }, partners: ['AFAS Direct', 'Addvise', 'Tenzinger'], modules: ['HR', 'Payroll', 'Finance', 'CRM', 'Project', 'Workflow'], sectors: ['Services', 'Healthcare', 'Nonprofit', 'Retail'], processes: { o2c: ['Offerte', 'Order', 'Factuur', 'Incasso'], p2p: ['Bestelling', 'Ontvangst', 'Betaling'], r2r: ['Journaal', 'Reconciliatie', 'Reporting'], mfg: [], h2r: ['Werving', 'Onboarding', 'Payroll', 'Performance', 'Offboarding'], prj: ['Project Init', 'Planning', 'Uitvoering', 'Monitoring'] }, integration: { ease: 4, api: 'REST API, GetConnectors', connectors: '200+ koppelingen', middleware: 'AFAS Accept, Zapier', notes: 'Goede API docs' }, customization: { ease: 3, method: 'Configuratie, Workflows', upgradeImpact: 'Minimaal - SaaS', notes: 'Flexibel binnen grenzen' }, ui: { score: 8, modern: true, mobile: true, feedback: 'Modern, uitstekende HR UX', userRating: 'Hoge tevredenheid' }, pros: ['Beste HR/Payroll Benelux', 'Hoge tevredenheid', 'Workflow automation'], cons: ['Beperkt internationaal', 'Niet voor manufacturing'], description: 'Nederlandse cloud ERP, marktleider HR.' },
+            { id: 'netsuite', name: 'Oracle NetSuite', vendor: 'Oracle', website: 'https://www.netsuite.com', category: 'Enterprise', deployment: ['Cloud'], targetSize: '25-500+ FTE', priceRange: { min: 200, max: 500, unit: '€/user/maand' }, implementationCost: { min: 50000, max: 200000 }, implementationTime: '3-8 maanden', marketShareBE: 6, scores: { finance: 9, hr: 6, crm: 8, manufacturing: 7, supplyChain: 8, projectMgmt: 7, reporting: 9, integration: 8 }, gartner: { vision: 80, execution: 85 }, infrastructure: { cloud: 'Oracle Cloud (SaaS)', onPrem: 'N/A', requirements: 'Browser' }, partners: ['Profource', 'Cadran', '4apps', 'RSM', 'Deloitte'], modules: ['ERP', 'CRM', 'eCommerce', 'HCM', 'PSA', 'Supply Chain', 'Analytics'], sectors: ['Wholesale', 'Retail', 'Services', 'Technology', 'Manufacturing'], processes: { o2c: ['Lead', 'Offerte', 'Order', 'Levering', 'Factuur', 'Incasso'], p2p: ['Aanvraag', 'Bestelling', 'Ontvangst', 'Matching', 'Betaling'], r2r: ['Journaal', 'Reconciliatie', 'Consolidatie', 'Closing', 'Reporting'], mfg: ['Vraagplan', 'MRP', 'Productie', 'Warehouse'], h2r: ['Onboarding', 'Performance'], prj: ['Project Init', 'Planning', 'Uitvoering', 'Monitoring', 'Afsluiting'] }, integration: { ease: 4, api: 'REST, SOAP, SuiteTalk', connectors: 'SuiteApp marketplace', middleware: 'Oracle Integration, Celigo', notes: 'Breed maar Oracle-centrisch' }, customization: { ease: 4, method: 'SuiteScript, SuiteBuilder', upgradeImpact: 'Scripts kunnen updates vereisen', notes: 'Krachtig maar technisch' }, ui: { score: 6.5, modern: false, mobile: true, feedback: 'Functioneel maar verouderd', userRating: 'Krachtig niet intuïtief' }, pros: ['Cloud-native', 'Multi-subsidiary', 'Sterke financials'], cons: ['Duur', 'Verouderde UI', 'Vendor lock-in'], description: 'Cloud-native enterprise ERP.' },
+            { id: 'sapb1', name: 'SAP Business One', vendor: 'SAP', website: 'https://www.sap.com/products/business-one.html', category: 'Enterprise', deployment: ['On-premise', 'Cloud'], targetSize: '10-500 FTE', priceRange: { min: 100, max: 200, unit: '€/user/maand' }, implementationCost: { min: 25000, max: 100000 }, implementationTime: '3-5 maanden', marketShareBE: 8, scores: { finance: 9, hr: 5, crm: 7, manufacturing: 8, supplyChain: 9, projectMgmt: 6, reporting: 8, integration: 7 }, gartner: { vision: 70, execution: 75 }, infrastructure: { cloud: 'SAP HANA Cloud', onPrem: 'Windows Server, HANA/SQL', requirements: 'HANA licentie' }, partners: ['Anrova', 'Vigor', 'Axians', 'Ctac', 'Itelligence'], modules: ['Financials', 'Sales', 'Purchasing', 'Inventory', 'Production', 'MRP', 'Service'], sectors: ['Manufacturing', 'Wholesale', 'Retail', 'Services', 'Logistics'], processes: { o2c: ['Offerte', 'Order', 'Levering', 'Factuur', 'Incasso'], p2p: ['Bestelling', 'Ontvangst', 'Matching', 'Betaling'], r2r: ['Journaal', 'Reconciliatie', 'Closing', 'Reporting'], mfg: ['MRP', 'Productie', 'Warehouse'], h2r: [], prj: ['Project Init', 'Planning', 'Monitoring'] }, integration: { ease: 3, api: 'DI API, Service Layer REST', connectors: '500+ add-ons', middleware: 'SAP Integration Suite', notes: 'Goed maar technischer' }, customization: { ease: 3, method: 'SDK (C#/VB), UDF', upgradeImpact: 'Add-ons moeten gecertificeerd', notes: 'Technische kennis vereist' }, ui: { score: 6.5, modern: false, mobile: true, feedback: 'Functioneel maar gedateerd', userRating: 'Leercurve maar krachtig' }, pros: ['SAP ecosysteem', 'Sterke financials', 'Schaalbaar naar S/4HANA'], cons: ['Steile leercurve', 'Gedateerde UI'], description: 'SAP ERP voor het MKB.' },
+            { id: 'teamleader', name: 'Teamleader Focus', vendor: 'Teamleader (Visma)', website: 'https://www.teamleader.be', category: 'Budget', deployment: ['Cloud'], targetSize: '1-50 FTE', priceRange: { min: 50, max: 150, unit: '€/maand' }, implementationCost: { min: 0, max: 5000 }, implementationTime: '1-4 weken', marketShareBE: 10, scores: { finance: 5, hr: 4, crm: 8, manufacturing: 2, supplyChain: 3, projectMgmt: 8, reporting: 6, integration: 7 }, gartner: { vision: 40, execution: 50 }, infrastructure: { cloud: 'Teamleader Cloud (SaaS)', onPrem: 'N/A', requirements: 'Browser' }, partners: ['Teamleader Direct', 'Visma partners'], modules: ['CRM', 'Projects', 'Invoicing', 'Time Tracking', 'Planning'], sectors: ['Services', 'Technology', 'Construction'], processes: { o2c: ['Lead', 'Offerte', 'Factuur', 'Incasso'], p2p: [], r2r: ['Journaal', 'Reporting'], mfg: [], h2r: [], prj: ['Project Init', 'Planning', 'Uitvoering', 'Monitoring'] }, integration: { ease: 4, api: 'REST API', connectors: 'Marketplace, Zapier', middleware: 'Zapier, Make', notes: 'Eenvoudig te koppelen' }, customization: { ease: 2, method: 'Configuratie alleen', upgradeImpact: 'Geen - SaaS', notes: 'Beperkt' }, ui: { score: 9, modern: true, mobile: true, feedback: 'Zeer gebruiksvriendelijk', userRating: 'Excellent voor kleine teams' }, pros: ['Belgisch', 'Gebruiksvriendelijk', 'Snel operationeel'], cons: ['Beperkte ERP', 'Geen productie'], description: 'Belgische CRM en projectsoftware.' },
+            { id: 'epicor', name: 'Epicor Kinetic', vendor: 'Epicor', website: 'https://www.epicor.com', category: 'Enterprise', deployment: ['Cloud', 'On-premise'], targetSize: '50-500+ FTE', priceRange: { min: 150, max: 400, unit: '€/user/maand' }, implementationCost: { min: 75000, max: 300000 }, implementationTime: '6-12 maanden', marketShareBE: 4, scores: { finance: 8, hr: 5, crm: 6, manufacturing: 10, supplyChain: 9, projectMgmt: 7, reporting: 8, integration: 7 }, gartner: { vision: 65, execution: 70 }, infrastructure: { cloud: 'Epicor Cloud (Azure)', onPrem: 'Windows Server, SQL', requirements: 'Robuuste IT' }, partners: ['Epicor Direct', 'Cegeka'], modules: ['Manufacturing', 'Supply Chain', 'Finance', 'Sales', 'Service', 'Planning'], sectors: ['Manufacturing', 'Logistics', 'Wholesale'], processes: { o2c: ['Offerte', 'Order', 'Levering', 'Factuur', 'Incasso'], p2p: ['Aanvraag', 'Bestelling', 'Ontvangst', 'Matching', 'Betaling'], r2r: ['Journaal', 'Reconciliatie', 'Closing', 'Reporting'], mfg: ['Vraagplan', 'MRP', 'Scheduling', 'Productie', 'Kwaliteit', 'Warehouse'], h2r: [], prj: ['Project Init', 'Planning', 'Uitvoering', 'Monitoring'] }, integration: { ease: 3, api: 'REST API, BAQ, BPM', connectors: 'Epicor ECM, EDI', middleware: 'Dell Boomi', notes: 'Goed voor manufacturing' }, customization: { ease: 4, method: 'Kinetic Application Studio, BPM', upgradeImpact: 'Layered architecture', notes: 'Low-code mogelijk' }, ui: { score: 8, modern: true, mobile: true, feedback: 'Moderne Kinetic UI', userRating: 'Verbeterd met Kinetic' }, pros: ['Beste discrete manufacturing', 'AI-powered', 'Moderne UI'], cons: ['Manufacturing focus', 'Complexe implementatie'], description: 'Manufacturing ERP specialist.' },
+            { id: 'infor', name: 'Infor CloudSuite Industrial', vendor: 'Infor', website: 'https://www.infor.com', category: 'Enterprise', deployment: ['Cloud', 'On-premise', 'Hybrid'], targetSize: '100-1000+ FTE', priceRange: { min: 200, max: 500, unit: '€/user/maand' }, implementationCost: { min: 100000, max: 500000 }, implementationTime: '8-18 maanden', marketShareBE: 5, scores: { finance: 9, hr: 7, crm: 7, manufacturing: 10, supplyChain: 10, projectMgmt: 8, reporting: 9, integration: 8 }, gartner: { vision: 75, execution: 80 }, infrastructure: { cloud: 'AWS (Infor Cloud)', onPrem: 'Windows/Linux', requirements: 'Enterprise infrastructure' }, partners: ['Infor Direct', 'Cegeka', 'Deloitte', 'Accenture'], modules: ['Manufacturing', 'Supply Chain', 'Finance', 'HR', 'Asset Management', 'Quality'], sectors: ['Manufacturing', 'Food', 'Healthcare', 'Logistics'], processes: { o2c: ['Lead', 'Offerte', 'Order', 'Levering', 'Factuur', 'Incasso'], p2p: ['Aanvraag', 'Bestelling', 'Ontvangst', 'Matching', 'Betaling'], r2r: ['Journaal', 'Reconciliatie', 'Consolidatie', 'Closing', 'Reporting'], mfg: ['Vraagplan', 'MRP', 'Scheduling', 'Productie', 'Kwaliteit', 'Warehouse'], h2r: ['Werving', 'Onboarding', 'Payroll', 'Performance'], prj: ['Project Init', 'Planning', 'Uitvoering', 'Monitoring', 'Afsluiting'] }, integration: { ease: 4, api: 'REST, ION API, Infor OS', connectors: 'Infor Marketplace', middleware: 'Infor ION', notes: 'Sterk met Infor' }, customization: { ease: 3, method: 'Infor OS, Mongoose', upgradeImpact: 'Separatie van extensies', notes: 'Krachtig maar complex' }, ui: { score: 7.5, modern: true, mobile: true, feedback: 'Ming.le interface modern', userRating: 'Functioneel, industrie-gericht' }, pros: ['Deep industry functionaliteit', '99.9996% uptime', 'AI/ML'], cons: ['Complexe prijsstructuur', 'Lange implementatie'], description: 'Industry-specific cloud ERP.' },
+            { id: 'unit4', name: 'Unit4 ERP / ERPx', vendor: 'Unit4', website: 'https://www.unit4.com', category: 'Midmarket', deployment: ['Cloud', 'Hybrid'], targetSize: '50-500+ FTE', priceRange: { min: 150, max: 350, unit: '€/user/maand' }, implementationCost: { min: 40000, max: 150000 }, implementationTime: '4-8 maanden', marketShareBE: 5, scores: { finance: 8, hr: 8, crm: 6, manufacturing: 4, supplyChain: 5, projectMgmt: 9, reporting: 8, integration: 7 }, gartner: { vision: 60, execution: 65 }, infrastructure: { cloud: 'Unit4 Cloud (Azure)', onPrem: 'Windows Server (legacy)', requirements: 'Cloud-first' }, partners: ['Unit4 Direct', 'Ordina', 'Cegeka', 'Cronos'], modules: ['Finance', 'HR', 'Projects', 'Procurement', 'Planning', 'Analytics'], sectors: ['Services', 'Nonprofit', 'Healthcare', 'Technology'], processes: { o2c: ['Offerte', 'Order', 'Factuur', 'Incasso'], p2p: ['Aanvraag', 'Bestelling', 'Ontvangst', 'Betaling'], r2r: ['Journaal', 'Reconciliatie', 'Closing', 'Reporting'], mfg: [], h2r: ['Werving', 'Onboarding', 'Payroll', 'Performance', 'Offboarding'], prj: ['Project Init', 'Planning', 'Uitvoering', 'Monitoring', 'Afsluiting'] }, integration: { ease: 3, api: 'REST API, Web Services', connectors: 'Extension Kit', middleware: 'Dell Boomi, MuleSoft', notes: 'Adequate' }, customization: { ease: 3, method: 'Extension Kit, Configuration', upgradeImpact: 'Extensions apart beheerd', notes: 'Matig flexibel' }, ui: { score: 7, modern: true, mobile: true, feedback: 'Verbeterd met ERPx', userRating: 'Functioneel, verbeterend' }, pros: ['People-centric', 'Sterke project accounting', 'Flexibel'], cons: ['UI kan beter', 'Traag bij updates'], description: 'ERP voor people-centric organisaties.' },
+            { id: 'vismanet', name: 'Visma.net ERP', vendor: 'Visma', website: 'https://www.visma.be', category: 'Midmarket', deployment: ['Cloud'], targetSize: '20-200 FTE', priceRange: { min: 500, max: 4000, unit: '€/maand totaal' }, implementationCost: { min: 10000, max: 90000 }, implementationTime: '2-6 maanden', marketShareBE: 7, scores: { finance: 9, hr: 6, crm: 6, manufacturing: 5, supplyChain: 7, projectMgmt: 6, reporting: 8, integration: 7 }, gartner: { vision: 50, execution: 60 }, infrastructure: { cloud: 'Visma Cloud (SaaS)', onPrem: 'N/A', requirements: 'Browser' }, partners: ['Visma Software', 'Inisi', 'Brainnet'], modules: ['Financials', 'Logistics', 'HRM', 'Projects', 'Documents'], sectors: ['Wholesale', 'Logistics', 'Services', 'Retail'], processes: { o2c: ['Offerte', 'Order', 'Levering', 'Factuur', 'Incasso'], p2p: ['Bestelling', 'Ontvangst', 'Matching', 'Betaling'], r2r: ['Journaal', 'Reconciliatie', 'Reporting'], mfg: ['Warehouse'], h2r: ['Onboarding'], prj: ['Project Init', 'Planning', 'Monitoring'] }, integration: { ease: 4, api: 'REST API', connectors: 'Visma App Store', middleware: 'Zapier, Make', notes: 'Goed binnen Visma' }, customization: { ease: 2, method: 'Configuratie', upgradeImpact: 'Minimaal - SaaS', notes: 'Beperkt' }, ui: { score: 8, modern: true, mobile: true, feedback: 'Clean, moderne interface', userRating: 'Gebruiksvriendelijk' }, pros: ['Gebruiksvriendelijk', 'Sterke financials', 'Goede support'], cons: ['Cloud-only', 'Beperkt maatwerk'], description: 'Cloud ERP van Visma.' },
+            { id: 'yuki', name: 'Yuki', vendor: 'Visma', website: 'https://www.yukisoftware.com', category: 'Budget', deployment: ['Cloud'], targetSize: '1-100 FTE', priceRange: { min: 23, max: 100, unit: '€/maand' }, implementationCost: { min: 0, max: 3000 }, implementationTime: '1-2 weken', marketShareBE: 15, scores: { finance: 8, hr: 4, crm: 4, manufacturing: 2, supplyChain: 3, projectMgmt: 4, reporting: 7, integration: 7 }, gartner: { vision: 35, execution: 55 }, infrastructure: { cloud: 'Yuki Cloud (Visma)', onPrem: 'N/A', requirements: 'Browser, Peppol' }, partners: ['Accountantskantoren', 'Yuki Direct'], modules: ['Boekhouden', 'Facturatie', 'Documenten', 'Peppol'], sectors: ['Services', 'Retail', 'Technology'], processes: { o2c: ['Factuur', 'Incasso'], p2p: ['Betaling'], r2r: ['Journaal', 'Reconciliatie', 'Reporting'], mfg: [], h2r: [], prj: [] }, integration: { ease: 4, api: 'REST API', connectors: 'Visma ecosystem', middleware: 'Zapier', notes: 'Eenvoudig te koppelen' }, customization: { ease: 1, method: 'Configuratie alleen', upgradeImpact: 'Geen', notes: 'Beperkt' }, ui: { score: 8, modern: true, mobile: true, feedback: 'Clean, AI document scanning', userRating: 'Zeer gebruiksvriendelijk' }, pros: ['136.000+ bedrijven', 'AI documentherkenning', 'Peppol native'], cons: ['Alleen boekhouding', 'Geen ERP functionaliteit'], description: 'Cloud boekhoudplatform.' },
+            { id: 'scoro', name: 'Scoro', vendor: 'Scoro', website: 'https://www.scoro.com', category: 'Budget', deployment: ['Cloud'], targetSize: '10-200 FTE', priceRange: { min: 26, max: 63, unit: '€/user/maand' }, implementationCost: { min: 5000, max: 25000 }, implementationTime: '2-6 weken', marketShareBE: 3, scores: { finance: 7, hr: 5, crm: 8, manufacturing: 2, supplyChain: 3, projectMgmt: 9, reporting: 8, integration: 7 }, gartner: { vision: 45, execution: 50 }, infrastructure: { cloud: 'Scoro Cloud (SaaS)', onPrem: 'N/A', requirements: 'Browser' }, partners: ['Scoro Direct', 'Agency partners'], modules: ['Projects', 'CRM', 'Quoting', 'Billing', 'Time Tracking', 'Reporting'], sectors: ['Services', 'Technology'], processes: { o2c: ['Lead', 'Offerte', 'Factuur', 'Incasso'], p2p: ['Bestelling', 'Betaling'], r2r: ['Reporting'], mfg: [], h2r: ['Performance'], prj: ['Project Init', 'Planning', 'Uitvoering', 'Monitoring', 'Afsluiting'] }, integration: { ease: 4, api: 'REST API', connectors: 'Zapier, integrations', middleware: 'Zapier, Make', notes: 'Goed voor services' }, customization: { ease: 3, method: 'Configuratie, Custom fields', upgradeImpact: 'Minimaal', notes: 'Flexibel binnen grenzen' }, ui: { score: 9, modern: true, mobile: true, feedback: 'Prachtige, intuïtieve UI', userRating: 'Excellent UX' }, pros: ['All-in-one services', 'Goede rapportage', 'Gebruiksvriendelijk'], cons: ['Geen manufacturing', 'Services focus only'], description: 'Work management voor professional services.' },
+            { id: 'ifs', name: 'IFS Cloud', vendor: 'IFS', website: 'https://www.ifs.com', category: 'Enterprise', deployment: ['Cloud', 'On-premise', 'Hybrid'], targetSize: '100-1000+ FTE', priceRange: { min: 200, max: 500, unit: '€/user/maand' }, implementationCost: { min: 250000, max: 1000000 }, implementationTime: '8-18 maanden', marketShareBE: 4, scores: { finance: 8, hr: 7, crm: 7, manufacturing: 9, supplyChain: 9, projectMgmt: 10, reporting: 8, integration: 8 }, gartner: { vision: 75, execution: 75 }, infrastructure: { cloud: 'IFS Cloud (AWS/Azure)', onPrem: 'Windows/Linux', requirements: 'Enterprise infrastructure' }, partners: ['IFS Direct', 'Cegeka', 'Deloitte', 'Addovation'], modules: ['ERP', 'EAM', 'FSM', 'Supply Chain', 'Manufacturing', 'Projects', 'Finance', 'HR'], sectors: ['Manufacturing', 'Construction', 'Logistics', 'Healthcare'], processes: { o2c: ['Lead', 'Offerte', 'Order', 'Levering', 'Factuur', 'Incasso'], p2p: ['Aanvraag', 'Bestelling', 'Ontvangst', 'Matching', 'Betaling'], r2r: ['Journaal', 'Reconciliatie', 'Consolidatie', 'Closing', 'Reporting'], mfg: ['Vraagplan', 'MRP', 'Scheduling', 'Productie', 'Kwaliteit', 'Warehouse'], h2r: ['Werving', 'Onboarding', 'Payroll', 'Performance', 'Offboarding'], prj: ['Project Init', 'Planning', 'Uitvoering', 'Monitoring', 'Afsluiting'] }, integration: { ease: 4, api: 'REST, OData, IFS Connect', connectors: 'IFS Marketplace', middleware: 'IFS Connect, Dell Boomi', notes: 'Sterk voor asset-intensive' }, customization: { ease: 4, method: 'IFS Aurena, Projections', upgradeImpact: 'Composable architecture', notes: 'Modern customization' }, ui: { score: 8, modern: true, mobile: true, feedback: 'Aurena interface modern', userRating: 'Verbeterd significant' }, pros: ['Project/asset management', 'Industry-specific', 'Composable'], cons: ['Hoge kosten', 'Complexe implementatie'], description: 'Enterprise ERP voor asset-intensive industries.' },
+            { id: 'sagex3', name: 'Sage X3', vendor: 'Sage', website: 'https://www.sage.com', category: 'Enterprise', deployment: ['Cloud', 'On-premise', 'Hybrid'], targetSize: '100-500+ FTE', priceRange: { min: 200, max: 500, unit: '€/user/maand' }, implementationCost: { min: 75000, max: 250000 }, implementationTime: '6-12 maanden', marketShareBE: 5, scores: { finance: 9, hr: 6, crm: 6, manufacturing: 9, supplyChain: 9, projectMgmt: 7, reporting: 8, integration: 7 }, gartner: { vision: 55, execution: 60 }, infrastructure: { cloud: 'Sage Cloud (AWS)', onPrem: 'Windows Server', requirements: 'Robuuste infrastructuur' }, partners: ['Sage Direct', 'Ordina', 'Cegeka', 'Syneton'], modules: ['Financial Management', 'Distribution', 'Manufacturing', 'Supply Chain', 'BI'], sectors: ['Manufacturing', 'Wholesale', 'Food', 'Logistics'], processes: { o2c: ['Offerte', 'Order', 'Levering', 'Factuur', 'Incasso'], p2p: ['Aanvraag', 'Bestelling', 'Ontvangst', 'Matching', 'Betaling'], r2r: ['Journaal', 'Reconciliatie', 'Consolidatie', 'Closing', 'Reporting'], mfg: ['Vraagplan', 'MRP', 'Scheduling', 'Productie', 'Kwaliteit', 'Warehouse'], h2r: [], prj: ['Project Init', 'Planning', 'Monitoring'] }, integration: { ease: 3, api: 'REST, SOAP, Web Services', connectors: 'Sage Marketplace', middleware: 'Dell Boomi, MuleSoft', notes: 'Adequate integratie' }, customization: { ease: 3, method: 'X3 Development, 4GL', upgradeImpact: 'Custom code testen', notes: 'Technisch maar flexibel' }, ui: { score: 7, modern: true, mobile: true, feedback: 'Verbeterd maar enterprise-feel', userRating: 'Functioneel' }, pros: ['Sterke manufacturing', 'Flexibel', 'Internationale mogelijkheden'], cons: ['Complexe implementatie', 'Prijzen niet transparant'], description: 'Enterprise ERP voor midmarket productie.' },
+            { id: 'acumatica', name: 'Acumatica Cloud ERP', vendor: 'Acumatica', website: 'https://www.acumatica.com', category: 'Midmarket', deployment: ['Cloud', 'On-premise'], targetSize: '20-500 FTE', priceRange: { min: 1800, max: 3000, unit: '€/maand (consumption)' }, implementationCost: { min: 60000, max: 150000 }, implementationTime: '4-8 maanden', marketShareBE: 2, scores: { finance: 8, hr: 6, crm: 8, manufacturing: 8, supplyChain: 8, projectMgmt: 7, reporting: 8, integration: 8 }, gartner: { vision: 70, execution: 65 }, infrastructure: { cloud: 'Acumatica Cloud / AWS', onPrem: 'Windows Server', requirements: 'Consumption-based' }, partners: ['Acumatica partners', 'Cegeka'], modules: ['Financial', 'Distribution', 'Manufacturing', 'Construction', 'Retail', 'CRM', 'Projects'], sectors: ['Manufacturing', 'Wholesale', 'Retail', 'Construction', 'Services'], processes: { o2c: ['Lead', 'Offerte', 'Order', 'Levering', 'Factuur', 'Incasso'], p2p: ['Aanvraag', 'Bestelling', 'Ontvangst', 'Matching', 'Betaling'], r2r: ['Journaal', 'Reconciliatie', 'Closing', 'Reporting'], mfg: ['MRP', 'Scheduling', 'Productie', 'Warehouse'], h2r: ['Onboarding'], prj: ['Project Init', 'Planning', 'Uitvoering', 'Monitoring', 'Afsluiting'] }, integration: { ease: 5, api: 'REST, OData, Web Services', connectors: 'Marketplace 200+ ISV', middleware: 'Zapier, Dell Boomi', notes: 'Uitstekende open API' }, customization: { ease: 5, method: 'Acumatica Framework, Low-code', upgradeImpact: 'Customization beheerst', notes: 'Zeer flexibel' }, ui: { score: 8.5, modern: true, mobile: true, feedback: 'Moderne, responsive', userRating: 'Intuïtief en modern' }, pros: ['Unlimited users', 'Consumption pricing', 'Modern architecture'], cons: ['Beperkte Benelux presence', 'Partner-afhankelijk'], description: 'Cloud ERP met consumption-based pricing.' },
+            { id: 'ridderiq', name: 'Ridder iQ', vendor: 'ECI Solutions', website: 'https://www.ecisolutions.com', category: 'Midmarket', deployment: ['Cloud'], targetSize: '10-200 FTE', priceRange: { min: 100, max: 250, unit: '€/user/maand' }, implementationCost: { min: 20000, max: 80000 }, implementationTime: '2-4 maanden', marketShareBE: 4, scores: { finance: 7, hr: 5, crm: 7, manufacturing: 9, supplyChain: 7, projectMgmt: 7, reporting: 7, integration: 6 }, gartner: { vision: 45, execution: 55 }, infrastructure: { cloud: 'Ridder Cloud (SaaS)', onPrem: 'N/A', requirements: 'Browser' }, partners: ['ECI/Ridder Direct', '4Efficiency'], modules: ['CRM', 'Calculatie', 'Stuklijsten', 'Werkvoorbereiding', 'Inkoop', 'Productie', 'Service'], sectors: ['Manufacturing', 'Construction'], processes: { o2c: ['Offerte', 'Order', 'Levering', 'Factuur'], p2p: ['Bestelling', 'Ontvangst', 'Betaling'], r2r: ['Journaal', 'Reporting'], mfg: ['MRP', 'Scheduling', 'Productie', 'Kwaliteit'], h2r: [], prj: ['Project Init', 'Planning', 'Uitvoering', 'Monitoring'] }, integration: { ease: 3, api: 'REST API', connectors: 'Beperkt', middleware: 'Custom', notes: 'Branche-specifiek' }, customization: { ease: 3, method: 'Configuratie, UDF', upgradeImpact: 'Beperkt', notes: 'Branche-templates' }, ui: { score: 7, modern: true, mobile: true, feedback: 'Functioneel voor maakindustrie', userRating: 'Praktisch' }, pros: ['Maakindustrie specialist', 'Snelle implementatie', '950+ klanten BE/NL'], cons: ['Alleen maakindustrie', 'Beperkte sectoren'], description: 'Nederlands ERP voor maakindustrie.' }
+        ];
+
+        let compareList = [];
+        let chartInstance = null;
+        let wizardStep = 1;
+        let wizardSelections = { companyType: null, companySize: null, budget: 100000, sectors: [], processes: [] };
+
+        const companyTypes = [
+            { id: 'manufacturing', icon: '🏭', label: 'Productie', sublabel: 'Maak- en procesindustrie' },
+            { id: 'wholesale', icon: '📦', label: 'Handel', sublabel: 'Wholesale & distributie' },
+            { id: 'retail', icon: '🛒', label: 'Retail', sublabel: 'Winkels & e-commerce' },
+            { id: 'services', icon: '💼', label: 'Diensten', sublabel: 'Professional services' },
+            { id: 'construction', icon: '🏗️', label: 'Bouw', sublabel: 'Constructie & projecten' },
+            { id: 'healthcare', icon: '🏥', label: 'Healthcare', sublabel: 'Zorg & farma' },
+            { id: 'nonprofit', icon: '🤝', label: 'Non-profit', sublabel: 'Overheid & NGO' },
+            { id: 'technology', icon: '💻', label: 'Technologie', sublabel: 'IT & software' }
+        ];
+
+        const companySizes = [
+            { id: 'micro', icon: '👤', label: '1-10 FTE', sublabel: 'Micro' },
+            { id: 'small', icon: '👥', label: '11-50 FTE', sublabel: 'Klein' },
+            { id: 'medium', icon: '🏢', label: '51-250 FTE', sublabel: 'Middelgroot' },
+            { id: 'large', icon: '🏛️', label: '250-1000 FTE', sublabel: 'Groot' },
+            { id: 'enterprise', icon: '🌐', label: '1000+ FTE', sublabel: 'Enterprise' }
+        ];
+
+        const allProcessGroups = [
+            { key: 'o2c', name: 'Order to Cash', icon: '💰', steps: ['Lead', 'Offerte', 'Order', 'Levering', 'Factuur', 'Incasso'] },
+            { key: 'p2p', name: 'Procure to Pay', icon: '🛒', steps: ['Aanvraag', 'Bestelling', 'Ontvangst', 'Matching', 'Betaling'] },
+            { key: 'r2r', name: 'Record to Report', icon: '📊', steps: ['Journaal', 'Reconciliatie', 'Consolidatie', 'Closing', 'Reporting'] },
+            { key: 'mfg', name: 'Plan to Produce', icon: '🏭', steps: ['Vraagplan', 'MRP', 'Scheduling', 'Productie', 'Kwaliteit', 'Warehouse'] },
+            { key: 'h2r', name: 'Hire to Retire', icon: '👥', steps: ['Werving', 'Onboarding', 'Payroll', 'Performance', 'Offboarding'] },
+            { key: 'prj', name: 'Project Management', icon: '📋', steps: ['Project Init', 'Planning', 'Uitvoering', 'Monitoring', 'Afsluiting'] }
+        ];
+
+        function getBadgeClass(cat) { return { 'Budget': 'badge-budget', 'KMO Instap': 'badge-kmo', 'Midmarket': 'badge-midmarket', 'Enterprise': 'badge-enterprise' }[cat] || 'badge-niche'; }
+        function getCategoryColor(cat) { return { 'Budget': '#22c55e', 'KMO Instap': '#22c55e', 'Midmarket': '#3b82f6', 'Enterprise': '#9333ea' }[cat] || '#64748b'; }
+
+        function renderQuadrant() {
+            const container = document.getElementById('quadrantChart');
+            container.innerHTML = `<div class="axis-label y">Uitvoeringskracht →</div><div class="axis-label x">Volledigheid van Visie →</div><div class="quadrant-grid"><div class="quadrant-box"><span class="quadrant-label">Challengers</span></div><div class="quadrant-box"><span class="quadrant-label">Leaders</span></div><div class="quadrant-box"><span class="quadrant-label">Niche Players</span></div><div class="quadrant-box"><span class="quadrant-label">Visionaries</span></div></div>`;
+            const grid = container.querySelector('.quadrant-grid');
+            const maxShare = Math.max(...erpDatabase.map(e => e.marketShareBE || 1));
+            erpDatabase.forEach(erp => {
+                if (!erp.gartner) return;
+                const size = 8 + ((erp.marketShareBE || 1) / maxShare) * 20;
+                const dot = document.createElement('div');
+                dot.className = 'quadrant-dot';
+                dot.style.background = getCategoryColor(erp.category);
+                dot.style.width = size + 'px';
+                dot.style.height = size + 'px';
+                dot.style.left = `calc(${erp.gartner.vision}% - ${size/2}px)`;
+                dot.style.bottom = `calc(${erp.gartner.execution}% - ${size/2}px)`;
+                dot.innerHTML = `<span class="tooltip">${erp.name} (${erp.marketShareBE || '?'}%)</span>`;
+                dot.onclick = () => showDetail(erp.id);
+                grid.appendChild(dot);
+            });
+        }
+
+        function renderERPGrid() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const cat = document.getElementById('categoryFilter').value;
+            const dep = document.getElementById('deploymentFilter').value;
+            const sec = document.getElementById('sectorFilter').value;
+            const filtered = erpDatabase.filter(erp => {
+                const matchSearch = erp.name.toLowerCase().includes(search) || erp.vendor.toLowerCase().includes(search);
+                const matchCat = cat === 'all' || erp.category === cat;
+                const matchDep = dep === 'all' || erp.deployment.includes(dep);
+                const matchSec = sec === 'all' || (erp.sectors && erp.sectors.includes(sec));
+                return matchSearch && matchCat && matchDep && matchSec;
+            });
+            document.getElementById('erpCount').textContent = filtered.length;
+            document.getElementById('erpGrid').innerHTML = filtered.map(erp => `<div class="erp-card"><div class="erp-card-content"><div class="erp-header"><div><div class="erp-name">${erp.name}</div><div class="erp-vendor">${erp.vendor}</div></div><span class="badge ${getBadgeClass(erp.category)}">${erp.category}</span></div><div class="sector-tags">${(erp.sectors || []).slice(0,3).map(s => `<span class="sector-tag">${s}</span>`).join('')}</div><div class="erp-info"><div class="erp-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>${erp.targetSize}</span></div><div class="erp-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span>€${erp.priceRange.min}-${erp.priceRange.max}</span></div></div><div class="erp-actions"><button class="btn btn-secondary" onclick="showDetail('${erp.id}')">Details</button><button class="btn btn-secondary btn-compare ${compareList.find(e => e.id === erp.id) ? 'selected' : ''}" onclick="toggleCompare('${erp.id}')">${compareList.find(e => e.id === erp.id) ? '−' : '+'}</button></div></div></div>`).join('');
+        }
+
+        function updateCompareBar() {
+            const bar = document.getElementById('compareBar');
+            if (compareList.length > 0) {
+                bar.classList.add('active');
+                document.getElementById('compareCount').textContent = compareList.length;
+                document.getElementById('compareTags').innerHTML = compareList.map(erp => `<span class="compare-tag">${erp.name.split(' ')[0]}<button onclick="toggleCompare('${erp.id}')">&times;</button></span>`).join('');
+            } else bar.classList.remove('active');
+        }
+
+        function toggleCompare(id) {
+            const erp = erpDatabase.find(e => e.id === id);
+            const idx = compareList.findIndex(e => e.id === id);
+            if (idx > -1) compareList.splice(idx, 1);
+            else if (compareList.length < 4) compareList.push(erp);
+            updateCompareBar();
+            renderERPGrid();
+        }
+
+        function renderRatingDots(score, max = 5) {
+            return `<div class="rating-dots">${Array(max).fill(0).map((_, i) => `<div class="rating-dot ${i < score ? 'filled green' : ''}"></div>`).join('')}</div>`;
+        }
+
+        function showDetail(id) {
+            const erp = erpDatabase.find(e => e.id === id);
+            if (!erp) return;
+            document.getElementById('listView').classList.add('hidden');
+            document.getElementById('compareView').classList.remove('active');
+            document.getElementById('detailView').classList.add('active');
+
+            const processGroups = [
+                { key: 'o2c', name: 'Order to Cash', icon: '💰', color: '#3b82f6', steps: ['Lead', 'Offerte', 'Order', 'Levering', 'Factuur', 'Incasso'] },
+                { key: 'p2p', name: 'Procure to Pay', icon: '🛒', color: '#8b5cf6', steps: ['Aanvraag', 'Bestelling', 'Ontvangst', 'Matching', 'Betaling'] },
+                { key: 'r2r', name: 'Record to Report', icon: '📊', color: '#06b6d4', steps: ['Journaal', 'Reconciliatie', 'Consolidatie', 'Closing', 'Reporting'] },
+                { key: 'mfg', name: 'Plan to Produce', icon: '🏭', color: '#f59e0b', steps: ['Vraagplan', 'MRP', 'Scheduling', 'Productie', 'Kwaliteit', 'Warehouse'] },
+                { key: 'h2r', name: 'Hire to Retire', icon: '👥', color: '#10b981', steps: ['Werving', 'Onboarding', 'Payroll', 'Performance', 'Offboarding'] },
+                { key: 'prj', name: 'Project Management', icon: '📋', color: '#ec4899', steps: ['Project Init', 'Planning', 'Uitvoering', 'Monitoring', 'Afsluiting'] }
+            ];
+
+            document.getElementById('detailView').innerHTML = `
+                <button class="back-btn" onclick="showList()">← Terug</button>
+                <div class="detail-header"><div class="detail-header-top"><div class="detail-title"><h1>${erp.name}</h1><p>${erp.vendor}</p></div><a href="${erp.website}" target="_blank" class="btn btn-primary">Website →</a></div><p style="color:#475569;font-size:0.8rem;margin-bottom:0.5rem;">${erp.description}</p><div class="detail-badges"><span class="detail-badge badge ${getBadgeClass(erp.category)}">${erp.category}</span>${erp.deployment.map(d => `<span class="detail-badge" style="background:#f1f5f9;color:#475569;">${d}</span>`).join('')}</div><div style="margin-top:0.5rem;"><strong style="font-size:0.7rem;color:#64748b;">Sectoren:</strong><div class="sector-tags" style="margin-top:0.3rem;">${(erp.sectors || []).map(s => `<span class="sector-tag">${s}</span>`).join('')}</div></div></div>
+                <div class="detail-grid">
+                    <div class="detail-section"><h2>📊 Scores</h2><div class="chart-container"><canvas id="radarChart"></canvas></div></div>
+                    <div class="detail-section"><h2>💰 Kosten</h2><div class="cost-grid"><div class="cost-card"><label>Licentie</label><div class="value">€${erp.priceRange.min}-${erp.priceRange.max}</div><div class="unit">${erp.priceRange.unit}</div></div><div class="cost-card"><label>Implementatie</label><div class="value">€${(erp.implementationCost.min/1000).toFixed(0)}K-${(erp.implementationCost.max/1000).toFixed(0)}K</div></div><div class="cost-card"><label>Doorlooptijd</label><div class="value">${erp.implementationTime}</div></div></div></div>
+                    <div class="detail-section full-width"><h2>🗺️ Application Process Map</h2><p style="font-size:0.65rem;color:#64748b;margin-bottom:0.75rem;">Klik voor details • <span style="background:#dcfce7;padding:0.1rem 0.3rem;border-radius:2px;">Groen</span> = Ondersteund</p><div class="process-map">${processGroups.map(g => `<div class="process-group" style="border-left-color:${g.color};"><h4>${g.icon} ${g.name}</h4><div class="process-steps">${g.steps.map((step, i) => { const covered = erp.processes && erp.processes[g.key] && erp.processes[g.key].includes(step); return `${i > 0 ? '<span class="process-arrow">→</span>' : ''}<span class="process-step ${covered ? 'covered' : ''}" onclick="showProcessInfo('${step}')">${step}</span>`; }).join('')}</div></div>`).join('')}</div></div>
+                    <div class="detail-section"><h2>🔌 Integratie</h2><div class="integration-grid"><div class="integration-card"><h4>📡 API</h4><p>${erp.integration?.api || 'REST API'}</p><div class="rating-bar"><span class="rating-label">Gemak:</span>${renderRatingDots(erp.integration?.ease || 3)}</div></div><div class="integration-card"><h4>🔗 Connectors</h4><p style="font-size:0.6rem;">${erp.integration?.connectors || 'Marketplace'}</p></div><div class="integration-card"><h4>⚙️ Middleware</h4><p>${erp.integration?.middleware || 'Zapier'}</p></div><div class="integration-card"><h4>💡 Tips</h4><p>${erp.integration?.notes || 'Standaard'}</p></div></div></div>
+                    <div class="detail-section"><h2>🛠️ Aanpasbaarheid</h2><div class="integration-grid"><div class="integration-card"><h4>🎨 Methode</h4><p style="font-size:0.6rem;">${erp.customization?.method || 'Configuratie'}</p><div class="rating-bar"><span class="rating-label">Flexibiliteit:</span>${renderRatingDots(erp.customization?.ease || 3)}</div></div><div class="integration-card"><h4>🔄 Upgrade</h4><p style="font-size:0.6rem;">${erp.customization?.upgradeImpact || 'Afhankelijk'}</p></div></div></div>
+                    <div class="detail-section"><h2>🖥️ UX</h2><div class="ui-review"><div class="ui-score"><div class="number">${erp.ui?.score || 7}</div><div class="label">Score</div></div><div class="ui-details"><div class="ui-detail-row"><span>Modern</span><span>${erp.ui?.modern ? '✅' : '❌'}</span></div><div class="ui-detail-row"><span>Mobile</span><span>${erp.ui?.mobile ? '✅' : '❌'}</span></div><div class="ui-detail-row"><span>Feedback</span><span style="font-size:0.55rem;max-width:120px;text-align:right;">${erp.ui?.feedback || ''}</span></div></div></div></div>
+                    <div class="detail-section"><h2>📦 Modules</h2><div class="modules-grid">${erp.modules.map(m => `<div class="module-tag">${m}</div>`).join('')}</div></div>
+                    <div class="detail-section full-width"><h2>🤝 Partners BE</h2><div class="partners-list">${erp.partners.map(p => `<span class="partner-tag">${p}</span>`).join('')}</div></div>
+                    <div class="detail-section full-width"><div class="pros-cons"><div><h2 style="color:#16a34a;">✓ Voordelen</h2><ul class="pros-list">${erp.pros.map(p => `<li>${p}</li>`).join('')}</ul></div><div><h2 style="color:#d97706;">⚠ Aandachtspunten</h2><ul class="cons-list">${erp.cons.map(c => `<li>${c}</li>`).join('')}</ul></div></div></div>
+                </div>`;
+
+            setTimeout(() => {
+                const ctx = document.getElementById('radarChart');
+                if (ctx) {
+                    if (chartInstance) chartInstance.destroy();
+                    chartInstance = new Chart(ctx, { type: 'radar', data: { labels: ['Finance', 'HR', 'CRM', 'Mfg', 'SCM', 'Projects', 'BI', 'Integration'], datasets: [{ label: erp.name, data: [erp.scores.finance, erp.scores.hr, erp.scores.crm, erp.scores.manufacturing, erp.scores.supplyChain, erp.scores.projectMgmt, erp.scores.reporting, erp.scores.integration], backgroundColor: 'rgba(59,130,246,0.2)', borderColor: '#3b82f6', borderWidth: 2, pointBackgroundColor: '#3b82f6' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { r: { beginAtZero: true, max: 10, ticks: { stepSize: 2, font: { size: 8 } }, pointLabels: { font: { size: 9 } } } }, plugins: { legend: { display: false } } } });
+                }
+            }, 100);
+        }
+
+        function showProcessInfo(step) {
+            const info = processInfo[step];
+            if (!info) return;
+            document.getElementById('modalTitle').textContent = info.title;
+            document.getElementById('modalBody').innerHTML = `<p>${info.desc}</p><h4>Activiteiten:</h4><ul>${info.activities.map(a => `<li>${a}</li>`).join('')}</ul>`;
+            document.getElementById('processModal').classList.add('active');
+        }
+
+        function closeModal() { document.getElementById('processModal').classList.remove('active'); }
+
+        function showCompareView() {
+            if (compareList.length < 2) { alert('Selecteer minstens 2 systemen'); return; }
+            document.getElementById('listView').classList.add('hidden');
+            document.getElementById('detailView').classList.remove('active');
+            document.getElementById('compareView').classList.add('active');
+            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
+            const areas = ['finance', 'hr', 'crm', 'manufacturing', 'supplyChain', 'projectMgmt', 'reporting', 'integration'];
+            const labels = ['Finance', 'HR', 'CRM', 'Mfg', 'SCM', 'Projects', 'BI', 'Integration'];
+            document.getElementById('compareView').innerHTML = `<button class="back-btn" onclick="showList()">← Terug</button><div class="detail-section"><h2>Vergelijking</h2><div class="chart-container" style="height:250px;margin-bottom:1rem;"><canvas id="compareChart"></canvas></div><table class="compare-table"><thead><tr><th>Kenmerk</th>${compareList.map((e,i) => `<th style="color:${colors[i]}">${e.name.split(' ').slice(0,2).join(' ')}</th>`).join('')}</tr></thead><tbody><tr><td>Categorie</td>${compareList.map(e => `<td>${e.category}</td>`).join('')}</tr><tr><td>Doelgroep</td>${compareList.map(e => `<td>${e.targetSize}</td>`).join('')}</tr><tr><td>Licentie</td>${compareList.map(e => `<td>€${e.priceRange.min}-${e.priceRange.max}</td>`).join('')}</tr><tr><td>Integratie</td>${compareList.map(e => `<td>${renderRatingDots(e.integration?.ease||3)}</td>`).join('')}</tr><tr><td>Flexibiliteit</td>${compareList.map(e => `<td>${renderRatingDots(e.customization?.ease||3)}</td>`).join('')}</tr><tr><td>UX</td>${compareList.map(e => `<td><strong>${e.ui?.score||7}</strong>/10</td>`).join('')}</tr>${areas.map((a,i) => `<tr><td>${labels[i]}</td>${compareList.map(e => `<td><div class="score-bar"><div class="score-bar-bg"><div class="score-bar-fill" style="width:${e.scores[a]*10}%"></div></div><span class="score-text">${e.scores[a]}</span></div></td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+            setTimeout(() => { const ctx = document.getElementById('compareChart'); if (ctx) { if (chartInstance) chartInstance.destroy(); chartInstance = new Chart(ctx, { type: 'radar', data: { labels, datasets: compareList.map((erp,i) => ({ label: erp.name.split(' ')[0], data: areas.map(a => erp.scores[a]), backgroundColor: colors[i]+'33', borderColor: colors[i], borderWidth: 2, pointBackgroundColor: colors[i] })) }, options: { responsive: true, maintainAspectRatio: false, scales: { r: { beginAtZero: true, max: 10, ticks: { stepSize: 2 } } } } }); } }, 100);
+        }
+
+        function showList() {
+            document.getElementById('listView').classList.remove('hidden');
+            document.getElementById('detailView').classList.remove('active');
+            document.getElementById('compareView').classList.remove('active');
+            if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+        }
+
+        // Wizard Functions
+        function openWizard() {
+            wizardStep = 1;
+            wizardSelections = { companyType: null, companySize: null, budget: 100000, sectors: [], processes: [] };
+            document.getElementById('wizardOverlay').classList.add('active');
+            renderWizardStep();
+        }
+
+        function closeWizard() { document.getElementById('wizardOverlay').classList.remove('active'); }
+
+        function renderWizardStep() {
+            const body = document.getElementById('wizardBody');
+            document.querySelectorAll('.wizard-step').forEach((el, i) => { el.classList.remove('active', 'done'); if (i + 1 < wizardStep) el.classList.add('done'); else if (i + 1 === wizardStep) el.classList.add('active'); });
+            document.getElementById('wizardPrev').style.display = wizardStep === 1 ? 'none' : 'block';
+            document.getElementById('wizardNext').textContent = wizardStep === 4 ? '🎯 Toon Resultaten' : 'Volgende →';
+
+            if (wizardStep === 1) {
+                body.innerHTML = `<div class="wizard-section"><h3>🏢 Wat voor type organisatie bent u?</h3><p>Selecteer het type dat het beste past bij uw bedrijf</p><div class="option-grid">${companyTypes.map(t => `<div class="option-card ${wizardSelections.companyType === t.id ? 'selected' : ''}" onclick="selectCompanyType('${t.id}')"><div class="icon">${t.icon}</div><div class="label">${t.label}</div><div class="sublabel">${t.sublabel}</div></div>`).join('')}</div></div><div class="wizard-section"><h3>📏 Hoeveel medewerkers heeft u?</h3><div class="option-grid">${companySizes.map(s => `<div class="option-card ${wizardSelections.companySize === s.id ? 'selected' : ''}" onclick="selectCompanySize('${s.id}')"><div class="icon">${s.icon}</div><div class="label">${s.label}</div><div class="sublabel">${s.sublabel}</div></div>`).join('')}</div></div>`;
+            } else if (wizardStep === 2) {
+                body.innerHTML = `<div class="wizard-section"><h3>💰 Wat is uw totaal budget voor ERP? (incl. implementatie eerste jaar)</h3><div class="budget-slider"><div class="budget-value" id="budgetValue">€${(wizardSelections.budget/1000).toFixed(0)}K</div><input type="range" min="5000" max="1000000" step="5000" value="${wizardSelections.budget}" oninput="updateBudget(this.value)"><div class="budget-labels"><span>€5K</span><span>€100K</span><span>€500K</span><span>€1M+</span></div></div></div>`;
+            } else if (wizardStep === 3) {
+                body.innerHTML = `<div class="wizard-section"><h3>⚙️ Welke bedrijfsprocessen moeten ondersteund worden?</h3><p>Selecteer de specifieke processen die u nodig heeft. Klik op een groep om uit te vouwen.</p><div class="process-selector">${allProcessGroups.map(g => `<div class="process-group-header" onclick="toggleProcessGroup('${g.key}')"><h4>${g.icon} ${g.name}</h4><div><button class="select-all-btn" onclick="event.stopPropagation();selectAllProcesses('${g.key}')">Alles</button> <span class="toggle" id="toggle-${g.key}">▼</span></div></div><div class="process-group-content" id="content-${g.key}">${g.steps.map(s => `<label class="process-checkbox"><input type="checkbox" ${wizardSelections.processes.includes(s) ? 'checked' : ''} onchange="toggleProcess('${s}')"> ${s}</label>`).join('')}</div>`).join('')}</div></div>`;
+            } else if (wizardStep === 4) {
+                const matches = getWizardMatches();
+                body.innerHTML = `<div class="wizard-section"><h3>🎯 Uw ERP Aanbevelingen</h3><p>Op basis van uw selecties hebben we de beste matches gevonden:</p><div class="wizard-results"><h4>Gevonden matches:</h4><p class="match-count">${matches.length} systemen</p><p>die voldoen aan uw criteria</p></div><div style="margin-top:1rem;max-height:300px;overflow-y:auto;">${matches.slice(0,10).map((m, i) => `<div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:${i%2===0?'#f8fafc':'white'};border-radius:8px;margin-bottom:0.5rem;"><div style="font-size:1.25rem;font-weight:700;color:#3b82f6;width:30px;">#${i+1}</div><div style="flex:1;"><div style="font-weight:600;font-size:0.85rem;">${m.erp.name}</div><div style="font-size:0.7rem;color:#64748b;">${m.erp.vendor} • ${m.erp.category} • Match: ${m.score}%</div></div><button class="btn btn-secondary" style="font-size:0.65rem;" onclick="closeWizard();showDetail('${m.erp.id}')">Details</button></div>`).join('')}</div></div>`;
+            }
+        }
+
+        function selectCompanyType(id) { wizardSelections.companyType = id; renderWizardStep(); }
+        function selectCompanySize(id) { wizardSelections.companySize = id; renderWizardStep(); }
+        function updateBudget(val) { wizardSelections.budget = parseInt(val); document.getElementById('budgetValue').textContent = `€${(val/1000).toFixed(0)}K`; }
+        function toggleProcessGroup(key) { const content = document.getElementById('content-' + key); const toggle = document.getElementById('toggle-' + key); if (content.classList.contains('open')) { content.classList.remove('open'); toggle.textContent = '▼'; } else { content.classList.add('open'); toggle.textContent = '▲'; } }
+        function toggleProcess(step) { const idx = wizardSelections.processes.indexOf(step); if (idx > -1) wizardSelections.processes.splice(idx, 1); else wizardSelections.processes.push(step); }
+        function selectAllProcesses(key) { const group = allProcessGroups.find(g => g.key === key); group.steps.forEach(s => { if (!wizardSelections.processes.includes(s)) wizardSelections.processes.push(s); }); renderWizardStep(); toggleProcessGroup(key); }
+
+        function wizardPrev() { if (wizardStep > 1) { wizardStep--; renderWizardStep(); } }
+        function wizardNext() { if (wizardStep < 4) { wizardStep++; renderWizardStep(); } else { closeWizard(); applyWizardFilter(); } }
+
+        function getWizardMatches() {
+            return erpDatabase.map(erp => {
+                let score = 0, maxScore = 100;
+                // Budget check
+                const totalCost = erp.implementationCost.min + (erp.priceRange.min * 12 * 10);
+                if (totalCost <= wizardSelections.budget * 1.5) score += 25;
+                else if (totalCost <= wizardSelections.budget * 3) score += 10;
+                // Company type/sector
+                const sectorMap = { manufacturing: 'Manufacturing', wholesale: 'Wholesale', retail: 'Retail', services: 'Services', construction: 'Construction', healthcare: 'Healthcare', nonprofit: 'Nonprofit', technology: 'Technology' };
+                if (wizardSelections.companyType && erp.sectors?.includes(sectorMap[wizardSelections.companyType])) score += 25;
+                // Size match
+                const sizeRanges = { micro: [1,10], small: [11,50], medium: [51,250], large: [250,1000], enterprise: [1000,99999] };
+                if (wizardSelections.companySize) {
+                    const range = sizeRanges[wizardSelections.companySize];
+                    const erpMin = parseInt(erp.targetSize) || 1;
+                    if (erpMin <= range[1]) score += 20;
+                }
+                // Process match
+                if (wizardSelections.processes.length > 0) {
+                    let processMatch = 0;
+                    wizardSelections.processes.forEach(p => {
+                        Object.values(erp.processes || {}).forEach(arr => { if (arr.includes(p)) processMatch++; });
+                    });
+                    score += Math.round((processMatch / wizardSelections.processes.length) * 30);
+                } else score += 15;
+                return { erp, score: Math.min(score, 100) };
+            }).filter(m => m.score > 20).sort((a, b) => b.score - a.score);
+        }
+
+        function applyWizardFilter() {
+            const matches = getWizardMatches();
+            const matchIds = matches.slice(0, 15).map(m => m.erp.id);
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = 'all';
+            document.getElementById('deploymentFilter').value = 'all';
+            document.getElementById('sectorFilter').value = 'all';
+            renderERPGrid();
+            document.querySelectorAll('.erp-card').forEach(card => {
+                const id = card.querySelector('button[onclick*="showDetail"]')?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+                if (id && !matchIds.includes(id)) card.style.opacity = '0.4';
+                else card.style.opacity = '1';
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', renderERPGrid);
+        document.getElementById('categoryFilter').addEventListener('change', renderERPGrid);
+        document.getElementById('deploymentFilter').addEventListener('change', renderERPGrid);
+        document.getElementById('sectorFilter').addEventListener('change', renderERPGrid);
+
+        renderQuadrant();
+        renderERPGrid();
+    </script>
+</body>
+</html>
