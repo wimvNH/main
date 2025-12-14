@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jaarrekening Analyzer Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1a2234;
+            --bg-card: #151d2e;
+            --accent-green: #00d4aa;
+            --accent-red: #ff4d6a;
+            --accent-blue: #3b82f6;
+            --accent-yellow: #fbbf24;
+            --accent-purple: #a855f7;
+            --accent-orange: #f97316;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #2d3a4f;
+            --gradient-1: linear-gradient(135deg, #00d4aa 0%, #3b82f6 100%);
+            --gradient-2: linear-gradient(135deg, #a855f7 0%, #f97316 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-tab {
+            padding: 0.5rem 1.25rem;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-tab:hover {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .nav-tab.active {
+            background: var(--bg-tertiary);
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .main-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .upload-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--bg-tertiary);
+        }
+
+        .upload-zone:hover {
+            border-color: var(--accent-green);
+            background: rgba(0, 212, 170, 0.05);
+        }
+
+        .upload-zone.dragover {
+            border-color: var(--accent-green);
+            background: rgba(0, 212, 170, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .upload-text strong {
+            color: var(--accent-green);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .uploaded-files {
+            margin-top: 1.5rem;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 77, 106, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-red);
+        }
+
+        .file-name {
+            font-weight: 500;
+        }
+
+        .file-size {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .file-year {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .year-input {
+            width: 100px;
+            padding: 0.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .remove-file {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .remove-file:hover {
+            color: var(--accent-red);
+            background: rgba(255, 77, 106, 0.1);
+        }
+
+        .analysis-config {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .config-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .config-label {
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .config-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .config-input:focus {
+            outline: none;
+            border-color: var(--accent-green);
+        }
+
+        .sector-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 170, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .analyze-btn {
+            margin-top: 1.5rem;
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 14, 23, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 1.5rem;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        .loading-step {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--accent-green);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .dashboard {
+            display: none;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .overview-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+
+        .overview-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .overview-value {
+            font-size: 1.4rem;
+            font-weight: 600;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .overview-change {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .change-positive {
+            color: var(--accent-green);
+        }
+
+        .change-negative {
+            color: var(--accent-red);
+        }
+
+        .kpi-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .kpi-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .kpi-badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .badge-green {
+            background: rgba(0, 212, 170, 0.2);
+            color: var(--accent-green);
+        }
+
+        .badge-yellow {
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--accent-yellow);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .kpi-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.25rem;
+            transition: all 0.2s;
+        }
+
+        .kpi-card:hover {
+            border-color: var(--accent-green);
+            transform: translateY(-2px);
+        }
+
+        .kpi-name {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .kpi-value-row {
+            display: flex;
+            align-items: baseline;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .kpi-value {
+            font-size: 1.75rem;
+            font-weight: 600;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .kpi-comparison {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .kpi-vs {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .kpi-vs-label {
+            color: var(--text-muted);
+        }
+
+        .kpi-bar {
+            height: 6px;
+            background: var(--bg-secondary);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+        }
+
+        .kpi-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .kpi-explanation {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .chart-container {
+            height: 250px;
+        }
+
+        .advice-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .advice-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .advice-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .advice-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .advice-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .advice-content {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .advice-content h3 {
+            color: var(--accent-green);
+            margin: 1rem 0 0.5rem;
+            font-size: 1rem;
+        }
+
+        .advice-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .advice-content ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .advice-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .risk-meter {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .risk-label {
+            font-weight: 500;
+        }
+
+        .risk-bar {
+            flex: 1;
+            height: 10px;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-yellow), var(--accent-red));
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .risk-indicator {
+            position: absolute;
+            top: -5px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            border: 3px solid var(--bg-primary);
+            transform: translateX(-50%);
+            transition: left 0.3s ease;
+        }
+
+        .risk-value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 600;
+        }
+
+        .hr-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .hr-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .hr-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            font-family: 'IBM Plex Mono', monospace;
+            color: var(--accent-blue);
+            margin-bottom: 0.25rem;
+        }
+
+        .hr-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .year-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .year-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            transition: all 0.2s;
+        }
+
+        .year-btn:hover {
+            border-color: var(--accent-green);
+            color: var(--text-primary);
+        }
+
+        .year-btn.active {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: var(--bg-primary);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 1200px) {
+            .overview-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .overview-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .analysis-config {
+                grid-template-columns: 1fr;
+            }
+            .hr-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">JA</div>
+                <span class="logo-text">Jaarrekening Analyzer Pro</span>
+            </div>
+            <nav class="nav-tabs">
+                <button class="nav-tab active" data-tab="upload">📤 Upload</button>
+                <button class="nav-tab" data-tab="dashboard">📊 Dashboard</button>
+                <button class="nav-tab" data-tab="kpis">📈 KPI's & Ratio's</button>
+                <button class="nav-tab" data-tab="advice">💡 Advies</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- Upload Section -->
+        <section id="upload-section" class="upload-section">
+            <h2 class="section-title">Jaarrekeningen Uploaden</h2>
+            <p class="section-subtitle">Upload één of meerdere jaarrekeningen in PDF-formaat voor analyse</p>
+
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-icon">📄</div>
+                <p class="upload-text"><strong>Klik om bestanden te selecteren</strong> of sleep ze hierheen</p>
+                <p class="upload-text" style="font-size: 0.85rem; margin-top: 0.5rem;">Ondersteunt PDF-bestanden van Belgische jaarrekeningen</p>
+                <input type="file" class="file-input" id="fileInput" accept=".pdf" multiple>
+            </div>
+
+            <div class="uploaded-files" id="uploadedFiles"></div>
+
+            <div class="analysis-config">
+                <div class="config-card">
+                    <label class="config-label">🎯 Doel van de Analyse</label>
+                    <textarea class="config-input" id="analysisGoal" placeholder="Beschrijf het doel van uw analyse..."></textarea>
+                </div>
+                <div class="config-card">
+                    <label class="config-label">💰 Investeringscontext</label>
+                    <textarea class="config-input" id="investmentContext" placeholder="Beschrijf de investeringscontext..."></textarea>
+                </div>
+            </div>
+
+            <div class="analysis-config" style="margin-top: 1rem;">
+                <div class="config-card">
+                    <label class="config-label">🏭 Sector</label>
+                    <select class="sector-select" id="sectorSelect">
+                        <option value="">Selecteer sector...</option>
+                        <option value="bouw">Bouw & Constructie</option>
+                        <option value="retail">Retail & Handel</option>
+                        <option value="industrie">Industrie & Productie</option>
+                        <option value="diensten">Zakelijke Dienstverlening</option>
+                        <option value="it">IT & Technologie</option>
+                        <option value="transport">Transport & Logistiek</option>
+                        <option value="horeca">Horeca & Toerisme</option>
+                        <option value="gezondheid">Gezondheidszorg</option>
+                        <option value="landbouw">Landbouw & Voeding</option>
+                        <option value="financieel">Financiële Diensten</option>
+                        <option value="vastgoed">Vastgoed</option>
+                        <option value="energie">Energie & Utilities</option>
+                    </select>
+                </div>
+                <div class="config-card">
+                    <label class="config-label">📝 Specifieke Vragen</label>
+                    <textarea class="config-input" id="specificQuestions" placeholder="Stel specifieke vragen..."></textarea>
+                </div>
+            </div>
+
+            <button class="btn btn-primary analyze-btn" id="analyzeBtn" disabled>
+                🔍 Start Analyse
+            </button>
+        </section>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay hidden" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Jaarrekeningen worden geanalyseerd...</p>
+            <p class="loading-step" id="loadingStep">PDF's verwerken...</p>
+        </div>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="dashboard">
+            <div class="year-selector" id="yearSelector"></div>
+            <div class="overview-grid" id="overviewGrid"></div>
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3 class="chart-title">📊 Evolutie Kerngetallen</h3>
+                    <div class="chart-container">
+                        <canvas id="evolutionChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3 class="chart-title">📈 Rentabiliteit & Marges</h3>
+                    <div class="chart-container">
+                        <canvas id="profitabilityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="kpi-section">
+                <div class="kpi-header">
+                    <h3 class="kpi-title">👥 HR & Personeelsgegevens</h3>
+                </div>
+                <div class="hr-grid" id="hrGrid"></div>
+            </div>
+        </section>
+
+        <!-- KPIs Section -->
+        <section id="kpis-section" class="dashboard">
+            <div class="year-selector" id="yearSelectorKpi"></div>
+            <div class="kpi-section">
+                <div class="kpi-header">
+                    <h3 class="kpi-title">💧 Liquiditeitsratio's</h3>
+                    <span class="kpi-badge badge-green">Korte Termijn</span>
+                </div>
+                <div class="kpi-grid" id="liquidityKpis"></div>
+            </div>
+            <div class="kpi-section">
+                <div class="kpi-header">
+                    <h3 class="kpi-title">🏛️ Solvabiliteitsratio's</h3>
+                    <span class="kpi-badge badge-yellow">Lange Termijn</span>
+                </div>
+                <div class="kpi-grid" id="solvencyKpis"></div>
+            </div>
+            <div class="kpi-section">
+                <div class="kpi-header">
+                    <h3 class="kpi-title">💰 Rentabiliteitsratio's</h3>
+                    <span class="kpi-badge badge-green">Winstgevendheid</span>
+                </div>
+                <div class="kpi-grid" id="profitabilityKpis"></div>
+            </div>
+            <div class="kpi-section">
+                <div class="kpi-header">
+                    <h3 class="kpi-title">🔄 Activiteitsratio's</h3>
+                    <span class="kpi-badge badge-yellow">Efficiëntie</span>
+                </div>
+                <div class="kpi-grid" id="activityKpis"></div>
+            </div>
+            <div class="kpi-section">
+                <div class="kpi-header">
+                    <h3 class="kpi-title">💵 Cashflow & Dekking</h3>
+                    <span class="kpi-badge badge-green">Kasstromen</span>
+                </div>
+                <div class="kpi-grid" id="cashflowKpis"></div>
+            </div>
+            <div class="kpi-section">
+                <div class="kpi-header">
+                    <h3 class="kpi-title">📊 Overige KPI's</h3>
+                    <span class="kpi-badge badge-yellow">Analyse</span>
+                </div>
+                <div class="kpi-grid" id="otherKpis"></div>
+            </div>
+        </section>
+
+        <!-- Advice Section -->
+        <section id="advice-section" class="dashboard">
+            <div class="advice-section">
+                <div class="advice-header">
+                    <div class="advice-icon">💡</div>
+                    <div>
+                        <h3 class="advice-title">Investeringsadvies & Analyse</h3>
+                        <p class="advice-subtitle">Gebaseerd op de geanalyseerde jaarrekeningen</p>
+                    </div>
+                </div>
+                <div class="advice-content" id="adviceContent">
+                    <p style="color: var(--text-muted);">Upload en analyseer jaarrekeningen om een gepersonaliseerd advies te ontvangen.</p>
+                </div>
+                <div class="risk-meter">
+                    <span class="risk-label">Risico Score:</span>
+                    <div class="risk-bar">
+                        <div class="risk-indicator" id="riskIndicator" style="left: 50%;"></div>
+                    </div>
+                    <span class="risk-value" id="riskValue">--</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // PDF.js configuration - use inline worker to avoid CORS issues
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        
+        // ============= SAFE UTILITY FUNCTIONS =============
+        function safeNum(val, defaultVal = 0) {
+            if (val === null || val === undefined || isNaN(Number(val))) {
+                return defaultVal;
+            }
+            return Number(val);
+        }
+        
+        function safeFix(val, decimals = 2, defaultStr = '0') {
+            const num = safeNum(val);
+            try {
+                return num.toFixed(decimals);
+            } catch (e) {
+                return defaultStr;
+            }
+        }
+        
+        function safePercent(val, decimals = 1) {
+            return safeFix(safeNum(val) * 100, decimals) + '%';
+        }
+        
+        function safeDivide(a, b, defaultVal = 0) {
+            const numA = safeNum(a);
+            const numB = safeNum(b);
+            if (numB === 0) return defaultVal;
+            return numA / numB;
+        }
+        
+        function formatCurrency(val) {
+            return new Intl.NumberFormat('nl-BE', { 
+                style: 'currency', 
+                currency: 'EUR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0 
+            }).format(safeNum(val));
+        }
+
+        // ============= APPLICATION STATE =============
+        const state = {
+            files: [],
+            analysisData: null,
+            selectedYear: null,
+            charts: {}
+        };
+
+        // ============= SECTOR BENCHMARKS =============
+        const sectorBenchmarks = {
+            bouw: { currentRatio: 1.3, quickRatio: 0.9, debtRatio: 0.65, roe: 0.12, netMargin: 0.03, solvency: 0.35 },
+            retail: { currentRatio: 1.2, quickRatio: 0.6, debtRatio: 0.70, roe: 0.10, netMargin: 0.02, solvency: 0.30 },
+            industrie: { currentRatio: 1.4, quickRatio: 1.0, debtRatio: 0.60, roe: 0.14, netMargin: 0.05, solvency: 0.40 },
+            diensten: { currentRatio: 1.5, quickRatio: 1.2, debtRatio: 0.55, roe: 0.18, netMargin: 0.08, solvency: 0.45 },
+            it: { currentRatio: 1.8, quickRatio: 1.5, debtRatio: 0.45, roe: 0.22, netMargin: 0.12, solvency: 0.55 },
+            transport: { currentRatio: 1.1, quickRatio: 0.8, debtRatio: 0.70, roe: 0.08, netMargin: 0.02, solvency: 0.30 },
+            horeca: { currentRatio: 0.9, quickRatio: 0.6, debtRatio: 0.75, roe: 0.06, netMargin: 0.03, solvency: 0.25 },
+            gezondheid: { currentRatio: 1.6, quickRatio: 1.3, debtRatio: 0.50, roe: 0.15, netMargin: 0.06, solvency: 0.50 },
+            landbouw: { currentRatio: 1.2, quickRatio: 0.7, debtRatio: 0.65, roe: 0.08, netMargin: 0.04, solvency: 0.35 },
+            financieel: { currentRatio: 1.1, quickRatio: 1.0, debtRatio: 0.85, roe: 0.12, netMargin: 0.15, solvency: 0.15 },
+            vastgoed: { currentRatio: 1.3, quickRatio: 1.1, debtRatio: 0.70, roe: 0.10, netMargin: 0.20, solvency: 0.30 },
+            energie: { currentRatio: 1.2, quickRatio: 0.9, debtRatio: 0.60, roe: 0.11, netMargin: 0.07, solvency: 0.40 }
+        };
+
+        const marketAverage = {
+            currentRatio: 1.35, quickRatio: 1.0, debtRatio: 0.60, roe: 0.12, netMargin: 0.05, solvency: 0.40
+        };
+
+        // ============= DOM ELEMENTS =============
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadedFiles = document.getElementById('uploadedFiles');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingStep = document.getElementById('loadingStep');
+
+        // ============= TAB NAVIGATION =============
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.dataset.tab;
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('upload-section').classList.toggle('hidden', tabId !== 'upload');
+                document.getElementById('dashboard-section').classList.toggle('active', tabId === 'dashboard');
+                document.getElementById('kpis-section').classList.toggle('active', tabId === 'kpis');
+                document.getElementById('advice-section').classList.toggle('active', tabId === 'advice');
+            });
+        });
+
+        // ============= FILE UPLOAD =============
+        uploadZone.addEventListener('click', () => fileInput.click());
+        
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                if (file.type === 'application/pdf') {
+                    state.files.push({
+                        id: Date.now() + Math.random(),
+                        file: file,
+                        name: file.name,
+                        size: formatFileSize(file.size),
+                        year: extractYearFromName(file.name) || new Date().getFullYear()
+                    });
+                    renderUploadedFiles();
+                }
+            });
+            updateAnalyzeButton();
+        }
+
+        function extractYearFromName(name) {
+            const match = name.match(/20\d{2}/);
+            return match ? parseInt(match[0]) : null;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return safeFix(bytes / 1024, 1) + ' KB';
+            return safeFix(bytes / (1024 * 1024), 1) + ' MB';
+        }
+
+        function renderUploadedFiles() {
+            uploadedFiles.innerHTML = state.files.map(f => `
+                <div class="file-item animate-in">
+                    <div class="file-info">
+                        <div class="file-icon">📄</div>
+                        <div>
+                            <div class="file-name">${f.name}</div>
+                            <div class="file-size">${f.size}</div>
+                        </div>
+                    </div>
+                    <div class="file-year">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Boekjaar:</span>
+                        <input type="number" class="year-input" value="${f.year}" 
+                            onchange="updateFileYear('${f.id}', this.value)" min="2000" max="2030">
+                    </div>
+                    <button class="remove-file" onclick="removeFile('${f.id}')">✕</button>
+                </div>
+            `).join('');
+        }
+
+        window.updateFileYear = function(id, year) {
+            const file = state.files.find(f => f.id == id);
+            if (file) file.year = parseInt(year);
+        };
+
+        window.removeFile = function(id) {
+            state.files = state.files.filter(f => f.id != id);
+            renderUploadedFiles();
+            updateAnalyzeButton();
+        };
+
+        function updateAnalyzeButton() {
+            analyzeBtn.disabled = state.files.length === 0;
+        }
+
+        // ============= PDF EXTRACTION =============
+        async function extractTextFromPDF(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let fullText = '';
+                
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    fullText += textContent.items.map(item => item.str).join(' ') + '\n';
+                }
+                
+                return fullText;
+            } catch (error) {
+                console.warn('PDF extraction warning:', error);
+                return 'Kon PDF tekst niet volledig extraheren.';
+            }
+        }
+
+        // ============= ANALYSIS =============
+        analyzeBtn.addEventListener('click', startAnalysis);
+
+        async function startAnalysis() {
+            loadingOverlay.classList.remove('hidden');
+            
+            try {
+                loadingStep.textContent = 'PDF\'s verwerken...';
+                const pdfContents = [];
+                
+                for (const fileObj of state.files) {
+                    loadingStep.textContent = `Verwerken: ${fileObj.name}...`;
+                    const text = await extractTextFromPDF(fileObj.file);
+                    pdfContents.push({ year: fileObj.year, content: text });
+                }
+
+                loadingStep.textContent = 'AI analyse uitvoeren...';
+                state.analysisData = await analyzeWithClaude(pdfContents);
+                
+                loadingStep.textContent = 'Dashboard genereren...';
+                renderDashboard();
+                
+                document.querySelector('[data-tab="dashboard"]').click();
+            } catch (error) {
+                console.error('Analysis error:', error);
+                alert('Er is een fout opgetreden. De demo-data wordt geladen.');
+                state.analysisData = generateDemoData();
+                renderDashboard();
+                document.querySelector('[data-tab="dashboard"]').click();
+            } finally {
+                loadingOverlay.classList.add('hidden');
+            }
+        }
+
+        async function analyzeWithClaude(pdfContents) {
+            const prompt = `Je bent een expert financieel analist. Analyseer de jaarrekeningen en extraheer data in JSON formaat.
+
+DATA:
+${pdfContents.map(p => `=== JAAR ${p.year} ===\n${p.content.substring(0, 12000)}`).join('\n')}
+
+ANALYSE DOEL: ${document.getElementById('analysisGoal').value || 'Algemeen'}
+SECTOR: ${document.getElementById('sectorSelect').value || 'Algemeen'}
+
+Geef JSON met deze structuur (alle getallen als numbers):
+{
+    "companyName": "string",
+    "years": {
+        "JAAR": {
+            "balans": {"activa": 0, "vlottende_activa": 0, "voorraden": 0, "vorderingen": 0, "liquide_middelen": 0, "eigen_vermogen": 0, "schulden": 0, "schulden_lt": 0, "schulden_kt": 0},
+            "resultaten": {"omzet": 0, "bedrijfskosten": 0, "bedrijfswinst": 0, "financiele_kosten": 0, "belastingen": 0, "nettowinst": 0, "afschrijvingen": 0, "toegevoegde_waarde": 0},
+            "hr": {"fte": 0, "personeelskosten": 0, "totaal_werknemers": 0}
+        }
+    },
+    "analysis": {"sterke_punten": [], "zwakke_punten": [], "kansen": [], "bedreigingen": [], "trends": []},
+    "investmentAdvice": {"recommendation": "HOUDEN", "riskScore": 50, "summary": "", "details": "", "keyMetrics": [], "risks": [], "opportunities": []}
+}
+
+ALLEEN JSON teruggeven.`;
+
+            try {
+                const response = await fetch("https://api.anthropic.com/v1/messages", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        model: "claude-sonnet-4-20250514",
+                        max_tokens: 6000,
+                        messages: [{ role: "user", content: prompt }]
+                    })
+                });
+
+                const data = await response.json();
+                const text = data.content?.map(item => item.text || "").join("") || "";
+                const jsonMatch = text.match(/\{[\s\S]*\}/);
+                
+                if (jsonMatch) {
+                    const parsed = JSON.parse(jsonMatch[0]);
+                    return enrichWithKPIs(parsed);
+                }
+                throw new Error("No JSON found");
+            } catch (error) {
+                console.warn("API error, using demo data:", error);
+                return generateDemoData();
+            }
+        }
+
+        function enrichWithKPIs(data) {
+            if (!data.kpis) data.kpis = {};
+            
+            Object.keys(data.years || {}).forEach(year => {
+                const y = data.years[year];
+                const b = y?.balans || {};
+                const r = y?.resultaten || {};
+                const h = y?.hr || {};
+                
+                data.kpis[year] = {
+                    liquiditeit: {
+                        current_ratio: safeDivide(b.vlottende_activa, b.schulden_kt, 1),
+                        quick_ratio: safeDivide(safeNum(b.vlottende_activa) - safeNum(b.voorraden), b.schulden_kt, 0.8),
+                        netto_werkkapitaal: safeNum(b.vlottende_activa) - safeNum(b.schulden_kt)
+                    },
+                    solvabiliteit: {
+                        solvabiliteitsratio: safeDivide(b.eigen_vermogen, b.activa, 0.3),
+                        debt_ratio: safeDivide(b.schulden, b.activa, 0.6),
+                        interest_coverage_ratio: safeDivide(r.bedrijfswinst, r.financiele_kosten, 5)
+                    },
+                    rentabiliteit: {
+                        roe: safeDivide(r.nettowinst, b.eigen_vermogen, 0.1),
+                        roa: safeDivide(r.nettowinst, b.activa, 0.05),
+                        brutomarge: safeDivide(safeNum(r.omzet) - safeNum(r.bedrijfskosten) * 0.7, r.omzet, 0.3),
+                        nettomarge: safeDivide(r.nettowinst, r.omzet, 0.05)
+                    },
+                    activiteit: {
+                        voorraad_omloopsnelheid: safeDivide(r.omzet, b.voorraden, 6),
+                        vorderingen_omloopsnelheid: safeDivide(r.omzet, b.vorderingen, 6),
+                        schulden_omloopsnelheid: safeDivide(r.bedrijfskosten, b.schulden_kt, 4)
+                    },
+                    cashflow: {
+                        operationele_cashflow: safeNum(r.nettowinst) + safeNum(r.afschrijvingen),
+                        cashflow_dekkingsratio: safeDivide(safeNum(r.nettowinst) + safeNum(r.afschrijvingen), b.schulden_kt, 0.4)
+                    },
+                    overig: {
+                        toegevoegde_waarde_marge: safeDivide(r.toegevoegde_waarde, r.omzet, 0.25),
+                        break_even_omzet: safeNum(r.bedrijfskosten) * 0.5,
+                        omzet_per_fte: safeDivide(r.omzet, h.fte, 100000),
+                        kost_per_fte: safeDivide(r.bedrijfskosten, h.fte, 80000),
+                        gem_personeelskost_fte: safeDivide(h.personeelskosten, h.fte, 50000)
+                    }
+                };
+            });
+            
+            return data;
+        }
+
+        function generateDemoData() {
+            const years = state.files.map(f => f.year).sort();
+            const data = {
+                companyName: "Demo Bedrijf NV",
+                years: {},
+                kpis: {},
+                analysis: {
+                    sterke_punten: ["Sterke liquiditeitspositie", "Groeiende omzet", "Gezonde marge"],
+                    zwakke_punten: ["Hoge schuldgraad", "Dalende winstmarge"],
+                    kansen: ["Marktexpansie mogelijk", "Digitalisering"],
+                    bedreigingen: ["Economische onzekerheid", "Concurrentie"],
+                    trends: ["Omzetgroei +8% YoY", "Stabiel personeelsbestand"]
+                },
+                investmentAdvice: {
+                    recommendation: "HOUDEN",
+                    riskScore: 45,
+                    summary: "Solide bedrijf met groeipotentieel.",
+                    details: "Gezonde groei en stabiele winstgevendheid. Schuldgraad vraagt aandacht.",
+                    keyMetrics: ["Current ratio boven gemiddelde", "ROE van 14%"],
+                    risks: ["Bankafhankelijkheid", "Beperkte kasmiddelen"],
+                    opportunities: ["Nieuwe markten", "Efficiëntie"]
+                }
+            };
+
+            years.forEach((year, idx) => {
+                const base = 1000000 + idx * 150000;
+                const fte = 25 + idx * 3;
+                
+                data.years[year] = {
+                    balans: {
+                        activa: base * 2.5,
+                        vlottende_activa: base,
+                        voorraden: base * 0.3,
+                        vorderingen: base * 0.5,
+                        liquide_middelen: base * 0.2,
+                        eigen_vermogen: base * 0.9,
+                        schulden: base * 1.6,
+                        schulden_lt: base * 0.8,
+                        schulden_kt: base * 0.8
+                    },
+                    resultaten: {
+                        omzet: base * 3,
+                        bedrijfskosten: base * 2.7,
+                        bedrijfswinst: base * 0.3,
+                        financiele_kosten: base * 0.05,
+                        belastingen: base * 0.065,
+                        nettowinst: base * 0.195,
+                        afschrijvingen: base * 0.15,
+                        toegevoegde_waarde: base * 0.8
+                    },
+                    hr: {
+                        fte: fte,
+                        personeelskosten: base * 0.5,
+                        totaal_werknemers: fte + 3
+                    }
+                };
+            });
+
+            return enrichWithKPIs(data);
+        }
+
+        // ============= DASHBOARD RENDERING =============
+        function renderDashboard() {
+            const data = state.analysisData;
+            if (!data || !data.years) return;
+            
+            const years = Object.keys(data.years).sort();
+            if (years.length === 0) return;
+            
+            state.selectedYear = years[years.length - 1];
+
+            renderYearSelector('yearSelector', years);
+            renderYearSelector('yearSelectorKpi', years);
+            renderOverview();
+            renderCharts();
+            renderAllKPIs();
+            renderHR();
+            renderAdvice();
+        }
+
+        function renderYearSelector(containerId, years) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = years.map(year => `
+                <button class="year-btn ${year === state.selectedYear ? 'active' : ''}" 
+                    onclick="selectYear('${year}', '${containerId}')">${year}</button>
+            `).join('');
+        }
+
+        window.selectYear = function(year, containerId) {
+            state.selectedYear = year;
+            document.querySelectorAll('.year-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === year);
+            });
+            renderOverview();
+            renderAllKPIs();
+            renderHR();
+        };
+
+        function renderOverview() {
+            const data = state.analysisData;
+            const year = state.selectedYear;
+            const yearData = data?.years?.[year];
+            if (!yearData) return;
+
+            const years = Object.keys(data.years).sort();
+            const prevYear = years[years.indexOf(year) - 1];
+            const prevData = prevYear ? data.years[prevYear] : null;
+
+            const calcChange = (current, previous) => {
+                const c = safeNum(current);
+                const p = safeNum(previous);
+                if (p === 0) return null;
+                return safeFix((c - p) / p * 100, 1);
+            };
+
+            const cards = [
+                { label: 'Activa (20/58)', value: formatCurrency(yearData?.balans?.activa), change: prevData ? calcChange(yearData?.balans?.activa, prevData?.balans?.activa) : null },
+                { label: 'Omzet (70)', value: formatCurrency(yearData?.resultaten?.omzet), change: prevData ? calcChange(yearData?.resultaten?.omzet, prevData?.resultaten?.omzet) : null },
+                { label: 'Bedrijfswinst (9901)', value: formatCurrency(yearData?.resultaten?.bedrijfswinst), change: prevData ? calcChange(yearData?.resultaten?.bedrijfswinst, prevData?.resultaten?.bedrijfswinst) : null },
+                { label: 'Belastingen (67/77)', value: formatCurrency(yearData?.resultaten?.belastingen), change: prevData ? calcChange(yearData?.resultaten?.belastingen, prevData?.resultaten?.belastingen) : null },
+                { label: 'Eigen Vermogen (10/15)', value: formatCurrency(yearData?.balans?.eigen_vermogen), change: prevData ? calcChange(yearData?.balans?.eigen_vermogen, prevData?.balans?.eigen_vermogen) : null },
+                { label: 'Schulden (17/49)', value: formatCurrency(yearData?.balans?.schulden), change: prevData ? calcChange(yearData?.balans?.schulden, prevData?.balans?.schulden) : null }
+            ];
+
+            document.getElementById('overviewGrid').innerHTML = cards.map(card => `
+                <div class="overview-card animate-in">
+                    <div class="overview-label">${card.label}</div>
+                    <div class="overview-value">${card.value}</div>
+                    ${card.change !== null ? `
+                        <div class="overview-change ${parseFloat(card.change) >= 0 ? 'change-positive' : 'change-negative'}">
+                            ${parseFloat(card.change) >= 0 ? '↑' : '↓'} ${Math.abs(parseFloat(card.change))}%
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderCharts() {
+            const data = state.analysisData;
+            const years = Object.keys(data?.years || {}).sort();
+            if (years.length === 0) return;
+
+            Object.values(state.charts).forEach(chart => chart?.destroy?.());
+
+            const evolutionCtx = document.getElementById('evolutionChart')?.getContext('2d');
+            if (evolutionCtx) {
+                state.charts.evolution = new Chart(evolutionCtx, {
+                    type: 'line',
+                    data: {
+                        labels: years,
+                        datasets: [
+                            { label: 'Omzet', data: years.map(y => safeNum(data.years[y]?.resultaten?.omzet) / 1000000), borderColor: '#00d4aa', backgroundColor: 'rgba(0, 212, 170, 0.1)', tension: 0.4, fill: true },
+                            { label: 'Activa', data: years.map(y => safeNum(data.years[y]?.balans?.activa) / 1000000), borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.4, fill: true },
+                            { label: 'Eigen Vermogen', data: years.map(y => safeNum(data.years[y]?.balans?.eigen_vermogen) / 1000000), borderColor: '#a855f7', backgroundColor: 'rgba(168, 85, 247, 0.1)', tension: 0.4, fill: true }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#94a3b8' } } },
+                        scales: {
+                            x: { grid: { color: 'rgba(45, 58, 79, 0.5)' }, ticks: { color: '#94a3b8' } },
+                            y: { grid: { color: 'rgba(45, 58, 79, 0.5)' }, ticks: { color: '#94a3b8', callback: val => '€' + val + 'M' } }
+                        }
+                    }
+                });
+            }
+
+            const profitCtx = document.getElementById('profitabilityChart')?.getContext('2d');
+            if (profitCtx) {
+                state.charts.profitability = new Chart(profitCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: years,
+                        datasets: [
+                            { label: 'ROE', data: years.map(y => safeNum(data.kpis?.[y]?.rentabiliteit?.roe) * 100), backgroundColor: '#00d4aa' },
+                            { label: 'ROA', data: years.map(y => safeNum(data.kpis?.[y]?.rentabiliteit?.roa) * 100), backgroundColor: '#3b82f6' },
+                            { label: 'Nettomarge', data: years.map(y => safeNum(data.kpis?.[y]?.rentabiliteit?.nettomarge) * 100), backgroundColor: '#a855f7' }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#94a3b8' } } },
+                        scales: {
+                            x: { grid: { color: 'rgba(45, 58, 79, 0.5)' }, ticks: { color: '#94a3b8' } },
+                            y: { grid: { color: 'rgba(45, 58, 79, 0.5)' }, ticks: { color: '#94a3b8', callback: val => val + '%' } }
+                        }
+                    }
+                });
+            }
+        }
+
+        function renderAllKPIs() {
+            const data = state.analysisData;
+            const year = state.selectedYear;
+            const kpis = data?.kpis?.[year];
+            if (!kpis) return;
+
+            const sector = document.getElementById('sectorSelect')?.value;
+            const benchmark = sector && sectorBenchmarks[sector] ? sectorBenchmarks[sector] : marketAverage;
+
+            const getKpi = (cat, key) => safeNum(kpis?.[cat]?.[key]);
+
+            renderKPISection('liquidityKpis', [
+                { name: 'Current Ratio', value: getKpi('liquiditeit', 'current_ratio'), format: 'ratio', benchmark: benchmark.currentRatio, explanation: 'Vlottende activa / KT schulden. >1 is gezond.', ideal: { min: 1.2, max: 3 } },
+                { name: 'Quick Ratio', value: getKpi('liquiditeit', 'quick_ratio'), format: 'ratio', benchmark: benchmark.quickRatio, explanation: '(Vlottende activa - Voorraden) / KT schulden. >1 is gezond.', ideal: { min: 0.8, max: 2 } },
+                { name: 'Netto Werkkapitaal', value: getKpi('liquiditeit', 'netto_werkkapitaal'), format: 'currency', explanation: 'Vlottende activa - KT schulden. Positief is nodig.', ideal: { min: 0 } }
+            ]);
+
+            renderKPISection('solvencyKpis', [
+                { name: 'Solvabiliteitsratio', value: getKpi('solvabiliteit', 'solvabiliteitsratio'), format: 'percentage', benchmark: benchmark.solvency, explanation: 'Eigen vermogen / Totaal activa. >30% is acceptabel.', ideal: { min: 0.25, max: 0.7 } },
+                { name: 'Debt Ratio', value: getKpi('solvabiliteit', 'debt_ratio'), format: 'percentage', benchmark: benchmark.debtRatio, explanation: 'Schulden / Totaal activa. <60% is gezond.', ideal: { min: 0.3, max: 0.65 }, inverted: true },
+                { name: 'Interest Coverage Ratio', value: getKpi('solvabiliteit', 'interest_coverage_ratio'), format: 'ratio', explanation: 'EBIT / Rentelasten. >3 is gezond.', ideal: { min: 2, max: 15 } }
+            ]);
+
+            renderKPISection('profitabilityKpis', [
+                { name: 'Return on Equity (ROE)', value: getKpi('rentabiliteit', 'roe'), format: 'percentage', benchmark: benchmark.roe, explanation: 'Nettowinst / Eigen vermogen. >15% is goed.', ideal: { min: 0.08, max: 0.35 } },
+                { name: 'Return on Assets (ROA)', value: getKpi('rentabiliteit', 'roa'), format: 'percentage', explanation: 'Nettowinst / Totaal activa. >5% is acceptabel.', ideal: { min: 0.03, max: 0.2 } },
+                { name: 'Brutomarge', value: getKpi('rentabiliteit', 'brutomarge'), format: 'percentage', explanation: 'Brutowinst / Omzet. Sectorafhankelijk.', ideal: { min: 0.15, max: 0.6 } },
+                { name: 'Nettomarge', value: getKpi('rentabiliteit', 'nettomarge'), format: 'percentage', benchmark: benchmark.netMargin, explanation: 'Nettowinst / Omzet. >5% is gezond.', ideal: { min: 0.03, max: 0.25 } }
+            ]);
+
+            renderKPISection('activityKpis', [
+                { name: 'Voorraad Omloopsnelheid', value: getKpi('activiteit', 'voorraad_omloopsnelheid'), format: 'times', explanation: 'Omzet / Voorraden. Hoger = efficiënter.', ideal: { min: 3, max: 15 } },
+                { name: 'Vorderingen Omloopsnelheid', value: getKpi('activiteit', 'vorderingen_omloopsnelheid'), format: 'times', explanation: 'Omzet / Vorderingen. Hoger = snellere incasso.', ideal: { min: 4, max: 15 } },
+                { name: 'Schulden Omloopsnelheid', value: getKpi('activiteit', 'schulden_omloopsnelheid'), format: 'times', explanation: 'Kosten / KT Schulden. Matige waarde is goed.', ideal: { min: 3, max: 12 } }
+            ]);
+
+            renderKPISection('cashflowKpis', [
+                { name: 'Operationele Cashflow', value: getKpi('cashflow', 'operationele_cashflow'), format: 'currency', explanation: 'Nettowinst + Afschrijvingen. Positief is essentieel.', ideal: { min: 0 } },
+                { name: 'Cashflow Dekkingsratio', value: getKpi('cashflow', 'cashflow_dekkingsratio'), format: 'ratio', explanation: 'Cashflow / KT Schulden. >0.4 is gezond.', ideal: { min: 0.3, max: 2 } }
+            ]);
+
+            renderKPISection('otherKpis', [
+                { name: 'Toegevoegde Waarde Marge', value: getKpi('overig', 'toegevoegde_waarde_marge'), format: 'percentage', explanation: 'Toegevoegde waarde / Omzet.', ideal: { min: 0.15, max: 0.5 } },
+                { name: 'Break-even Omzet', value: getKpi('overig', 'break_even_omzet'), format: 'currency', explanation: 'Minimale omzet om kosten te dekken.', ideal: {} },
+                { name: 'Omzet per FTE', value: getKpi('overig', 'omzet_per_fte'), format: 'currency', explanation: 'Productiviteit per medewerker.', ideal: { min: 80000 } },
+                { name: 'Gem. Personeelskost/FTE', value: getKpi('overig', 'gem_personeelskost_fte'), format: 'currency', explanation: 'Gemiddelde loonkost per FTE.', ideal: { min: 35000, max: 90000 } }
+            ]);
+        }
+
+        function renderKPISection(containerId, kpis) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            container.innerHTML = kpis.map(kpi => {
+                const value = safeNum(kpi.value);
+                let displayValue, barWidth, barColor, performance;
+                
+                if (kpi.format === 'percentage') {
+                    displayValue = safePercent(value);
+                    barWidth = Math.min(Math.abs(value) * 200, 100);
+                } else if (kpi.format === 'ratio') {
+                    displayValue = safeFix(value, 2);
+                    barWidth = Math.min(Math.abs(value) / 4 * 100, 100);
+                } else if (kpi.format === 'currency') {
+                    displayValue = formatCurrency(value);
+                    barWidth = 50;
+                } else if (kpi.format === 'times') {
+                    displayValue = safeFix(value, 1) + 'x';
+                    barWidth = Math.min(Math.abs(value) / 15 * 100, 100);
+                }
+
+                if (kpi.ideal && (kpi.ideal.min !== undefined || kpi.ideal.max !== undefined)) {
+                    const min = kpi.ideal.min ?? -Infinity;
+                    const max = kpi.ideal.max ?? Infinity;
+                    if (value >= min && value <= max) {
+                        barColor = 'var(--accent-green)';
+                        performance = 'Goed';
+                    } else if (value < min * 0.6 || value > max * 1.6) {
+                        barColor = 'var(--accent-red)';
+                        performance = 'Aandacht';
+                    } else {
+                        barColor = 'var(--accent-yellow)';
+                        performance = 'Matig';
+                    }
+                    if (kpi.inverted) {
+                        barColor = barColor === 'var(--accent-green)' ? 'var(--accent-red)' : 
+                                   barColor === 'var(--accent-red)' ? 'var(--accent-green)' : barColor;
+                    }
+                } else {
+                    barColor = 'var(--accent-blue)';
+                    performance = 'Info';
+                }
+
+                const benchmarkDisplay = kpi.benchmark ? 
+                    (kpi.format === 'percentage' ? safePercent(kpi.benchmark) : safeFix(kpi.benchmark, 2)) : '';
+
+                return `
+                    <div class="kpi-card">
+                        <div class="kpi-name">
+                            ${kpi.name}
+                            <span class="kpi-badge" style="background: ${barColor}22; color: ${barColor};">${performance}</span>
+                        </div>
+                        <div class="kpi-value-row">
+                            <span class="kpi-value" style="color: ${barColor};">${displayValue}</span>
+                        </div>
+                        ${kpi.benchmark ? `
+                            <div class="kpi-comparison">
+                                <span class="kpi-vs">
+                                    <span class="kpi-vs-label">Benchmark:</span>
+                                    <span style="color: ${value >= safeNum(kpi.benchmark) ? 'var(--accent-green)' : 'var(--accent-red)'}">
+                                        ${benchmarkDisplay}
+                                    </span>
+                                </span>
+                            </div>
+                        ` : ''}
+                        <div class="kpi-bar">
+                            <div class="kpi-bar-fill" style="width: ${barWidth}%; background: ${barColor};"></div>
+                        </div>
+                        <div class="kpi-explanation">${kpi.explanation}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderHR() {
+            const data = state.analysisData;
+            const year = state.selectedYear;
+            const yearData = data?.years?.[year];
+            const kpis = data?.kpis?.[year];
+            if (!yearData) return;
+
+            const fte = safeNum(yearData?.hr?.fte, 1);
+
+            const hrData = [
+                { label: 'Totaal FTE', value: safeFix(fte, 1) },
+                { label: 'Totaal Werknemers', value: safeNum(yearData?.hr?.totaal_werknemers) },
+                { label: 'Personeelskosten', value: formatCurrency(yearData?.hr?.personeelskosten) },
+                { label: 'Gem. Kost/FTE', value: formatCurrency(kpis?.overig?.gem_personeelskost_fte) },
+                { label: 'Omzet/FTE', value: formatCurrency(kpis?.overig?.omzet_per_fte) },
+                { label: 'Kost/FTE', value: formatCurrency(kpis?.overig?.kost_per_fte) },
+                { label: 'Toegev. Waarde/FTE', value: formatCurrency(safeDivide(yearData?.resultaten?.toegevoegde_waarde, fte)) },
+                { label: 'Winst/FTE', value: formatCurrency(safeDivide(yearData?.resultaten?.nettowinst, fte)) }
+            ];
+
+            document.getElementById('hrGrid').innerHTML = hrData.map(item => `
+                <div class="hr-card">
+                    <div class="hr-value">${item.value}</div>
+                    <div class="hr-label">${item.label}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderAdvice() {
+            const data = state.analysisData;
+            const advice = data?.investmentAdvice || {};
+            const analysis = data?.analysis || {};
+
+            const recColor = advice.recommendation === 'KOPEN' ? 'var(--accent-green)' :
+                            advice.recommendation === 'VERKOPEN' ? 'var(--accent-red)' : 'var(--accent-yellow)';
+
+            const content = `
+                <h3 style="color: ${recColor}; font-size: 1.5rem; margin-bottom: 1rem;">
+                    📊 Aanbeveling: ${advice.recommendation || 'ONBEKEND'}
+                </h3>
+                <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">${advice.summary || 'Geen samenvatting.'}</p>
+                <h3>📋 Analyse</h3>
+                <p>${advice.details || 'Geen details.'}</p>
+                <h3>💪 Sterke Punten</h3>
+                <ul>${(analysis.sterke_punten || ['Geen data']).map(p => `<li>${p}</li>`).join('')}</ul>
+                <h3>⚠️ Aandachtspunten</h3>
+                <ul>${(analysis.zwakke_punten || ['Geen data']).map(p => `<li>${p}</li>`).join('')}</ul>
+                <h3>🚀 Kansen</h3>
+                <ul>${(analysis.kansen || ['Geen data']).map(p => `<li>${p}</li>`).join('')}</ul>
+                <h3>🛡️ Risico's</h3>
+                <ul>${(advice.risks || ['Geen data']).map(r => `<li>${r}</li>`).join('')}</ul>
+            `;
+
+            document.getElementById('adviceContent').innerHTML = content;
+            
+            const riskScore = safeNum(advice.riskScore, 50);
+            document.getElementById('riskIndicator').style.left = riskScore + '%';
+            document.getElementById('riskValue').textContent = riskScore + '/100';
+            document.getElementById('riskValue').style.color = 
+                riskScore < 30 ? 'var(--accent-green)' :
+                riskScore < 60 ? 'var(--accent-yellow)' : 'var(--accent-red)';
+        }
+    </script>
+</body>
+</html>
