@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Train the Trainer — Level 1</title>
+<style>
+  :root {
+    --ink: #1A1A2E; --navy: #16213E; --indigo: #0F3460; --electric: #E94560;
+    --gold: #F5A623; --teal: #0E8C7F; --green: #2E7D32; --sky: #53A8E2;
+    --cream: #FAFAF7; --white: #FFFFFF; --g100: #F3F4F6; --g200: #E5E7EB;
+    --g400: #9CA3AF; --g600: #4B5563; --g800: #1F2937; --red: #DC2626;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', -apple-system, sans-serif; background: var(--cream); color: var(--g800); min-height: 100vh; }
+
+  .progress-bar { position: fixed; top: 0; left: 0; right: 0; height: 4px; background: var(--g200); z-index: 100; }
+  .progress-fill { height: 4px; background: linear-gradient(90deg, var(--electric), var(--gold)); transition: width 0.4s; }
+
+  .header { background: var(--ink); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .header-title { color: var(--white); font-weight: 700; font-size: 15px; }
+  .header-sub { color: var(--g400); font-size: 14px; }
+  .header-right { display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--g400); }
+
+  .mod-nav { background: var(--white); border-bottom: 1px solid var(--g200); padding: 8px 24px; display: flex; gap: 4px; overflow-x: auto; }
+  .mod-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; white-space: nowrap; background: transparent; color: var(--g600); transition: all 0.2s; font-family: inherit; }
+  .mod-btn.active { background: var(--electric); color: var(--white); font-weight: 700; }
+  .mod-btn.past { color: var(--teal); }
+
+  .main { max-width: 760px; margin: 0 auto; padding: 32px 24px 120px; }
+  .slide-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .slide-mod { font-size: 11px; font-weight: 700; color: var(--electric); text-transform: uppercase; letter-spacing: 1px; }
+  .slide-time { font-size: 11px; color: var(--g400); }
+  .slide-title { font-size: 26px; font-weight: 800; color: var(--ink); line-height: 1.3; margin-bottom: 8px; }
+  .slide-line { height: 3px; width: 50px; background: linear-gradient(90deg, var(--electric), var(--gold)); border-radius: 2px; margin-bottom: 24px; }
+
+  .slide { display: none; }
+  .slide.active { display: block; }
+
+  .footer { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); border-top: 1px solid var(--g200); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; }
+  .btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+  .btn-prev { border: 1px solid var(--g200); background: var(--white); color: var(--g800); }
+  .btn-prev:disabled { background: var(--g100); color: var(--g400); cursor: default; }
+  .btn-next { border: none; background: var(--electric); color: var(--white); }
+  .btn-next:disabled { background: var(--g200); color: var(--g400); cursor: default; }
+  .dots { display: flex; gap: 4px; }
+  .dot { width: 8px; height: 8px; border-radius: 4px; background: var(--g200); cursor: pointer; transition: all 0.3s; }
+  .dot.active { width: 24px; background: var(--electric); }
+  .dot.past { background: var(--teal); }
+
+  /* Content styles */
+  .intro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+  .intro-card { background: var(--white); border: 1px solid var(--g200); border-radius: 12px; padding: 16px 18px; }
+  .intro-card .icon { font-size: 28px; margin-bottom: 6px; }
+  .intro-card h3 { font-weight: 700; color: var(--ink); font-size: 15px; margin-bottom: 2px; }
+  .intro-card p { color: var(--g600); font-size: 13px; line-height: 1.5; }
+
+  .tip-box { padding: 14px 18px; border-radius: 6px; font-size: 14px; line-height: 1.6; }
+  .tip-amber { background: #FFFBEB; border-left: 4px solid var(--gold); }
+  .tip-green { background: #ECFDF5; border-left: 4px solid var(--teal); }
+  .tip-red { background: #FEF2F2; border-left: 4px solid var(--electric); }
+  .tip-purple { background: #F5F3FF; border-left: 4px solid #7C3AED; }
+  .tip-blue { background: #EFF6FF; border-left: 4px solid var(--sky); }
+
+  .q-card { background: var(--white); border: 1px solid var(--g200); border-radius: 12px; padding: 18px; margin-bottom: 12px; }
+  .q-nr { width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; color: var(--white); margin-right: 12px; vertical-align: middle; }
+  .q-title { font-weight: 800; color: var(--ink); font-size: 16px; vertical-align: middle; }
+  .q-detail { font-size: 13px; color: var(--g600); line-height: 1.6; margin: 8px 0; }
+  .q-tip { font-size: 13px; font-weight: 600; }
+
+  .check-grid { display: grid; gap: 8px; margin-bottom: 20px; }
+  .check-row { display: grid; grid-template-columns: 160px 1fr 1fr; gap: 1px; font-size: 13px; }
+  .check-label { background: var(--ink); color: var(--white); padding: 8px 12px; font-weight: 700; }
+  .check-ok { background: #ECFDF5; padding: 8px 12px; color: var(--green); }
+  .check-fail { background: #FEF2F2; padding: 8px 12px; color: var(--red); }
+  .check-row:first-child .check-label { border-radius: 8px 0 0 0; }
+  .check-row:first-child .check-fail { border-radius: 0 8px 0 0; }
+  .check-row:last-child .check-label { border-radius: 0 0 0 8px; }
+  .check-row:last-child .check-fail { border-radius: 0 0 8px 0; }
+
+  .dark-box { background: var(--navy); border-radius: 14px; padding: 22px; color: var(--white); margin-bottom: 20px; }
+  .step-row { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 14px; }
+  .step-nr { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; }
+  .step-label { font-weight: 800; font-size: 14px; }
+  .step-time { font-size: 11px; color: rgba(255,255,255,0.5); float: right; }
+  .step-desc { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.5; }
+
+  .pres-timeline { margin-bottom: 20px; }
+  .pres-item { display: flex; gap: 14px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--g200); }
+  .pres-item:last-child { border-bottom: none; }
+  .pres-icon { font-size: 24px; width: 36px; text-align: center; flex-shrink: 0; }
+  .pres-time { font-size: 11px; font-weight: 700; color: var(--electric); font-family: monospace; }
+  .pres-title { font-weight: 700; color: var(--ink); font-size: 14px; }
+  .pres-desc { font-size: 13px; color: var(--g600); line-height: 1.5; }
+
+  .do-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .do-card { border-radius: 10px; padding: 16px; border: 1px solid; }
+  .do-card.good { background: #ECFDF5; border-color: #BBF7D0; }
+  .do-card.bad { background: #FEF2F2; border-color: #FECACA; }
+  .do-card .icon { font-size: 22px; margin-bottom: 6px; }
+  .do-card h4 { font-weight: 700; color: var(--ink); font-size: 14px; margin-bottom: 4px; }
+  .do-card p { font-size: 13px; color: var(--g600); line-height: 1.5; }
+
+  .attention-chart { background: var(--white); border: 1px solid var(--g200); border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+  .bars { display: flex; align-items: flex-end; justify-content: space-between; height: 120px; margin-bottom: 12px; padding: 0 8px; }
+  .bar { width: 6%; border-radius: 4px 4px 0 0; transition: height 0.5s; }
+  .bar-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--g400); padding: 0 4px; }
+  .bar-legend { display: flex; gap: 16px; justify-content: center; margin-top: 12px; font-size: 11px; }
+  .legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+
+  .wv-table { display: grid; gap: 8px; }
+  .wv-row { display: grid; grid-template-columns: 140px 100px 1fr 70px; gap: 1px; font-size: 13px; }
+  .wv-name { background: var(--navy); color: var(--white); padding: 10px 12px; font-weight: 700; }
+  .wv-when { background: #EFF6FF; padding: 10px 12px; color: var(--indigo); font-weight: 600; }
+  .wv-how { padding: 10px 12px; color: var(--g600); }
+  .wv-effort { padding: 10px 12px; text-align: center; font-weight: 600; font-size: 12px; }
+  .wv-row:first-child .wv-name { border-radius: 8px 0 0 0; }
+  .wv-row:first-child .wv-effort { border-radius: 0 8px 0 0; }
+  .wv-row:last-child .wv-name { border-radius: 0 0 0 8px; }
+  .wv-row:last-child .wv-effort { border-radius: 0 0 8px 0; }
+
+  .prob-card { background: var(--white); border: 1px solid var(--g200); border-radius: 10px; padding: 16px; margin-bottom: 10px; }
+  .prob-title { font-weight: 800; color: var(--electric); font-size: 14px; margin-bottom: 4px; }
+  .prob-what { font-size: 13px; color: var(--g400); font-style: italic; margin-bottom: 8px; }
+  .prob-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; }
+  .prob-do { background: #ECFDF5; border-radius: 6px; padding: 8px 10px; }
+  .prob-dont { background: #FEF2F2; border-radius: 6px; padding: 8px 10px; }
+
+  .checklist-box { background: var(--white); border: 2px solid var(--ink); border-radius: 14px; padding: 24px; }
+  .checklist-title { font-weight: 800; font-size: 18px; color: var(--ink); }
+  .checklist-sub { font-size: 12px; color: var(--g400); margin-bottom: 20px; }
+  .checklist-phase { font-weight: 700; font-size: 14px; color: var(--indigo); margin-bottom: 8px; margin-top: 16px; }
+  .checklist-item { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; padding: 4px 0; line-height: 1.5; }
+  .checklist-item span { color: var(--g400); font-size: 15px; line-height: 1; }
+
+  .commandment { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 14px; }
+  .cmd-nr { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; flex-shrink: 0; }
+  .cmd-rule { font-weight: 800; color: var(--ink); font-size: 16px; line-height: 1.4; }
+  .cmd-sub { font-size: 14px; color: var(--g600); line-height: 1.5; }
+  .final-box { background: var(--navy); border-radius: 12px; padding: 20px; text-align: center; }
+  .final-small { font-size: 15px; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
+  .final-big { font-size: 20px; font-weight: 800; color: var(--gold); line-height: 1.5; }
+
+  /* Quiz */
+  .quiz-question { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 20px; line-height: 1.6; }
+  .quiz-options { display: grid; gap: 10px; }
+  .quiz-opt { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-radius: 10px; background: var(--white); border: 2px solid var(--g200); cursor: pointer; text-align: left; font-size: 14px; font-family: inherit; transition: all 0.2s; }
+  .quiz-opt:hover:not(.answered) { border-color: var(--g400); }
+  .quiz-opt.correct { background: #ECFDF5; border-color: var(--green); color: var(--green); font-weight: 700; }
+  .quiz-opt.wrong { background: #FEF2F2; border-color: var(--red); color: var(--red); font-weight: 700; }
+  .quiz-opt.answered { cursor: default; }
+  .quiz-letter { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--g400); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .quiz-opt.correct .quiz-letter { background: var(--green); border-color: var(--green); color: var(--white); }
+  .quiz-opt.wrong .quiz-letter { background: var(--red); border-color: var(--red); color: var(--white); }
+  .quiz-explanation { margin-top: 16px; padding: 14px 18px; border-radius: 8px; font-size: 14px; line-height: 1.6; display: none; }
+  .quiz-explanation.show { display: block; }
+  .quiz-explanation.right { background: #ECFDF5; border-left: 4px solid var(--green); }
+  .quiz-explanation.wrong-exp { background: #FFFBEB; border-left: 4px solid var(--gold); }
+
+  .p { font-size: 15px; color: var(--g600); line-height: 1.7; margin-bottom: 16px; }
+
+  @media (max-width: 640px) {
+    .intro-grid, .do-grid, .prob-grid { grid-template-columns: 1fr; }
+    .check-row { grid-template-columns: 1fr; }
+    .check-label, .check-ok, .check-fail { border-radius: 0 !important; }
+    .wv-row { grid-template-columns: 1fr 1fr; }
+    .slide-title { font-size: 22px; }
+    .main { padding: 24px 16px 120px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<div class="header">
+  <div class="header-left">
+    <span style="font-size:20px">🎓</span>
+    <span class="header-title">Train the Trainer</span>
+    <span class="header-sub">Level 1 — De Basis</span>
+  </div>
+  <div class="header-right">
+    <span>⏱ ~20 min</span>
+    <span id="slideCounter">1/16</span>
+    <span>🎯 <span id="scoreDisplay">0/4</span></span>
+  </div>
+</div>
+
+<div class="mod-nav" id="modNav"></div>
+
+<div class="main" id="mainContent"></div>
+
+<div class="footer">
+  <button class="btn btn-prev" id="btnPrev" onclick="goPrev()">← Vorige</button>
+  <div class="dots" id="dots"></div>
+  <button class="btn btn-next" id="btnNext" onclick="goNext()">Volgende →</button>
+</div>
+
+<script>
+const SLIDES = [
+  // === MODULE 0: INTRO ===
+  { id:"intro", mod:0, modTitle:"Start", title:"Train the Trainer — Level 1", time:"1 min",
+    html: `
+    <p class="p">Na deze 20 minuten kun je een professionele training <strong>voorbereiden</strong> en <strong>geven</strong> op een aanvaardbaar niveau. Geen theorie — alleen wat je morgen nodig hebt.</p>
+    <div class="intro-grid">
+      <div class="intro-card"><div class="icon">🎯</div><h3>Voorbereiden</h3><p>Wat je moet regelen vóór je begint</p></div>
+      <div class="intro-card"><div class="icon">🎤</div><h3>Presenteren</h3><p>Hoe je overkomt en structuur houdt</p></div>
+      <div class="intro-card"><div class="icon">⚡</div><h3>Activeren</h3><p>Hoe je deelnemers betrokken houdt</p></div>
+      <div class="intro-card"><div class="icon">🛠</div><h3>Problemen</h3><p>Wat als het misgaat — en het gáát mis</p></div>
+    </div>
+    <div class="tip-box tip-amber">💡 <strong>Principe:</strong> Een goede training is 80% voorbereiding, 20% uitvoering. Als je goed voorbereid bent, komt de rest vanzelf.</div>`},
+
+  // === MODULE 1: VOORBEREIDEN ===
+  { id:"prep1", mod:1, modTitle:"Voorbereiden", title:"De 4 vragen vóór je begint", time:"2 min",
+    html: `
+    <p class="p">Elke training begint met 4 vragen. Kun je ze niet beantwoorden? Dan ben je niet klaar.</p>
+    <div class="q-card"><span class="q-nr" style="background:var(--electric)">1</span><span class="q-title">WIE zit er in de zaal?</span><p class="q-detail">Hoeveel mensen? Welk niveau? Wat is hun dagelijks werk? Wat weten ze al? Wat verwachten ze?</p><div class="q-tip" style="color:var(--electric)">→ Vraag vooraf een deelnemerslijst met rollen. Bel of mail de opdrachtgever.</div></div>
+    <div class="q-card"><span class="q-nr" style="background:var(--indigo)">2</span><span class="q-title">WAT moeten ze na afloop KUNNEN?</span><p class="q-detail">Niet "weten" maar "doen". Formuleer 3–5 concrete, toetsbare leerdoelen.</p><div class="q-tip" style="color:var(--indigo)">→ Test: kun je na de training controleren of iemand het kan? Zo nee, herformuleer.</div></div>
+    <div class="q-card"><span class="q-nr" style="background:var(--teal)">3</span><span class="q-title">HOEVEEL tijd heb ik?</span><p class="q-detail">Hoeveel uur netto? Trek pauzes, opstart en afsluiting af. Wat overblijft is je echte tijd.</p><div class="q-tip" style="color:var(--teal)">→ Vuistregel: plan 70% van je beschikbare tijd. De rest gaat op aan vragen en uitloop.</div></div>
+    <div class="q-card"><span class="q-nr" style="background:var(--gold)">4</span><span class="q-title">WAT heb ik nodig?</span><p class="q-detail">Zaal, scherm, netwerk, laptops, software-toegang, materialen, testomgeving, catering.</p><div class="q-tip" style="color:var(--gold)">→ Maak een checklist. Controleer alles persoonlijk de dag ervoor. Nooit vertrouwen op "dat is geregeld".</div></div>`},
+
+  { id:"prep2", mod:1, modTitle:"Voorbereiden", title:"Zaal & logistiek — de stille killer", time:"2 min",
+    html: `
+    <p class="p">Een slechte zaal saboteert elke training. Controleer dit <strong>persoonlijk</strong>, de dag ervoor:</p>
+    <div class="check-grid">
+      <div class="check-row"><div class="check-label">Scherm/projector</div><div class="check-ok">✓ Leesbaar vanaf achterste rij, juiste kabel, getest</div><div class="check-fail">✗ Verkeerde kabel, onleesbaar bij daglicht</div></div>
+      <div class="check-row"><div class="check-label">Netwerk</div><div class="check-ok">✓ Stabiel, getest met alle laptops tegelijk</div><div class="check-fail">✗ Wi-Fi die wegvalt bij 10+ gebruikers</div></div>
+      <div class="check-row"><div class="check-label">Stroom</div><div class="check-ok">✓ Stopcontact per werkplek + verdeelstekkers</div><div class="check-fail">✗ 3 stopcontacten voor 12 mensen</div></div>
+      <div class="check-row"><div class="check-label">Software-toegang</div><div class="check-ok">✓ Elke deelnemer kan inloggen, rechten kloppen</div><div class="check-fail">✗ "Mijn wachtwoord werkt niet" ×12</div></div>
+      <div class="check-row"><div class="check-label">Loopruimte</div><div class="check-ok">✓ Trainer kan overal bij om te helpen</div><div class="check-fail">✗ Tafels tegen de muur, geen doorloop</div></div>
+      <div class="check-row"><div class="check-label">Temperatuur</div><div class="check-ok">✓ Regelbaar, niet te warm</div><div class="check-fail">✗ Benauwde ruimte na lunch = iedereen slaapt</div></div>
+    </div>
+    <div class="tip-box tip-red">⚠️ <strong>Gouden regel:</strong> Test alles alsof je de deelnemer bent. Log in op hun laptop. Ga zitten op de achterste rij. Kijk of je het scherm kunt lezen. Probeer het netwerk. Doe het zelf — delegeer dit nooit.</div>`},
+
+  { id:"prep3", mod:1, modTitle:"Voorbereiden", title:"Je materiaal structureren", time:"2 min",
+    html: `
+    <p class="p">Elke module in je training volgt dezelfde structuur. Altijd. Dit geeft houvast aan jou én aan de deelnemers.</p>
+    <div class="dark-box">
+      <div class="step-row"><div class="step-nr" style="background:var(--electric);color:white">1</div><div><div class="step-label" style="color:white">DOEL <span class="step-time">1 slide</span></div><div class="step-desc">"Na dit onderdeel kun je..." — max. 3 punten. Concreet en toetsbaar.</div></div></div>
+      <div class="step-row"><div class="step-nr" style="background:var(--sky);color:white">2</div><div><div class="step-label" style="color:white">CONTEXT <span class="step-time">1 slide</span></div><div class="step-desc">Waar past dit in het geheel? Visueel (processchema). "We zijn hier →"</div></div></div>
+      <div class="step-row"><div class="step-nr" style="background:var(--gold);color:var(--ink)">3</div><div><div class="step-label" style="color:white">UITLEG + DEMO <span class="step-time">3–8 slides</span></div><div class="step-desc">Stap-voor-stap. Niet meer dan 15 min aaneengesloten praten. Toon, niet vertel.</div></div></div>
+      <div class="step-row"><div class="step-nr" style="background:var(--teal);color:white">4</div><div><div class="step-label" style="color:white">CHECK <span class="step-time">Mondeling</span></div><div class="step-desc">"Wie herkent dit? Vragen tot hier?" Wacht op antwoord. Echt wachten.</div></div></div>
+      <div class="step-row"><div class="step-nr" style="background:var(--green);color:white">5</div><div><div class="step-label" style="color:white">OEFENING <span class="step-time">Werkvorm</span></div><div class="step-desc">Deelnemers doen het zelf. Jij loopt rond en helpt.</div></div></div>
+      <div class="step-row" style="margin-bottom:0"><div class="step-nr" style="background:var(--electric);color:white">6</div><div><div class="step-label" style="color:white">SAMENVATTING <span class="step-time">1 slide</span></div><div class="step-desc">3–5 kernpunten. Herhaal het doel: "Je kunt nu..."</div></div></div>
+    </div>
+    <div class="tip-box tip-amber">💡 <strong>Waarom altijd dezelfde structuur?</strong> Deelnemers weten wat ze kunnen verwachten. Jij weet altijd waar je bent. En als je de draad kwijtraakt, pak je gewoon stap 4 (check) als reset.</div>`},
+
+  // QUIZ 1
+  { id:"q1", mod:1, modTitle:"Voorbereiden", title:"✓ Check: Voorbereiding", time:"1 min",
+    quiz: { q:"Je geeft morgen een training. De opdrachtgever zegt: \"de zaal is geregeld, maak je geen zorgen.\" Wat doe je?",
+      opts:["Vertrouwen op de opdrachtgever — die kent de locatie","Een checklist sturen en vragen of alles klopt","Zelf de zaal inspecteren: scherm, netwerk, stroom, loopruimte testen","Een backup-plan maken voor het geval er iets misgaat"],
+      correct:2, expl:"Altijd zelf controleren. \"Dat is geregeld\" is de gevaarlijkste zin in trainingsland. Test alles persoonlijk — log in, ga zitten op de achterste rij, probeer het netwerk. Optie D is goed als aanvulling, maar vervangt niet de inspectie." }},
+
+  // === MODULE 2: PRESENTEREN ===
+  { id:"pres1", mod:2, modTitle:"Presenteren", title:"De eerste 5 minuten", time:"2 min",
+    html: `
+    <p class="p">In de eerste 5 minuten beslissen deelnemers: <strong>luister ik, of check ik mijn mail?</strong> Maak die 5 minuten onberispelijk.</p>
+    <div class="pres-timeline">
+      <div class="pres-item"><div class="pres-icon">🚪</div><div><div><span class="pres-time">0:00</span> <span class="pres-title">Sta klaar vóór ze binnenkomen</span></div><div class="pres-desc">Alles opgestart, scherm aan, slides klaar. Jij staat. Nooit: "even wachten, ik moet nog opstarten."</div></div></div>
+      <div class="pres-item"><div class="pres-icon">🤝</div><div><div><span class="pres-time">0:01</span> <span class="pres-title">Begroet persoonlijk</span></div><div class="pres-desc">Geef een hand, vraag hun naam en rol. Dit is geen show — dit is relatie bouwen.</div></div></div>
+      <div class="pres-item"><div class="pres-icon">⏰</div><div><div><span class="pres-time">1:00</span> <span class="pres-title">Start op tijd. Altijd.</span></div><div class="pres-desc">"We wachten nog even op..." = je straft de mensen die wél op tijd zijn. Start. Laatkomers haken aan.</div></div></div>
+      <div class="pres-item"><div class="pres-icon">👤</div><div><div><span class="pres-time">1:30</span> <span class="pres-title">Stel jezelf kort voor (30 sec)</span></div><div class="pres-desc">Naam, achtergrond in 2 zinnen, waarom jij deze training geeft. Geen CV-presentatie.</div></div></div>
+      <div class="pres-item"><div class="pres-icon">🎯</div><div><div><span class="pres-time">2:00</span> <span class="pres-title">Vertel wat ze gaan KUNNEN</span></div><div class="pres-desc">Niet wat je gaat vertellen. "Na vandaag kun je..." — concreet, relevant, max. 3 punten.</div></div></div>
+      <div class="pres-item"><div class="pres-icon">⭐</div><div><div><span class="pres-time">3:00</span> <span class="pres-title">Maak het relevant</span></div><div class="pres-desc">"Ik heb jullie input gelezen. Jullie noemden X en Y als pijnpunt — daar gaan we mee aan de slag." Dit is goud.</div></div></div>
+    </div>`},
+
+  { id:"pres2", mod:2, modTitle:"Presenteren", title:"Hoe je overkomt", time:"2 min",
+    html: `
+    <p class="p">Wat je zegt is 30%. Hoe je het zegt is 70%. Dit zijn de basisregels:</p>
+    <div class="do-grid">
+      <div class="do-card good"><div class="icon">🧍</div><h4>✓ STA. Altijd.</h4><p>Zittend presenteren = energie weg. Sta naast het scherm, niet erachter.</p></div>
+      <div class="do-card good"><div class="icon">👁</div><h4>✓ Praat tegen hen, niet het scherm</h4><p>Draai je nooit om naar je slides. Ken je materiaal. Kijk mensen aan.</p></div>
+      <div class="do-card good"><div class="icon">🐢</div><h4>✓ Praat langzamer dan je denkt</h4><p>Zenuwen versnellen je. Bewust vertragen. Pauzes zijn krachtig — gebruik ze.</p></div>
+      <div class="do-card good"><div class="icon">🤲</div><h4>✓ Gebruik je handen</h4><p>Gebaren maken je uitleg visueel. Armen langs je zij of in je zakken = dood.</p></div>
+      <div class="do-card bad"><div class="icon">📖</div><h4>✗ Lees niet voor van slides</h4><p>Slides zijn visuele ondersteuning. Als je voorleest, had je een PDF kunnen sturen.</p></div>
+      <div class="do-card bad"><div class="icon">🤫</div><h4>✗ Zeg niet "uhm"</h4><p>Vervang "uhm" door stilte. Stilte = autoriteit. "Uhm" = onzekerheid.</p></div>
+    </div>
+    <div class="tip-box tip-purple">🪞 <strong>Oefentip:</strong> Neem jezelf op met je telefoon terwijl je 5 minuten presenteert. Kijk het terug. Je zult schrikken — en daarna verbeteren.</div>`},
+
+  // QUIZ 2
+  { id:"q2", mod:2, modTitle:"Presenteren", title:"✓ Check: Presenteren", time:"1 min",
+    quiz: { q:"Het is 09:02. 8 van de 10 deelnemers zijn er. Twee ontbreken nog. Wat doe je?",
+      opts:["Wacht tot iedereen er is — je wilt niemand missen","Begin met een informeel praatje tot iedereen er is","Start de training. Laatkomers sluiten aan.","Stuur een bericht naar de ontbrekenden"],
+      correct:2, expl:"Start op tijd. Altijd. Wachten straft degenen die wél op tijd kwamen en zet de toon: \"tijd is hier niet belangrijk.\" Laatkomers haken aan bij de eerstvolgende pauze of check-in." }},
+
+  // === MODULE 3: ACTIVEREN ===
+  { id:"act1", mod:3, modTitle:"Activeren", title:"De aandachtscurve", time:"1 min",
+    html: `
+    <p class="p">De gemiddelde volwassene kan <strong>10–15 minuten</strong> geconcentreerd luisteren. Daarna zakt de aandacht. Na de lunch is het erger.</p>
+    <div class="attention-chart">
+      <div class="bars" id="attBars"></div>
+      <div class="bar-labels"><span>09:00</span><span>10:00</span><span>11:00</span><span>12:00 🍽</span><span>13:00</span><span>14:00</span><span>15:00</span></div>
+      <div class="bar-legend"><span><span class="legend-dot" style="background:var(--teal)"></span>Hoog</span><span><span class="legend-dot" style="background:var(--gold)"></span>Matig</span><span><span class="legend-dot" style="background:var(--electric)"></span>Laag</span></div>
+    </div>
+    <div style="background:var(--ink);border-radius:10px;padding:18px;color:white;font-size:14px;line-height:1.8">
+      <strong style="color:var(--gold)">De les:</strong><br>
+      → Elke <strong>10–15 min</strong> een interactiemoment inbouwen<br>
+      → Na lunch: <strong>geen theorie</strong> — doe een activerende werkvorm<br>
+      → Complexe stof in de <strong>ochtend</strong>, hands-on in de <strong>middag</strong>
+    </div>`},
+
+  { id:"act2", mod:3, modTitle:"Activeren", title:"7 werkvormen die altijd werken", time:"2 min",
+    html: `
+    <p class="p">Je hoeft geen entertainer te zijn. Deze 7 werkvormen zijn simpel, snel en effectief:</p>
+    <div class="wv-table">
+      <div class="wv-row"><div class="wv-name">Check-in vraag</div><div class="wv-when">Elke 15 min</div><div class="wv-how">"Wie herkent dit?" of "Hoe doen jullie dit nu?" + wacht op antwoord.</div><div class="wv-effort" style="background:#ECFDF5;color:var(--green)">Laag</div></div>
+      <div class="wv-row"><div class="wv-name">Bespreek met buurman</div><div class="wv-when">Na complex blok</div><div class="wv-how">"Bespreek 2 min met je buurman: wat is het verschil tussen X en Y?"</div><div class="wv-effort" style="background:#ECFDF5;color:var(--green)">Laag</div></div>
+      <div class="wv-row"><div class="wv-name">Spot de fout</div><div class="wv-when">Na demo</div><div class="wv-how">Toon een scherm met een bewuste fout. Wie vindt hem het eerst?</div><div class="wv-effort" style="background:#FFFBEB;color:#92400E">Midden</div></div>
+      <div class="wv-row"><div class="wv-name">Quiz (handopsteken)</div><div class="wv-when">Na pauze/lunch</div><div class="wv-how">3–5 meerkeuzevragen over de vorige stof. Geen technologie nodig.</div><div class="wv-effort" style="background:#ECFDF5;color:var(--green)">Laag</div></div>
+      <div class="wv-row"><div class="wv-name">Zelf proberen</div><div class="wv-when">Middag</div><div class="wv-how">Duidelijke opdracht, startpunt, verwacht resultaat. Jij loopt rond.</div><div class="wv-effort" style="background:#FEF2F2;color:var(--red)">Hoog</div></div>
+      <div class="wv-row"><div class="wv-name">Teach-back</div><div class="wv-when">Einde module</div><div class="wv-how">"Leg in 1 zin aan je buurman uit wat je net geleerd hebt."</div><div class="wv-effort" style="background:#ECFDF5;color:var(--green)">Laag</div></div>
+      <div class="wv-row"><div class="wv-name">Case / scenario</div><div class="wv-when">Einde dag</div><div class="wv-how">Realistische situatie. Groepjes werken een oplossing uit.</div><div class="wv-effort" style="background:#FEF2F2;color:var(--red)">Hoog</div></div>
+    </div>
+    <div class="tip-box tip-amber" style="margin-top:16px">💡 <strong>Start met de makkelijke:</strong> Check-in, quiz, bespreek-met-buurman. Geen voorbereiding nodig, altijd effectief. Bouw op naar hands-on en cases naarmate je zelfverzekerder wordt.</div>`},
+
+  // QUIZ 3
+  { id:"q3", mod:3, modTitle:"Activeren", title:"✓ Check: Activeren", time:"1 min",
+    quiz: { q:"Het is 13:00, net na de lunch. Je moet een complex onderwerp behandelen. Wat doe je?",
+      opts:["Direct beginnen met theorie — er is geen tijd te verliezen","Eerst een korte quiz of energizer over de ochtendstof, dan pas verder","Het complexe onderwerp naar morgen verschuiven","Een extra lange pauze geven zodat iedereen fris is"],
+      correct:1, expl:"Na de lunch is de aandacht op zijn laagst. Start met een activerend moment (quiz, spot-de-fout) om de groep weer scherp te krijgen. Verschuif complexe theorie als het kan naar de ochtend; plan hands-on in de middag." }},
+
+  // === MODULE 4: PROBLEMEN ===
+  { id:"prob1", mod:4, modTitle:"Problemen", title:"Als het misgaat (en het gáát mis)", time:"2 min",
+    html: `
+    <p class="p">Murphy's Law geldt dubbel bij trainingen. Je wordt niet beoordeeld op wat er misgaat, maar op hoe je ermee omgaat.</p>
+    <div class="prob-card"><div class="prob-title">🔥 Techniek faalt</div><div class="prob-what">Projector, netwerk of software doet het niet.</div><div class="prob-grid"><div class="prob-do"><strong style="color:var(--green)">✓ Doe:</strong> Heb een plan B. Geen netwerk? Werk op papier of whiteboard. Geen projector? Laptop in het midden. Blijf kalm — paniek is besmettelijk.</div><div class="prob-dont"><strong style="color:var(--red)">✗ Niet:</strong> 20 minuten frutselen terwijl iedereen toekijkt.</div></div></div>
+    <div class="prob-card"><div class="prob-title">🔥 Je weet het antwoord niet</div><div class="prob-what">Een deelnemer stelt een vraag waar je geen antwoord op hebt.</div><div class="prob-grid"><div class="prob-do"><strong style="color:var(--green)">✓ Doe:</strong> "Goede vraag. Ik wil je het juiste antwoord geven — ik zoek het op en kom erop terug na de pauze." En kom er daadwerkelijk op terug.</div><div class="prob-dont"><strong style="color:var(--red)">✗ Niet:</strong> Bluffen. Ze merken het. En je verliest geloofwaardigheid.</div></div></div>
+    <div class="prob-card"><div class="prob-title">🔥 Eén persoon domineert</div><div class="prob-what">Iemand beantwoordt elke vraag, praat door anderen heen.</div><div class="prob-grid"><div class="prob-do"><strong style="color:var(--green)">✓ Doe:</strong> "Bedankt [naam]. Ik hoor graag ook van de anderen — [andere naam], wat denk jij?" Geef specifiek het woord.</div><div class="prob-dont"><strong style="color:var(--red)">✗ Niet:</strong> Negeren of publiekelijk corrigeren.</div></div></div>
+    <div class="prob-card"><div class="prob-title">🔥 Niemand reageert</div><div class="prob-what">Je stelt een vraag. Stilte.</div><div class="prob-grid"><div class="prob-do"><strong style="color:var(--green)">✓ Doe:</strong> Wacht 10 seconden (tel in je hoofd). Dan: "Bespreek het 1 minuut met je buurman." Daarna opnieuw vragen.</div><div class="prob-dont"><strong style="color:var(--red)">✗ Niet:</strong> Zelf het antwoord geven na 3 seconden.</div></div></div>
+    <div class="prob-card"><div class="prob-title">🔥 Je loopt uit</div><div class="prob-what">Je zit achter op schema.</div><div class="prob-grid"><div class="prob-do"><strong style="color:var(--green)">✓ Doe:</strong> Schrap het minst essentiële onderdeel. Nooit de oefening — die is het belangrijkst. Vermeld kort wat je hebt overgeslagen.</div><div class="prob-dont"><strong style="color:var(--red)">✗ Niet:</strong> Alles versneld doorrammen.</div></div></div>
+    <div class="prob-card"><div class="prob-title">🔥 Weerstand / negativiteit</div><div class="prob-what">"Dit is tijdverspilling" of "wij doen het al jaren anders".</div><div class="prob-grid"><div class="prob-do"><strong style="color:var(--green)">✓ Doe:</strong> Erken het: "Ik begrijp dat. Wat zou het voor jou wél waardevol maken?" Betrek ze bij de oplossing.</div><div class="prob-dont"><strong style="color:var(--red)">✗ Niet:</strong> In de verdediging gaan of het negeren.</div></div></div>`},
+
+  // QUIZ 4
+  { id:"q4", mod:4, modTitle:"Problemen", title:"✓ Check: Problemen", time:"1 min",
+    quiz: { q:"Een deelnemer stelt een vraag. Je weet het antwoord niet zeker. Wat doe je?",
+      opts:["Geef het beste antwoord dat je kunt bedenken","Zeg dat het buiten de scope van de training valt","Erken het eerlijk, noteer de vraag en kom er na de pauze op terug","Vraag of iemand anders in de groep het antwoord weet"],
+      correct:2, expl:"Eerlijkheid bouwt vertrouwen. \"Ik zoek het op en kom erop terug\" is professioneel. Bluffen is het ergste wat je kunt doen — ze merken het altijd. Optie D kan als aanvulling, maar verlegt het probleem." }},
+
+  // === MODULE 5: AFSLUITING ===
+  { id:"close1", mod:5, modTitle:"Afsluiting", title:"Je persoonlijke checklist", time:"1 min",
+    html: `
+    <p class="p">Print dit uit. Hang het boven je bureau. Gebruik het bij elke training.</p>
+    <div class="checklist-box">
+      <div class="checklist-title">TRAINER CHECKLIST</div>
+      <div class="checklist-sub">Gebruik vóór, tijdens en na elke training</div>
+      <div class="checklist-phase">📋 1 WEEK ERVOOR</div>
+      <div class="checklist-item"><span>☐</span>Deelnemerslijst ontvangen (namen, rollen, niveau)</div>
+      <div class="checklist-item"><span>☐</span>Leerdoelen geformuleerd ("Na afloop kun je...")</div>
+      <div class="checklist-item"><span>☐</span>Agenda gemaakt (70% van beschikbare tijd gepland)</div>
+      <div class="checklist-item"><span>☐</span>Materiaal gestructureerd (doel → context → uitleg → check → oefening → samenvatting)</div>
+      <div class="checklist-item"><span>☐</span>Oefeningen voorbereid (startpunt, opdracht, verwacht resultaat)</div>
+      <div class="checklist-phase">🔧 1 DAG ERVOOR</div>
+      <div class="checklist-item"><span>☐</span>Zaal persoonlijk geïnspecteerd</div>
+      <div class="checklist-item"><span>☐</span>Scherm/projector getest met jouw laptop</div>
+      <div class="checklist-item"><span>☐</span>Netwerk getest met meerdere apparaten</div>
+      <div class="checklist-item"><span>☐</span>Software-toegang getest (inloggen als deelnemer)</div>
+      <div class="checklist-item"><span>☐</span>Alle materialen gekopieerd naar USB als backup</div>
+      <div class="checklist-phase">🎤 TIJDENS</div>
+      <div class="checklist-item"><span>☐</span>Op tijd gestart</div>
+      <div class="checklist-item"><span>☐</span>Elke 15 min interactie (check-in, vraag, werkvorm)</div>
+      <div class="checklist-item"><span>☐</span>Complexe stof in de ochtend, hands-on in de middag</div>
+      <div class="checklist-item"><span>☐</span>Energizer na lunch</div>
+      <div class="checklist-item"><span>☐</span>Samenvatting aan het einde van elke module</div>
+      <div class="checklist-phase">📝 ERNA</div>
+      <div class="checklist-item"><span>☐</span>Openstaande vragen beantwoord</div>
+      <div class="checklist-item"><span>☐</span>Materialen gedeeld met deelnemers</div>
+      <div class="checklist-item"><span>☐</span>Eigen evaluatie: wat ging goed, wat beter?</div>
+    </div>`},
+
+  { id:"close2", mod:5, modTitle:"Afsluiting", title:"De 5 geboden van de trainer", time:"1 min",
+    html: `
+    <div class="commandment"><div class="cmd-nr" style="background:var(--electric);color:white">I</div><div><div class="cmd-rule">Bereid je voor alsof alles kan misgaan</div><div class="cmd-sub">Want dat gaat het. Je plan B is je echte plan.</div></div></div>
+    <div class="commandment"><div class="cmd-nr" style="background:var(--indigo);color:white">II</div><div><div class="cmd-rule">Begin op tijd, eindig op tijd</div><div class="cmd-sub">Respect voor andermans tijd = respect verdienen.</div></div></div>
+    <div class="commandment"><div class="cmd-nr" style="background:var(--teal);color:white">III</div><div><div class="cmd-rule">Laat hén doen, niet jij vertellen</div><div class="cmd-sub">Mensen leren door te doen. Jouw taak is faciliteren, niet zenden.</div></div></div>
+    <div class="commandment"><div class="cmd-nr" style="background:var(--gold);color:var(--ink)">IV</div><div><div class="cmd-rule">Stilte is je krachtigste wapen</div><div class="cmd-sub">Na een vraag: wacht. Na een belangrijk punt: pauze. Stilte = nadenken.</div></div></div>
+    <div class="commandment"><div class="cmd-nr" style="background:var(--green);color:white">V</div><div><div class="cmd-rule">Wees eerlijk, nooit perfect</div><div class="cmd-sub">"Ik weet het niet" + opzoeken = respect. Bluffen = einde geloofwaardigheid.</div></div></div>
+    <div class="final-box" style="margin-top:24px"><div class="final-small">Onthoud:</div><div class="final-big">Een training is geen presentatie.<br>Het is een gesprek met structuur.</div></div>`},
+];
+
+const MODS = [
+  { id:0, title:"Start", icon:"🏠" },
+  { id:1, title:"Voorbereiden", icon:"🎯" },
+  { id:2, title:"Presenteren", icon:"🎤" },
+  { id:3, title:"Activeren", icon:"⚡" },
+  { id:4, title:"Problemen", icon:"🛠" },
+  { id:5, title:"Afsluiting", icon:"🏆" },
+];
+
+let cur = 0;
+let answers = {};
+let answered = {};
+let score = 0;
+const totalQ = SLIDES.filter(s => s.quiz).length;
+
+function render() {
+  const s = SLIDES[cur];
+  const pct = ((cur + 1) / SLIDES.length) * 100;
+
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('slideCounter').textContent = (cur+1) + '/' + SLIDES.length;
+  score = SLIDES.filter(x => x.quiz && answered[x.id] && answers[x.id] === x.quiz.correct).length;
+  document.getElementById('scoreDisplay').textContent = score + '/' + totalQ;
+
+  // Module nav
+  let navHtml = '';
+  MODS.forEach(m => {
+    const active = s.mod === m.id;
+    const past = s.mod > m.id;
+    const cls = active ? 'active' : past ? 'past' : '';
+    const icon = past && !active ? '✓' : m.icon;
+    const fi = SLIDES.findIndex(x => x.module === m.id || x.mod === m.id);
+    navHtml += `<button class="mod-btn ${cls}" onclick="goTo(${fi})"><span style="font-size:15px">${icon}</span><span>${m.title}</span></button>`;
+  });
+  document.getElementById('modNav').innerHTML = navHtml;
+
+  // Dots
+  let dotsHtml = '';
+  SLIDES.forEach((_, i) => {
+    const cls = i === cur ? 'active' : i < cur ? 'past' : '';
+    dotsHtml += `<div class="dot ${cls}" onclick="goTo(${i})"></div>`;
+  });
+  document.getElementById('dots').innerHTML = dotsHtml;
+
+  // Content
+  let mainHtml = `<div class="slide-meta"><span class="slide-mod">${s.modTitle}</span><span class="slide-time">• ${s.time}</span></div>`;
+  mainHtml += `<h1 class="slide-title">${s.title}</h1><div class="slide-line"></div>`;
+
+  if (s.quiz) {
+    mainHtml += renderQuiz(s);
+  } else {
+    mainHtml += s.html;
+  }
+  document.getElementById('mainContent').innerHTML = mainHtml;
+
+  // Buttons
+  document.getElementById('btnPrev').disabled = cur === 0;
+  const isLastSlide = cur === SLIDES.length - 1;
+  const quizBlocked = s.quiz && !answered[s.id];
+  document.getElementById('btnNext').disabled = isLastSlide || quizBlocked;
+  document.getElementById('btnNext').textContent = isLastSlide ? 'Voltooid ✓' : 'Volgende →';
+
+  // Attention chart bars
+  if (s.id === 'act1') {
+    const vals = [100,90,70,40,25,20,15,55,85,50,30,20,60,80];
+    const barsEl = document.getElementById('attBars');
+    if (barsEl) {
+      let bHtml = '';
+      vals.forEach(v => {
+        const color = v > 60 ? 'var(--teal)' : v > 35 ? 'var(--gold)' : 'var(--electric)';
+        bHtml += `<div class="bar" style="height:${v}%;background:${color};width:6%"></div>`;
+      });
+      barsEl.innerHTML = bHtml;
+    }
+  }
+}
+
+function renderQuiz(s) {
+  const q = s.quiz;
+  const isAnswered = answered[s.id];
+  let html = `<div class="quiz-question">${q.q}</div><div class="quiz-options">`;
+  const letters = ['A','B','C','D'];
+  q.opts.forEach((opt, i) => {
+    let cls = '';
+    let letterContent = letters[i];
+    if (isAnswered) {
+      cls = 'answered';
+      if (i === q.correct) { cls += ' correct'; letterContent = '✓'; }
+      else if (i === answers[s.id]) { cls += ' wrong'; letterContent = '✗'; }
+    }
+    html += `<button class="quiz-opt ${cls}" onclick="answerQuiz('${s.id}',${i},${q.correct})"><span class="quiz-letter">${letterContent}</span><span>${opt}</span></button>`;
+  });
+  html += '</div>';
+
+  const expCls = isAnswered ? (answers[s.id] === q.correct ? 'show right' : 'show wrong-exp') : '';
+  const prefix = isAnswered ? (answers[s.id] === q.correct ? '✅ ' : '💡 ') : '';
+  html += `<div class="quiz-explanation ${expCls}">${prefix}${q.expl}</div>`;
+  return html;
+}
+
+function answerQuiz(id, sel, correct) {
+  if (answered[id]) return;
+  answers[id] = sel;
+  answered[id] = true;
+  render();
+}
+
+function goNext() { if (cur < SLIDES.length - 1) { cur++; render(); window.scrollTo(0,0); } }
+function goPrev() { if (cur > 0) { cur--; render(); window.scrollTo(0,0); } }
+function goTo(i) { cur = i; render(); window.scrollTo(0,0); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') goNext();
+  if (e.key === 'ArrowLeft') goPrev();
+});
+
+render();
+</script>
+</body>
+</html>
